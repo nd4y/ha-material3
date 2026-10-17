@@ -1,0 +1,22 @@
+{
+  "reference": "https://m3.material.io/styles/motion/overview/specs",
+  "context": "Expressive, Web",
+  "verified": "2026-10-17",
+  "mass": 1,
+  "springs": {
+    "fastSpatial": {"damping": 0.6, "stiffness": 800},
+    "defaultSpatial": {"damping": 0.8, "stiffness": 380},
+    "slowSpatial": {"damping": 0.8, "stiffness": 200},
+    "fastEffects": {"damping": 1, "stiffness": 3800},
+    "defaultEffects": {"damping": 1, "stiffness": 1600},
+    "slowEffects": {"damping": 1, "stiffness": 800}
+  },
+  "webFallback": {
+    "fastSpatial": {"duration": 350, "easing": "cubic-bezier(.42,1.67,.21,.90)"},
+    "defaultSpatial": {"duration": 500, "easing": "cubic-bezier(.38,1.21,.22,1)"},
+    "slowSpatial": {"duration": 650, "easing": "cubic-bezier(.39,1.29,.35,.98)"},
+    "fastEffects": {"duration": 150, "easing": "cubic-bezier(.31,.94,.34,1)"},
+    "defaultEffects": {"duration": 200, "easing": "cubic-bezier(.34,.80,.34,1)"},
+    "slowEffects": {"duration": 300, "easing": "cubic-bezier(.34,.88,.34,1)"}
+  }
+}

@@ -1,0 +1,18 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const output=path.join(root,'assets');await fs.mkdir(output,{recursive:true});
+const source=await fs.readFile(path.join(root,'src/components.js'),'utf8');
+const names=JSON.parse(source.match(/export const symbols=(\[[^;]+\]);/)[1].replaceAll("'",'"')).sort().join(',');
+const cssUrl='https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0..1,0&icon_names='+names+'&display=block';
+const response=await fetch(cssUrl,{headers:{'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'}});
+const css=await response.text();
+const url=css.match(/url\((https:\/\/fonts.gstatic.com\/[^)]+)\) format\('woff2'\)/)?.[1];
+if(!url)throw new Error('No official WOFF2 response: '+response.status+' '+css.slice(0,1000));
+const font=await fetch(url);if(!font.ok)throw new Error('Font download failed');
+await fs.writeFile(path.join(output,'material-symbols-rounded.woff2'),new Uint8Array(await font.arrayBuffer()));
+const license=await fetch('https://raw.githubusercontent.com/google/material-design-icons/master/LICENSE');if(!license.ok)throw new Error('Icon license unavailable');
+await fs.writeFile(path.join(output,'material-symbols-LICENSE.txt'),await license.text());
+await fs.writeFile(path.join(output,'material-symbols-source.json'),JSON.stringify({source:cssUrl,license:'Apache-2.0',icons:names.split(',')},null,2));
+console.log('Official icon subset saved locally');

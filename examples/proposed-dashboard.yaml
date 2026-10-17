@@ -1,0 +1,40 @@
+# Proposed API, design stage only. This custom card does not exist yet.
+# Generic entities: replace with your installation's bindings after release.
+type: custom:ha-m3-climate-card
+config_version: 1
+title: Office
+appearance:
+  profile: expressive # baseline | expressive
+  scheme: dark       # dark | light | auto
+  seed_color: "#6750A4"
+entities:
+  room_temperature: sensor.office_temperature
+  target_temperature: input_number.office_target_temperature
+  enabled: input_boolean.office_climate_control
+  camera: camera.entrance
+  breather: fan.office_breather
+  purifier: fan.office_purifier
+  air_conditioner: climate.office
+  maximum_timer: timer.office_ventilation
+presets:
+  - id: everyday
+    name: Everyday
+    action:
+      action: perform-action
+      perform_action: script.turn_on
+      target:
+        entity_id: script.office_everyday
+  - id: intensive
+    name: Intensive
+    action:
+      action: perform-action
+      perform_action: script.turn_on
+      target:
+        entity_id: script.office_intensive
+  - id: maximum
+    name: Maximum
+    action:
+      action: perform-action
+      perform_action: script.turn_on
+      target:
+        entity_id: script.office_maximum

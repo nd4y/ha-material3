@@ -1,0 +1,23 @@
+{
+  "name": "ha-material3",
+  "version": "0.1.1",
+  "description": "Configurable Material 3 Expressive panel and cards for Home Assistant",
+  "type": "module",
+  "license": "Apache-2.0",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "npm run test && npm run build && node scripts/audit-release.mjs",
+    "dev": "node scripts/dev-server.mjs"
+  },
+  "dependencies": {
+    "lit": "3.3.3",
+    "@material/material-color-utilities": "0.4.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "@fontsource-variable/roboto": "5.3.0",
+    "@material/web": "2.5.0",
+    "axe-core": "4.14.0"
+  }
+}
