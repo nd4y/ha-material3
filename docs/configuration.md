@@ -4,10 +4,12 @@ All cards accept `config_version: 1`, optional `language: ru|en` and:
 
 ```yaml
 appearance:
-  scheme: dark # dark | light | auto
-  seed_color: "#6750A4" # six-digit hex; colors generated from roles
+  scheme: auto # omit or auto to inherit the shared theme; dark/light force an override
+  # seed_color: "#6750A4" # optional explicit per-card color override
   motion: expressive # expressive | reduced
 ```
+
+The default uses shared companion-theme variables when present, with generated dark/light defaults otherwise. See [shared-theme.md](shared-theme.md) for JSON-configurable colors, typography, font, shape and spacing. Room/entity names are separate configuration data.
 
 ## Panel/dashboard
 

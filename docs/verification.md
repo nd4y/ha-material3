@@ -1,5 +1,11 @@
 # Verification
 
+## 0.2.0: stable command layout and shared theme contract
+
+Fixture reproduction on 0.1.3 measured a 32 CSS px increase in climate-card height during a pending command, and target width changing from 58 to 72.205 CSS px when 24 became 24.5. On 0.2.0 the same fixture retained height 624.571 CSS px and target width 72.205 CSS px before, during and after the command; scroll position remained unchanged. Sizing is derived from helper metadata and localized hidden bounds, not a household-specific fixed target width.
+
+The automated suite now includes 14 tests. Added checks cover the shared HA/component color roles in both modes, configurable shapes/fonts/spacing, rejected invalid design data and target precision from helper metadata. The generated companion theme is a flat HACS release asset. Native/admin visual verification is performed after installing and selecting it; other browsers/Companion remain outside the verified scope.
+
 ## 0.1.3: publication and real HACS upgrade
 
 Checked 2026-10-17 on HA 2026.9.4 and HACS 2.0.5. [Release v0.1.3](https://github.com/nd4y/ha-material3/releases/tag/v0.1.3) was published by the [successful Release workflow](https://github.com/nd4y/ha-material3/actions/runs/39038125094), after 11 tests, the token/asset audit and a clean Linux rebuild matching the committed distribution. All source changes went through pull requests.

@@ -38,6 +38,6 @@ System reduced-motion removes owned spatial movement and vendor CSS transitions;
 
 ## Command state
 
-Loading disables duplicate commands and announces progress. A failed command retains confirmed HA values, shows a localized error and offers retry. Focus is restored after pending controls re-enable. Numeric target changes use HA bounds/step; ventilation only invokes its configured action. Countdown is a view of the backend timer and never performs a physical return-to-everyday action from a browser.
+Loading disables duplicate commands and announces progress through a visually hidden status region; it does not add a layout row. A failed command retains confirmed HA values, shows a localized error and offers retry. Focus is restored with preventScroll after pending controls re-enable. Target width reserves localized min/max helper values at the helper's step precision, so whole/fractional changes do not move its buttons. Numeric target changes use HA bounds/step; ventilation only invokes its configured action. Countdown is a view of the backend timer and never performs a physical return-to-everyday action from a browser.
 
 The component matrix is the implementation contract and audit basis. It is not Google certification, does not cover HA's native administrative interface, and does not assert pixel identity under recoloring extensions or untested browsers.

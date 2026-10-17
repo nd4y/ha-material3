@@ -8,8 +8,7 @@ views:
         config_version: 1
         title: Home
         appearance:
-          scheme: dark
-          seed_color: "#6750A4"
+          scheme: auto
           motion: expressive
         home:
           title: Office

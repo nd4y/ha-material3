@@ -1,6 +1,10 @@
 export const available=(state)=>!!state&&!['unknown','unavailable'].includes(state.state);
 export const finite=(value)=>value!==null&&value!==undefined&&value!==''&&Number.isFinite(Number(value))?Number(value):null;
 export const stateOf=(hass,entity)=>entity?hass?.states?.[entity]:undefined;
+export function targetDecimals(state){
+  const decimals=value=>{const n=finite(value);if(n===null)return 0;const[m,e='0']=String(n).split('e');return Math.max(0,(m.split('.')[1]?.length||0)-Number(e));};
+  return Math.min(6,Math.max(...['step','min','max'].map(k=>decimals(state?.attributes?.[k]))));
+}
 export function stepTarget(state,direction){
   if(!available(state))return null;
   const a=state.attributes||{},v=finite(state.state),min=finite(a.min),max=finite(a.max),step=finite(a.step);
