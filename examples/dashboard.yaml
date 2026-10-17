@@ -1,51 +1,79 @@
+# Example only: replace the entity IDs, actions and labels with your own.
+# HA owns navigation and layout; the HACS module supplies individual cards.
 title: Material Home
 views:
   - title: Home
     path: home
-    type: panel
-    cards:
-      - type: custom:ha-m3-dashboard
-        config_version: 1
-        title: Home
-        appearance:
-          scheme: auto
-          motion: expressive
-        home:
-          title: Office
-          cards:
-            - kind: climate
-              title: Temperature
-              entities:
-                room_temperature: sensor.office_temperature
-                target_temperature: input_number.office_target
-                enabled: input_boolean.office_climate
-              presets:
-                - id: everyday
-                  name: Everyday
-                  icon: eco
-                  action:
-                    action: perform-action
-                    perform_action: script.turn_on
-                    target:
-                      entity_id: script.office_everyday
-                  active_when:
-                    - entity: fan.office_purifier
-                      attribute: preset_mode
-                      value: auto
-            - kind: camera
-              entity: camera.entrance
-              name: Entrance
-            - kind: device
-              entity: climate.office
-              name: Air conditioner
-              icon: ac_unit
-        rooms:
-          - id: office
-            name: Office
-            icon: meeting_room
-            cards:
-              - kind: device
-                entity: fan.office_purifier
-                name: Purifier
-                expanded: true
-                icon: mode_fan
+    type: sections
+    max_columns: 4
+    sections:
+      - type: grid
+        column_span: 2
+        cards:
+          - type: custom:ha-m3-climate-card
+            config_version: 1
+            title: Temperature
+            grid_options:
+              columns: full
+              rows: auto
+            entities:
+              room_temperature: sensor.example_temperature
+              target_temperature: input_number.example_target
+              enabled: input_boolean.example_climate
+            presets: []
+      - type: grid
+        column_span: 2
+        cards:
+          - type: custom:ha-m3-camera-card
+            entity: camera.example
+            name: Entrance
+            grid_options:
+              columns: full
+              rows: auto
+          - type: custom:ha-m3-device-card
+            entity: climate.example
+            name: Air conditioner
+            icon: ac_unit
+            grid_options:
+              columns: full
+              rows: auto
+  - title: Rooms
+    path: rooms
+    type: sections
+    sections:
+      - type: grid
+        cards:
+          - type: button
+            name: Example room
+            icon: mdi:door
+            tap_action:
+              action: navigate
+              navigation_path: /your-dashboard/example-room
+  - title: Cameras
+    path: cameras
+    type: sections
+    sections:
+      - type: grid
+        cards:
+          - type: custom:ha-m3-camera-card
+            entity: camera.example
+            name: Entrance
+            grid_options:
+              columns: full
+              rows: auto
+  - title: Example room
+    path: example-room
+    subview: true
+    back_path: /your-dashboard/rooms
+    type: sections
+    sections:
+      - type: grid
+        cards:
+          - type: custom:ha-m3-device-card
+            entity: fan.example
+            name: Purifier
+            icon: mode_fan
+            expanded: true
+            grid_options:
+              columns: full
+              rows: auto

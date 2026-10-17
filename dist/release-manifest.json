@@ -1,6 +1,6 @@
 {
   "name": "ha-material3",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "files": [
     {
       "path": "ha-material3-theme.yaml",
@@ -9,8 +9,8 @@
     },
     {
       "path": "ha-material3.js",
-      "bytes": 296106,
-      "sha256": "06db79394ebbda0f807a13b20ea4a0ba99da5f22621257b01da138721209aeac"
+      "bytes": 296162,
+      "sha256": "75726dc1c7bb6495e4db978cc630d4f583d94440dd775fde0e56f5d1cbaf7fea"
     },
     {
       "path": "LICENSE",
@@ -54,13 +54,14 @@
     }
   ],
   "sources": {
-    "package-lock.json": "73fbcb4a48e01a7bac12feac05b2a95f1dc6023f05133efa75121b05483bc66e",
-    "package.json": "5dcf58808dcfad5b899c85101fc47b08d10093aec7b479c25da0d6f1249b1bf6",
+    "package-lock.json": "770e3d6adc373b1ca8bc4cb262d29b6c06931c5c34bd4997aa57c6203da3e9cd",
+    "package.json": "9497e7a38a3164b3b03d7ce86b7045c42f46b7c3e31d92982d993e60e8fcb483",
     "scripts/audit-release.mjs": "c283314cce87edadc433a9902a0a479c763cf6096b327300bde319fb6d6dbecf",
     "scripts/build.mjs": "186985427f52a056fa752da846ec891aee7e184bf5c5a30129dac0aebe28cd87",
     "scripts/dev-server.mjs": "0880a6a3167e5a1ec5e85f80eb5ca389db84f9bbe6c3c4df9f7bf155397d28b3",
     "scripts/fetch-assets.mjs": "ac92ea336ef1a808bfb69d6b87d24ac85a129cbe9b28597b17ca55b33b7c5eca",
     "scripts/generate-tokens.js": "494b4c47d21ef107fbfd89842e40643d8da6fb3b54795c284c0e5f7a70b87116",
+    "scripts/native-dashboard.mjs": "8c39c8a60e9129464522e822f22a962151a29b7d40b255d1c780f645f78c738d",
     "scripts/package.py": "90bff17be902e0669c92c033f0c6b3c8c2190db7060d67b6d3ae41062385b579",
     "scripts/stage-hacs-release.py": "920a4de83a9f9dcbcb3d58569ec29c980d67c7e2a9f74ad6775f9526c0210795",
     "scripts/theme.mjs": "5915d9b081453d952458536de12648018e7868e8cdc88100c51de8cd3ba8ba50",
@@ -70,9 +71,10 @@
     "src/editor.js": "9212d33d6e3c0162431ab94e0aac22367b147303285e653f647ab76ec71c4a70",
     "src/fields.js": "20cfb3e84784c21380a79298253c3643f23358b5eff13f968242cd311b04f1a0",
     "src/ha.js": "96a39f0c504ea31efb598b7cf5c038a1ef95c105332f4055c53fecda586431f7",
-    "src/index.js": "c45c70c40aed7eb205ce3ed8326307a3f271fb7d2afd753293ca1d7472ea0a3c",
+    "src/index.js": "715072a813fb111a4eeed850e42d365ce4733176a64ea6cd30c9cdcb37d3c97e",
     "src/localize.js": "e6e35cb2f0b10143e74aa7e06560c2926b3927762da800ef37b431738c191d40",
     "src/motion.js": "08e3eea7ce0006823ea4877d7f83bb75ec46603581c9a8872351ce413ac8bbb3",
+    "src/native-dashboard.js": "27e298b20e8568009f14c244997c36a3c2a5c2576c1d67f900526ef8405383e7",
     "src/panel.js": "09760aa39972be12adec7b7fc432591576201ad96895c5221576fafbb75d18ac",
     "src/slider.js": "0cb43b53df40cf0f9feee29517f63c0789fc42a6ee5e9a4d89c4ff79a07862d8",
     "src/theme.js": "937013dbfa82354efb0f1857c64be8c007110a91b9f330f2bb986543074f248e",

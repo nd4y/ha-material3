@@ -1,6 +1,9 @@
 # Changelog
 
-## 0.2.1
+## 0.3.0 - 2026-10-17
+- Recommend independent cards in native HA Sections views, with native tabs and room subviews. Retain the optional composite dashboard and standalone panel for compatibility.
+- Add an offline, configurable migration tool that preserves cards, actions, helper references, timer conditions and unrelated views. Reject ambiguous migrations rather than silently losing settings.
+- Ship a native dashboard example and installation/migration documentation with the same HACS resource and shared theme.
 - Make base component text inherit the shared font setting, including nested buttons, switches and dialogs. Live browser verification found the older font declaration still overriding the shared setting in 0.2.0.
 
 ## 0.2.0 - 2026-10-17
