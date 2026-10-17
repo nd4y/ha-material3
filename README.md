@@ -1,17 +1,17 @@
 # Home Assistant Material 3 Expressive
 
-Configurable Material 3 Expressive panel and reusable cards for Home Assistant. Dark appearance is the fallback; the active companion theme is inherited by default. Version **0.2.0**, Apache-2.0. Independent project, not an official Google or Home Assistant product.
+Configurable Material 3 Expressive cards and theme for Home Assistant. Use native HA navigation and Sections layout with independent cards. Dark appearance is the fallback; the active companion theme is inherited by default. Version **0.3.0**, Apache-2.0. Independent project, not an official Google or Home Assistant product.
 
 [Releases](https://github.com/nd4y/ha-material3/releases) · [Changelog](CHANGELOG.md) · [Issues](https://github.com/nd4y/ha-material3/issues)
 
 ## Included
 
-- `ha-m3-panel`: standalone custom panel with home, rooms and cameras.
-- `custom:ha-m3-dashboard`: integrated Lovelace panel view, without a second app bar or navigation rail. Desktop uses compact section navigation; mobile uses a bottom navigation bar. No HA restart.
+- Native HA views, room subviews and Sections layout: [recommended setup](docs/native-dashboard.md), no nested application or second navigation bar.
 - `custom:ha-m3-climate-card`: room temperature, helper target, control switch, configured ventilation presets and backend timer.
 - `custom:ha-m3-device-card`: device state and supported controls; HA more-info and configured navigation actions preserve access to advanced features.
 - `custom:ha-m3-camera-card`: native live camera when HA card helpers are available, otherwise a protected HA preview and more-info action.
 - Optional YAML theme for the surrounding HA interface, generated from the same color roles.
+- Optional `ha-m3-panel` / `custom:ha-m3-dashboard` composition with its own navigation, retained for existing installations. See [composite example](examples/composite-dashboard.yaml).
 - Russian/English labels and localized numbers. Device, room and action names are configurable.
 
 Entities, actions, rooms, camera, labels and preset conditions live in configuration. No credentials, cloud service, firmware patch or hardcoded household identifiers are required. Climate automation stays in HA. Ventilation actions do not write a room target.
@@ -20,7 +20,7 @@ Entities, actions, rooms, camera, labels and preset conditions live in configura
 
 1. Extract the frontend release archive into `<config>/www/ha-material3/`. Keep the font/license files beside `ha-material3.js`.
 2. Add `/local/ha-material3/ha-material3.js` as a Dashboard resource of type **JavaScript module**, then refresh the browser.
-3. Create a dashboard with a panel view and add `type: custom:ha-m3-dashboard`. Start with [examples/dashboard.yaml](examples/dashboard.yaml) and replace generic entity IDs.
+3. Add individual M3 cards to normal HA Sections views. Start with [examples/dashboard.yaml](examples/dashboard.yaml) and replace generic entity IDs and navigation paths.
 
 The module, fonts and icons run from the HA host without a runtime CDN. For genuine `panel_custom` registration use [examples/panel-custom.yaml](examples/panel-custom.yaml). That registration needs an HA restart; both modes share the frontend implementation. Administrative HA screens remain native.
 
@@ -30,7 +30,7 @@ The module, fonts and icons run from the HA host without a runtime CDN. For genu
 2. Add `https://github.com/nd4y/ha-material3`, category **Dashboard**.
 3. Open **Material 3 Expressive** and select **Download**. Keep the latest stable release selected.
 4. In Dashboard resources ensure there is exactly one module resource: `/hacsfiles/ha-material3/ha-material3.js`. HACS may add it automatically with its own cache version query.
-5. Refresh the browser and use [examples/dashboard.yaml](examples/dashboard.yaml).
+5. Refresh the browser, then add Climate, Device and Camera cards to an ordinary Sections dashboard. Use [examples/dashboard.yaml](examples/dashboard.yaml) or the native card picker.
 
 HACS checks published GitHub releases for updates. Install the offered update in HACS or HA's Updates page, then refresh every open client. Existing dashboard YAML, entities, helpers and automation stay in your configuration. Automatic unattended updates are not enabled by this project.
 
@@ -81,6 +81,8 @@ presets: []
 The target uses the helper's actual min/max/step. Unavailable/malformed helpers disable writes. Presets reflect HA conditions/maximum state, not the last click. Actions support `perform-action`, `toggle`, `more-info` and internal HA navigation. JavaScript templates are not accepted.
 
 Basic title/entity selection has a visual editor. Rooms, compositions and advanced actions currently use YAML.
+
+For migration from an existing composite dashboard, see the [offline converter](docs/native-dashboard.md#offline-migration-from-the-composite-dashboard). It reads your configuration and preserves entities/actions rather than embedding household identifiers in source. The generated configuration uses native tabs and room Back navigation.
 
 ## Material 3 and motion
 

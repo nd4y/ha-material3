@@ -11,7 +11,11 @@ appearance:
 
 The default uses shared companion-theme variables when present, with generated dark/light defaults otherwise. See [shared-theme.md](shared-theme.md) for JSON-configurable colors, typography, font, shape and spacing. Room/entity names are separate configuration data.
 
-## Panel/dashboard
+## Native dashboard (recommended)
+
+Use independent `custom:ha-m3-climate-card`, `custom:ha-m3-device-card` and `custom:ha-m3-camera-card` cards in HA Sections views. HA owns tabs, room subviews, back navigation and layout. Card configuration below applies unchanged, without a wrapping `kind` key. See [native setup and migration](native-dashboard.md) and [example](../examples/dashboard.yaml).
+
+## Optional composite panel/dashboard
 
 `title` names the panel. `home` contains `title`, optional `subtitle`, and `cards`. `rooms` is an array of `{id, name, icon, description, cards}`. Optional `cameras` contains camera configs. `links` and `header_actions` are arrays of `{name, icon, action}`. The surrounding HA shell remains native. `custom:ha-m3-dashboard` integrates with that shell: no duplicate app bar or second sidebar, only compact section navigation on desktop and bottom navigation on mobile. Direct `ha-m3-panel` retains its standalone app bar and rail.
 
