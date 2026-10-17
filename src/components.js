@@ -4,7 +4,7 @@ export const symbols=['ac_unit','add','air','arrow_back','arrow_forward','auto_a
 const symbolSet=new Set(symbols);
 export const icon=(name)=>html`<span class="symbol" aria-hidden="true">${symbolSet.has(name)?name:'devices'}</span>`;
 export const common=css`
-  :host{display:block;font-family:'HA M3 Roboto',Roboto,Arial,sans-serif;color:var(--md-sys-color-on-surface);font-size:14px;line-height:20px;letter-spacing:.25px;--fx-fast:var(--ha-m3-effects-duration,150ms) cubic-bezier(.31,.94,.34,1)}
+  :host{display:block;font-family:var(--ha-m3-ui-font-family,var(--ha-m3-font-family,'HA M3 Roboto',Roboto,Arial,sans-serif));color:var(--md-sys-color-on-surface);font-size:14px;line-height:20px;letter-spacing:.25px;--fx-fast:var(--ha-m3-effects-duration,150ms) cubic-bezier(.31,.94,.34,1)}
   *,*::before,*::after{box-sizing:border-box} [hidden]{display:none!important}
   .symbol{font-family:'HA M3 Symbols';font-size:24px;line-height:1;font-weight:400;font-style:normal;letter-spacing:normal;white-space:nowrap;direction:ltr;font-feature-settings:'liga';display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
   h1,h2,h3,p{margin:0} h1,h2,h3{font-weight:400;letter-spacing:0}button,input,select{font:inherit}button{color:inherit}

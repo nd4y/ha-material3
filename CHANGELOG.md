@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.2.1
+- Make base component text inherit the shared font setting, including nested buttons, switches and dialogs. Live browser verification found the older font declaration still overriding the shared setting in 0.2.0.
+
 ## 0.2.0 - 2026-10-17
 
 - Keep card height and target width stable while commands are pending and values switch between whole/fractional numbers. Restore focus without scrolling.

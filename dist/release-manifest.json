@@ -1,6 +1,6 @@
 {
   "name": "ha-material3",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "files": [
     {
       "path": "ha-material3-theme.yaml",
@@ -9,8 +9,8 @@
     },
     {
       "path": "ha-material3.js",
-      "bytes": 296053,
-      "sha256": "dd50141f570a57d3eb6f9bf943411d9f2d8a0ee49200c8f13bcedaffaee73554"
+      "bytes": 296106,
+      "sha256": "06db79394ebbda0f807a13b20ea4a0ba99da5f22621257b01da138721209aeac"
     },
     {
       "path": "LICENSE",
@@ -54,8 +54,8 @@
     }
   ],
   "sources": {
-    "package-lock.json": "b1fdf63f425fd64be769c79798168428e2918f3e41cbd0209d124464d48ce4a8",
-    "package.json": "a0e22b5ab72cc9b86d18f8707fc4ab9ddbc90a7183a4944d257206f96ed2e65f",
+    "package-lock.json": "73fbcb4a48e01a7bac12feac05b2a95f1dc6023f05133efa75121b05483bc66e",
+    "package.json": "5dcf58808dcfad5b899c85101fc47b08d10093aec7b479c25da0d6f1249b1bf6",
     "scripts/audit-release.mjs": "c283314cce87edadc433a9902a0a479c763cf6096b327300bde319fb6d6dbecf",
     "scripts/build.mjs": "186985427f52a056fa752da846ec891aee7e184bf5c5a30129dac0aebe28cd87",
     "scripts/dev-server.mjs": "0880a6a3167e5a1ec5e85f80eb5ca389db84f9bbe6c3c4df9f7bf155397d28b3",
@@ -65,7 +65,7 @@
     "scripts/stage-hacs-release.py": "920a4de83a9f9dcbcb3d58569ec29c980d67c7e2a9f74ad6775f9526c0210795",
     "scripts/theme.mjs": "5915d9b081453d952458536de12648018e7868e8cdc88100c51de8cd3ba8ba50",
     "src/cards.js": "a3d06f907580224b0bbced0eccbab7dad063d74d10884348e6c2bca5cac475f6",
-    "src/components.js": "67bc4232764555c93a51430f87afa3915ab9d53e6eb8ef14eb5a1b7cbee3a9f2",
+    "src/components.js": "4fae5f274f0b65b79e6251d44418cd20df49ff4916a3ceb80284a24d805dc574",
     "src/design-system.js": "b2581c55de687f158bbb68a5cf6799ec91bf42dfb13f5edd20ba6a77fee12bbc",
     "src/editor.js": "9212d33d6e3c0162431ab94e0aac22367b147303285e653f647ab76ec71c4a70",
     "src/fields.js": "20cfb3e84784c21380a79298253c3643f23358b5eff13f968242cd311b04f1a0",
