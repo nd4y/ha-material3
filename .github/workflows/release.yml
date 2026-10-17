@@ -30,8 +30,8 @@ jobs:
       - name: Check committed distribution
         run: git diff --exit-code -- dist themes
       - run: python3 scripts/package.py
-      - name: Generate checksums
-        run: cd release && sha256sum *.zip > SHA256SUMS
+      - name: Stage raw HACS assets and checksums
+        run: python3 scripts/stage-hacs-release.py
       - uses: actions/upload-artifact@v7.0.2
         with:
           name: verified-release

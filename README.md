@@ -1,6 +1,6 @@
 # Home Assistant Material 3 Expressive
 
-Configurable Material 3 Expressive panel and reusable cards for Home Assistant. Dark theme is the default; light and system appearance are supported. Version **0.1.2**, Apache-2.0. Independent project, not an official Google or Home Assistant product.
+Configurable Material 3 Expressive panel and reusable cards for Home Assistant. Dark theme is the default; light and system appearance are supported. Version **0.1.3**, Apache-2.0. Independent project, not an official Google or Home Assistant product.
 
 [Releases](https://github.com/nd4y/ha-material3/releases) · [Changelog](CHANGELOG.md) · [Issues](https://github.com/nd4y/ha-material3/issues)
 
@@ -18,7 +18,7 @@ Entities, actions, rooms, camera, labels and preset conditions live in configura
 
 ## Manual installation
 
-1. Extract the frontend release archive into `<config>/www/ha-material3/`. Keep `assets/` beside `ha-material3.js`.
+1. Extract the frontend release archive into `<config>/www/ha-material3/`. Keep the font/license files beside `ha-material3.js`.
 2. Add `/local/ha-material3/ha-material3.js` as a Dashboard resource of type **JavaScript module**, then refresh the browser.
 3. Create a dashboard with a panel view and add `type: custom:ha-m3-dashboard`. Start with [examples/dashboard.yaml](examples/dashboard.yaml) and replace generic entity IDs.
 
@@ -36,7 +36,7 @@ HACS checks published GitHub releases for updates. Install the offered update in
 
 When migrating from manual installation, remove the old `/local/ha-material3/ha-material3.js?...` resource after HACS has downloaded the module. Preserve the old files until the HACS path works. Do not load both resource paths. The default branch is hidden from HACS's version selector so unversioned development changes are not offered as releases.
 
-The repository uses the complete `dist/` tree, including local fonts/licenses. Do not upload only a bare JS release asset without the matching assets. `zip_release` is deliberately absent: HACS supports it for integrations, not Dashboard plugins. Inclusion in the default HACS catalog is a separate review process; custom-repository installation is supported here.
+GitHub releases include the raw JS, fonts/licenses and manifest as flat assets, as well as manual/source ZIPs. HACS 2.0.5 downloads release assets directly; ZIP files alone are not an installable Dashboard release. Do not upload only a bare JS without its fonts. `zip_release` is deliberately absent: HACS supports it for integrations, not Dashboard plugins. Inclusion in the default HACS catalog is a separate review process; custom-repository installation is supported here.
 
 The optional companion theme is `themes/ha-material3.yaml`. Install it separately through `frontend.themes` and select **Material 3 Expressive**. It is not required for the cards and does not replace administrative layouts. See [HACS plugin requirements](https://www.hacs.xyz/docs/publish/plugin/) and [theme requirements](https://www.hacs.xyz/docs/publish/theme/).
 

@@ -1,11 +1,11 @@
 {
   "name": "ha-material3",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "files": [
     {
       "path": "ha-material3.js",
-      "bytes": 293798,
-      "sha256": "ea792e136807cb20fbc05b960bcc09c29577d888f740e61d36ca949f246bd3f2"
+      "bytes": 293791,
+      "sha256": "63b6675518cb3577a9a0d166f98a94e588674c5da0e5754992a9133b5992a4ca"
     },
     {
       "path": "LICENSE",
@@ -18,45 +18,46 @@
       "sha256": "8e8d6c176d0c45b081c363a0b042b83857e4ef778a9ecc6a4f859d87aae4411a"
     },
     {
-      "path": "assets/material-symbols-LICENSE.txt",
+      "path": "material-symbols-LICENSE.txt",
       "bytes": 11357,
       "sha256": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd"
     },
     {
-      "path": "assets/material-symbols-rounded.woff2",
+      "path": "material-symbols-rounded.woff2",
       "bytes": 7664,
       "sha256": "bd03264b7e692a01ce9519a1faa9e700c5a6aa7e3ce81801f906ff55ab06f671"
     },
     {
-      "path": "assets/material-symbols-source.json",
+      "path": "material-symbols-source.json",
       "bytes": 1185,
       "sha256": "bf5283ae85b055a0a5aa86b8ef9c559bfdf0d805ec50d616c5360253eb85540c"
     },
     {
-      "path": "assets/roboto-LICENSE.txt",
+      "path": "roboto-LICENSE.txt",
       "bytes": 4512,
       "sha256": "84044c09058803d87a241bd28abb4ce30a433d7db9c27a04da3efad6a0ca539c"
     },
     {
-      "path": "assets/roboto-cyrillic.woff2",
+      "path": "roboto-cyrillic.woff2",
       "bytes": 23664,
       "sha256": "481dd0c01e6bbb129fd147eb5d8571016193cba141c4627ca60ceabdb5a46ea8"
     },
     {
-      "path": "assets/roboto-latin.woff2",
+      "path": "roboto-latin.woff2",
       "bytes": 43136,
       "sha256": "1404ca348bd75ef836f4dd8b6f2cc719458642d1237c368296b2fc652dca47dc"
     }
   ],
   "sources": {
-    "package-lock.json": "25ddb3781acbe79d1180080ad3ac9f88af666fb74c3769ef5aff4266c778997e",
-    "package.json": "17237ab68816a269f61f8f1439211db59187719160732c7d6f363f53a0936db9",
-    "scripts/audit-release.mjs": "aa614056713ae9a53b3d53855dfd01ace458b660c4d209e13ae72ced71f39d1d",
-    "scripts/build.mjs": "de61c85647f433972862ca6784024fa4c620534d34987ddb7e5e195d7750444d",
-    "scripts/dev-server.mjs": "53e624f36ae10eb5b41bfe518bdedad8bc86749c74bd4d032bbf186e75f256ef",
+    "package-lock.json": "007938b821338b88c58123d4f62cb41b11a8381ccd7f9494914f8ca572e34d54",
+    "package.json": "a0270e30b756dff5a7a37bca4bc3132f9ccfe841cd37ccba1256a54267d82c26",
+    "scripts/audit-release.mjs": "c283314cce87edadc433a9902a0a479c763cf6096b327300bde319fb6d6dbecf",
+    "scripts/build.mjs": "098107733d3ccce46034e245abb595844ed44bcc64c493f1dbf58e339f013b59",
+    "scripts/dev-server.mjs": "0880a6a3167e5a1ec5e85f80eb5ca389db84f9bbe6c3c4df9f7bf155397d28b3",
     "scripts/fetch-assets.mjs": "ac92ea336ef1a808bfb69d6b87d24ac85a129cbe9b28597b17ca55b33b7c5eca",
     "scripts/generate-tokens.js": "ecf7eee00aeb129af15313b68fd46d00606f36929dd2e21b404aa9953f8783fa",
     "scripts/package.py": "90bff17be902e0669c92c033f0c6b3c8c2190db7060d67b6d3ae41062385b579",
+    "scripts/stage-hacs-release.py": "920a4de83a9f9dcbcb3d58569ec29c980d67c7e2a9f74ad6775f9526c0210795",
     "src/cards.js": "caaf094797888cb07e8c246c1e8c1456dcaedb8c62a6e775cd96cd9cf23779fd",
     "src/components.js": "469c5413be36027f8a13c092fde6fab9e34c1c9a62b85b148c4d9a19b74f5c53",
     "src/editor.js": "9212d33d6e3c0162431ab94e0aac22367b147303285e653f647ab76ec71c4a70",
@@ -67,7 +68,7 @@
     "src/motion.js": "08e3eea7ce0006823ea4877d7f83bb75ec46603581c9a8872351ce413ac8bbb3",
     "src/panel.js": "2a1949f4159c403a4e50c8496522121b2d30746115b3f2bce6e30e3c6ad0ef2d",
     "src/slider.js": "0cb43b53df40cf0f9feee29517f63c0789fc42a6ee5e9a4d89c4ff79a07862d8",
-    "src/theme.js": "4e14459474872742f5a634619717402618f0897bad06b524aa6ab53fac6a5135",
+    "src/theme.js": "708afcd919f0094ec665269a71eb16d57bac994580904700404191701477f3c3",
     "tokens/foundation.json": "a79e109f67460506da60fbc6648a03d3d7978344ba9c35363b09520de88ee62c",
     "tokens/material3-palettes.json": "764a80516ba7a5812a151cffdba14e017270a3132da1a04fcb3a4c9ab2d5ce4f",
     "tokens/motion.json": "bda05984c31b29024f6a435342641d1552bcba5c8708703b3a822752e4dab722"
