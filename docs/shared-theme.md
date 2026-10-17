@@ -10,6 +10,7 @@ Example `my-design.json`:
 {
   "name": "My Material Home",
   "seed_color": "#006A6A",
+  "neutral_palette": {"hue": 0, "chroma": 0, "variant_chroma": 2},
   "font_family": "Roboto, Arial, sans-serif",
   "shape": {"card": 28, "temperature": 20},
   "spacing": {"card": 24, "section": 24, "row": 16},
@@ -19,6 +20,10 @@ Example `my-design.json`:
 ```
 
 Generate with `node scripts/theme.mjs --config my-design.json --output my-theme.yaml` after `npm ci`. There is no need to rebuild the frontend to use the generated theme. Settings are validated; the generator accepts JSON data, not JavaScript templates. The color seed feeds the same Material Color Utilities color algorithm in both dark and light modes.
+
+`neutral_palette` controls surfaces independently of the accent seed. Use `null` (the default) for standard seed-derived Material neutrals, or an object with `hue` in `[0, 360)`, `chroma` in `[0, 200]`, and optional `variant_chroma` in `[0, 200]` (defaults to `chroma + 2`). Zero chroma makes the main neutral surfaces grayscale; the neutral variant still supplies outlines and secondary text. Light and dark roles are generated together. No RGB colors are embedded into component styles.
+
+`tokens/theme-presets.json` defines additional bundled themes. The release combines them with the original **Material 3 Expressive** theme in the same `ha-material3-theme.yaml` asset, so existing includes continue working. **Material 3 Expressive - Graphite Blue** uses seed `#415F91` and neutral hue/chroma/variant chroma `0/0/2`. Choose that name in HA or set it as both light and dark system defaults. The original preset is retained for existing installations. Theme names must be unique.
 
 Supported neutral temperature surfaces: `surface`, `surface-container-low`, `surface-container`, `surface-container-high`, `surface-container-highest`. Buttons and the main reading use semantic accent roles. Per-card explicit `appearance.seed_color` or a forced light/dark `appearance.scheme` opts out of inherited colors; omit them for a unified shell. Motion preference is independent.
 

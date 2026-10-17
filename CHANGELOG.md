@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.0 - 2026-10-18
+- Bundle a Graphite Blue companion theme with neutral surfaces and blue accents in both dark and light modes. Preserve the original theme and the existing HACS include path.
+- Add validated, optional neutral-palette configuration independent of the source accent. Generate native HA and component roles through the same color implementation, with no household-specific CSS.
+- Verify the selected graphite surface values, readable contrast in both modes, custom neutral settings and invalid input handling. Document system defaults, profile/view overrides and update-safe customization.
+
 ## 0.3.0 - 2026-10-17
 - Recommend independent cards in native HA Sections views, with native tabs and room subviews. Retain the optional composite dashboard and standalone panel for compatibility.
 - Add an offline, configurable migration tool that preserves cards, actions, helper references, timer conditions and unrelated views. Reject ambiguous migrations rather than silently losing settings.
