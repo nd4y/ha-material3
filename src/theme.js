@@ -18,7 +18,7 @@ export function applyTheme(host,config,hass){
   for(const[role,v]of Object.entries(foundation.typography))['size','line-height','tracking','weight'].forEach((field,i)=>host.style.setProperty(`--md-sys-typescale-${role}-${field}`,v[i]+(i===3?'':'px')));
   host.style.colorScheme=dark?'dark':'light';
 }
-const asset=(name)=>new URL(`./assets/${name}`,import.meta.url).href;
+const asset=(name)=>new URL(`./${name}`,import.meta.url).href;
 export function loadFonts(){
   if(document.getElementById('ha-material3-fonts'))return;
   const style=document.createElement('style');style.id='ha-material3-fonts';

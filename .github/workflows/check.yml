@@ -14,6 +14,7 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: python3 scripts/package.py
+      - run: python3 scripts/stage-hacs-release.py
       - uses: actions/upload-artifact@v7.0.2
         with:
           name: ha-material3
