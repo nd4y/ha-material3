@@ -1,0 +1,56 @@
+name: Release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Verify release version and merged source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test "$GITHUB_REF_NAME" = "v$(node -p "require('./package.json').version")"
+          default_branch=$(gh api "repos/$GITHUB_REPOSITORY" --jq .default_branch)
+          git merge-base --is-ancestor "$GITHUB_SHA" "origin/$default_branch"
+      - run: npm ci
+      - run: npm run check
+      - name: Check committed distribution
+        run: git diff --exit-code -- dist themes
+      - run: python3 scripts/package.py
+      - name: Generate checksums
+        run: cd release && sha256sum *.zip > SHA256SUMS
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: verified-release
+          path: release/*
+          if-no-files-found: error
+  publish:
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: verified-release
+          path: release
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+          COMMIT: ${{ github.sha }}
+        run: gh release create "$TAG" --repo "$REPOSITORY" --target "$COMMIT" --verify-tag --title "Material 3 Expressive $TAG" --generate-notes release/*

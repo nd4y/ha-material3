@@ -1,0 +1,27 @@
+{
+  "reference": "https://m3.material.io/",
+  "snapshot_date": "2026-10-17",
+  "typeface": "Roboto",
+  "typography": {
+    "display-large": [57, 64, -0.25, 400],
+    "display-medium": [45, 52, 0, 400],
+    "display-small": [36, 44, 0, 400],
+    "headline-large": [32, 40, 0, 400],
+    "headline-medium": [28, 36, 0, 400],
+    "headline-small": [24, 32, 0, 400],
+    "title-large": [22, 28, 0, 400],
+    "title-medium": [16, 24, 0.15, 500],
+    "title-small": [14, 20, 0.1, 500],
+    "body-large": [16, 24, 0.5, 400],
+    "body-medium": [14, 20, 0.25, 400],
+    "body-small": [12, 16, 0.4, 400],
+    "label-large": [14, 20, 0.1, 500],
+    "label-medium": [12, 16, 0.5, 500],
+    "label-small": [11, 16, 0.5, 500]
+  },
+  "type_tuple": ["size_px", "line_height_px", "tracking_px", "weight"],
+  "shape": {"none": 0, "extra-small": 4, "small": 8, "medium": 12, "large": 16, "large-increased": 20, "extra-large": 28, "extra-large-increased": 32, "extra-extra-large": 48, "full": 9999},
+  "metrics": {"touch-target": 48, "icon": 24, "small-button-container": 40, "nav-rail-width": 80, "nav-indicator-width": 56, "nav-indicator-height": 32, "top-bar-height": 64, "connected-group-gap": 2},
+  "state_opacity": {"hover": 0.08, "focus": 0.1, "pressed": 0.1, "dragged": 0.16, "disabled-content": 0.38, "disabled-container": 0.12},
+  "motion": {"prototype_duration_ms": 200, "prototype_easing": "cubic-bezier(.2,0,0,1)", "expressive_physics_validated": false}
+}

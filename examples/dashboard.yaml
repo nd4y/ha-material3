@@ -1,0 +1,52 @@
+title: Material Home
+views:
+  - title: Home
+    path: home
+    type: panel
+    cards:
+      - type: custom:ha-m3-dashboard
+        config_version: 1
+        title: Home
+        appearance:
+          scheme: dark
+          seed_color: "#6750A4"
+          motion: expressive
+        home:
+          title: Office
+          cards:
+            - kind: climate
+              title: Temperature
+              entities:
+                room_temperature: sensor.office_temperature
+                target_temperature: input_number.office_target
+                enabled: input_boolean.office_climate
+              presets:
+                - id: everyday
+                  name: Everyday
+                  icon: eco
+                  action:
+                    action: perform-action
+                    perform_action: script.turn_on
+                    target:
+                      entity_id: script.office_everyday
+                  active_when:
+                    - entity: fan.office_purifier
+                      attribute: preset_mode
+                      value: auto
+            - kind: camera
+              entity: camera.entrance
+              name: Entrance
+            - kind: device
+              entity: climate.office
+              name: Air conditioner
+              icon: ac_unit
+        rooms:
+          - id: office
+            name: Office
+            icon: meeting_room
+            cards:
+              - kind: device
+                entity: fan.office_purifier
+                name: Purifier
+                expanded: true
+                icon: mode_fan

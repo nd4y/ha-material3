@@ -1,0 +1,30 @@
+# configuration.yaml registration; requires an HA restart.
+# HACS module_url: /hacsfiles/ha-material3/ha-material3.js
+panel_custom:
+  - name: ha-m3-panel
+    url_path: material-home-panel
+    sidebar_title: Material Home
+    sidebar_icon: mdi:palette
+    module_url: /local/ha-material3/ha-material3.js
+    require_admin: false
+    config:
+      config_version: 1
+      title: Home
+      appearance:
+        scheme: dark
+        seed_color: "#6750A4"
+        motion: expressive
+      home:
+        title: Office
+        cards:
+          - kind: device
+            entity: climate.office
+            name: Office climate
+            expanded: true
+      rooms:
+        - id: office
+          name: Office
+          cards:
+            - kind: device
+              entity: fan.office_purifier
+              expanded: true
