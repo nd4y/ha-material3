@@ -1,0 +1,9 @@
+{
+  "name": "Material 3 Expressive",
+  "seed_color": "#6750A4",
+  "font_family": "Roboto, Arial, sans-serif",
+  "shape": {"card": 28, "temperature": 20},
+  "spacing": {"card": 24, "compact_card": 20, "section": 24, "row": 16},
+  "layout": {"max_width": 1440, "primary_ratio": 1.25},
+  "temperature_surface": "surface-container-high"
+}

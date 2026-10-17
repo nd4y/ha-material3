@@ -1,21 +1,23 @@
 import {Hct,SchemeTonalSpot,MaterialDynamicColors,argbFromHex,hexFromArgb} from '@material/material-color-utilities';
 import foundation from '../tokens/foundation.json' with {type:'json'};
+import {designSystem,appTokens} from './design-system.js';
 const cache=new Map();
-export function colorRoles(seed='#6750A4',dark=true){
+export function colorRoles(seed=designSystem.seed_color,dark=true){
   const key=seed+dark;if(cache.has(key))return cache.get(key);
   const scheme=new SchemeTonalSpot(Hct.fromInt(argbFromHex(seed)),dark,0,'2025','phone'),roles={};
   for(const c of new MaterialDynamicColors().allColors)roles[c.name.replaceAll('_','-')]=hexFromArgb(c.getArgb(scheme));
   cache.set(key,roles);return roles;
 }
 export function applyTheme(host,config,hass){
-  const a=config?.appearance||{},scheme=a.scheme||'dark',dark=scheme==='auto'?hass?.themes?.darkMode??globalThis.matchMedia?.('(prefers-color-scheme: dark)').matches:scheme==='dark';
+  const a=config?.appearance||{},scheme=a.scheme||'auto',dark=scheme==='auto'?hass?.themes?.darkMode??true:scheme==='dark',inherit=!a.seed_color&&(!a.scheme||a.scheme==='auto');
   host.style.setProperty('--ha-m3-motion-reduced',a.motion==='reduced'?'1':'0');
   host.style.setProperty('--ha-m3-effects-duration',a.motion==='reduced'?'0ms':'150ms');
   host.style.setProperty('--ha-m3-scrim-duration',a.motion==='reduced'?'0ms':'200ms');
   host.style.setProperty('--ha-m3-progress-animation',a.motion==='reduced'?'none':'m3-spin');
-  const key=(a.seed_color||'#6750A4')+dark;if(host._themeKey===key)return;host._themeKey=key;
-  for(const[k,v]of Object.entries(colorRoles(a.seed_color,dark)))host.style.setProperty(`--md-sys-color-${k}`,v);
-  for(const[role,v]of Object.entries(foundation.typography))['size','line-height','tracking','weight'].forEach((field,i)=>host.style.setProperty(`--md-sys-typescale-${role}-${field}`,v[i]+(i===3?'':'px')));
+  const key=(a.seed_color||designSystem.seed_color)+dark+inherit;if(host._themeKey===key)return;host._themeKey=key;
+  for(const[k,v]of Object.entries(colorRoles(a.seed_color,dark)))host.style.setProperty(`--md-sys-color-${k}`,inherit?`var(--ha-m3-color-${k},${v})`:v);
+  for(const[role,v]of Object.entries(foundation.typography))['size','line-height','tracking','weight'].forEach((field,i)=>host.style.setProperty(`--md-sys-typescale-${role}-${field}`,`var(--ha-m3-type-${role}-${field},${v[i]+(i===3?'':'px')})`));
+  for(const[k,v]of Object.entries(appTokens()))host.style.setProperty('--ha-m3-ui-'+k,k==='temperature-background'&&!inherit?v:`var(--ha-m3-${k},${v})`);
   host.style.colorScheme=dark?'dark':'light';
 }
 const asset=(name)=>new URL(`./${name}`,import.meta.url).href;

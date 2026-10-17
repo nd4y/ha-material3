@@ -8,7 +8,7 @@ export const common=css`
   *,*::before,*::after{box-sizing:border-box} [hidden]{display:none!important}
   .symbol{font-family:'HA M3 Symbols';font-size:24px;line-height:1;font-weight:400;font-style:normal;letter-spacing:normal;white-space:nowrap;direction:ltr;font-feature-settings:'liga';display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
   h1,h2,h3,p{margin:0} h1,h2,h3{font-weight:400;letter-spacing:0}button,input,select{font:inherit}button{color:inherit}
-  .support{color:var(--md-sys-color-on-surface-variant)}.headline{font-size:24px;line-height:32px}.title{font-size:22px;line-height:28px}
+  .support{color:var(--md-sys-color-on-surface-variant)}.headline{font-size:var(--md-sys-typescale-headline-small-size,24px);line-height:var(--md-sys-typescale-headline-small-line-height,32px)}.title{font-size:var(--md-sys-typescale-title-large-size,22px);line-height:var(--md-sys-typescale-title-large-line-height,28px)}
   .error{border-radius:12px;padding:16px;color:var(--md-sys-color-on-error-container);background:var(--md-sys-color-error-container);font-size:14px;line-height:20px}
   .live{font-size:14px;line-height:20px;color:var(--md-sys-color-on-surface-variant)}
   .spinner{width:20px;height:20px;display:inline-block;border:3px solid color-mix(in srgb,currentColor 24%,transparent);border-top-color:currentColor;border-radius:50%;animation:var(--ha-m3-progress-animation,m3-spin) 1s linear infinite}
@@ -39,7 +39,7 @@ export class M3Button extends LitElement{
     :host([motion=reduced]) *{animation:none!important;transition:none!important}
   `];
   constructor(){super();this.kind='tonal';this.label='';this.selected=false;this.disabled=false;this.loading=false;this.tabOrder=0;this._pressed=false;this.anim=new Motion(this);}
-  focus(){this.renderRoot.querySelector('button')?.focus();}
+  focus(options){this.renderRoot.querySelector('button')?.focus(options);}
   disconnectedCallback(){super.disconnectedCallback();this.anim.stop();}
   updated(){
     const shape=this.renderRoot.querySelector('.shape'),connected=this.kind==='connected';
@@ -65,7 +65,7 @@ export class M3Switch extends LitElement{
     :host([motion=reduced]) *{animation:none!important;transition:none!important}
   `];
   constructor(){super();this.selected=false;this.disabled=false;this.loading=false;this.label='';this._pressed=false;this.anim=new Motion(this);}
-  focus(){this.renderRoot.querySelector('button')?.focus();}
+  focus(options){this.renderRoot.querySelector('button')?.focus(options);}
   disconnectedCallback(){super.disconnectedCallback();this.anim.stop();}
   updated(){const h=this.renderRoot.querySelector('.handle'),size=this._pressed&&!this.disabled&&!this.loading?28:24;this.anim.number(h,'--handle-size',size);this.anim.number(h,'--handle-x',(this.selected?34:14)-size/2);}
   render(){return html`<button class=${this.disabled||this.loading?'disabled':''} type="button" role="switch" aria-label=${this.label} aria-checked=${String(this.selected)} ?disabled=${this.disabled||this.loading} aria-busy=${this.loading?'true':nothing} @click=${()=>this.dispatchEvent(new CustomEvent('m3-change',{detail:{selected:!this.selected},bubbles:true,composed:true}))} @pointerdown=${()=>this._pressed=true} @pointerup=${()=>this._pressed=false} @pointerleave=${()=>this._pressed=false} @pointercancel=${()=>this._pressed=false} @blur=${()=>this._pressed=false} @keydown=${e=>{if([' ','Enter'].includes(e.key))this._pressed=true;}} @keyup=${()=>this._pressed=false}><span class="track"><span class="handle"><span class="state"></span>${this.loading?html`<span class="spinner" aria-hidden="true"></span>`:icon(this.selected?'check':'close')}</span></span></button>`;}

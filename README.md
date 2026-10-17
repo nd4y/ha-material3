@@ -1,6 +1,6 @@
 # Home Assistant Material 3 Expressive
 
-Configurable Material 3 Expressive panel and reusable cards for Home Assistant. Dark theme is the default; light and system appearance are supported. Version **0.1.3**, Apache-2.0. Independent project, not an official Google or Home Assistant product.
+Configurable Material 3 Expressive panel and reusable cards for Home Assistant. Dark appearance is the fallback; the active companion theme is inherited by default. Version **0.2.0**, Apache-2.0. Independent project, not an official Google or Home Assistant product.
 
 [Releases](https://github.com/nd4y/ha-material3/releases) · [Changelog](CHANGELOG.md) · [Issues](https://github.com/nd4y/ha-material3/issues)
 
@@ -38,7 +38,28 @@ When migrating from manual installation, remove the old `/local/ha-material3/ha-
 
 GitHub releases include the raw JS, fonts/licenses and manifest as flat assets, as well as manual/source ZIPs. HACS 2.0.5 downloads release assets directly; ZIP files alone are not an installable Dashboard release. Do not upload only a bare JS without its fonts. `zip_release` is deliberately absent: HACS supports it for integrations, not Dashboard plugins. Inclusion in the default HACS catalog is a separate review process; custom-repository installation is supported here.
 
-The optional companion theme is `themes/ha-material3.yaml`. Install it separately through `frontend.themes` and select **Material 3 Expressive**. It is not required for the cards and does not replace administrative layouts. See [HACS plugin requirements](https://www.hacs.xyz/docs/publish/plugin/) and [theme requirements](https://www.hacs.xyz/docs/publish/theme/).
+## One design for the HA shell and the module
+
+The companion theme is part of the same HACS release: `ha-material3-theme.yaml` lives beside the JS and is updated by HACS. For a configuration without an existing `frontend` block, add:
+
+```yaml
+frontend:
+  themes: !include www/community/ha-material3/ha-material3-theme.yaml
+```
+
+If you already merge a `themes/` directory, add `themes/ha-material3.yaml` containing `!include ../www/community/ha-material3/ha-material3-theme.yaml`. Preserve existing frontend settings. Run `frontend.reload_themes`, then choose **Material 3 Expressive** in your profile or set it with `frontend.set_theme`. After future HACS updates reload themes and refresh the browser.
+
+Remove explicit `appearance.seed_color` and `appearance.scheme` from cards that should follow the shared theme. An explicit seed/scheme remains an intentional per-card override. Shared colors, fonts, typography, card shapes and spacing come from `tokens/design-system.json` and `tokens/foundation.json`, rather than household-specific CSS.
+
+For a different brand without changing source code:
+
+```sh
+node scripts/theme.mjs --config my-design.json --output my-theme.yaml
+```
+
+The JSON can override `name`, `seed_color`, `font_family`, `shape`, `spacing`, `layout` and `temperature_surface`; omitted fields retain defaults. Install the generated YAML as a normal HA theme. Native HA and the module inherit the same exported roles. See [shared theme configuration](docs/shared-theme.md).
+
+The theme uses HA's theme mechanism. Native administrative layouts remain native; arbitrary third-party cards may require their own theme support. See [HA frontend themes](https://www.home-assistant.io/integrations/frontend/).
 
 ## Configuration
 
@@ -49,8 +70,6 @@ type: custom:ha-m3-climate-card
 config_version: 1
 title: Office
 appearance:
-  scheme: dark
-  seed_color: "#6750A4"
   motion: expressive
 entities:
   room_temperature: sensor.office_temperature
