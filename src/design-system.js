@@ -5,6 +5,13 @@ export function resolveDesignSystem(overrides={}){
   const c={...defaults,...overrides,shape:{...defaults.shape,...overrides.shape},spacing:{...defaults.spacing,...overrides.spacing},layout:{...defaults.layout,...overrides.layout}};
   if(!/^#[a-f0-9]{6}$/i.test(c.seed_color)||typeof c.name!=='string'||!c.name.trim())throw new Error('Invalid theme name or seed_color');
   if(typeof c.font_family!=='string'||/[\r\n]/.test(c.font_family))throw new Error('Invalid font_family');
+  if(c.neutral_palette!==null){
+    const n=c.neutral_palette;
+    if(!n||typeof n!=='object'||Array.isArray(n)||Object.keys(n).some(k=>!['hue','chroma','variant_chroma'].includes(k)))throw new Error('Invalid neutral_palette');
+    const variant=n.variant_chroma??n.chroma+2;
+    if(!Number.isFinite(n.hue)||n.hue<0||n.hue>=360||![n.chroma,variant].every(v=>Number.isFinite(v)&&v>=0&&v<=200))throw new Error('Invalid neutral_palette');
+    c.neutral_palette={hue:n.hue,chroma:n.chroma,variant_chroma:variant};
+  }
   for(const group of ['shape','spacing','layout'])for(const value of Object.values(c[group]))if(!Number.isFinite(value)||value<=0||value>4096)throw new Error('Invalid design dimension');
   if(!['surface','surface-container-low','surface-container','surface-container-high','surface-container-highest'].includes(c.temperature_surface))throw new Error('Invalid temperature_surface');
   return c;

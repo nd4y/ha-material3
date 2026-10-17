@@ -1,11 +1,10 @@
-import {Hct,SchemeTonalSpot,MaterialDynamicColors,argbFromHex,hexFromArgb} from '@material/material-color-utilities';
+import {createColorRoles} from './color-scheme.js';
 import foundation from '../tokens/foundation.json' with {type:'json'};
 import {designSystem,appTokens} from './design-system.js';
 const cache=new Map();
 export function colorRoles(seed=designSystem.seed_color,dark=true){
   const key=seed+dark;if(cache.has(key))return cache.get(key);
-  const scheme=new SchemeTonalSpot(Hct.fromInt(argbFromHex(seed)),dark,0,'2025','phone'),roles={};
-  for(const c of new MaterialDynamicColors().allColors)roles[c.name.replaceAll('_','-')]=hexFromArgb(c.getArgb(scheme));
+  const roles=createColorRoles(seed,dark,designSystem.neutral_palette);
   cache.set(key,roles);return roles;
 }
 export function applyTheme(host,config,hass){

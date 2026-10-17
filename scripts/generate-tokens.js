@@ -1,15 +1,11 @@
-import {Hct,SchemeTonalSpot,MaterialDynamicColors,argbFromHex,hexFromArgb} from '@material/material-color-utilities';
+import {createColorRoles} from '../src/color-scheme.js';
 
-export function generatePalettes(seeds={violet:'#6750A4',teal:'#006A6A',blue:'#415F91'}){
-  const dynamic=new MaterialDynamicColors();
+export function generatePalettes(seeds={violet:'#6750A4',teal:'#006A6A',blue:'#415F91'},neutralPalette=null){
   const palettes={};
   for(const [key,seed] of Object.entries(seeds)){
     palettes[key]={seed,modes:{}};
     for(const dark of [true,false]){
-      const scheme=new SchemeTonalSpot(Hct.fromInt(argbFromHex(seed)),dark,0,'2025','phone');
-      const roles={};
-      for(const color of dynamic.allColors)roles[color.name.replaceAll('_','-')]=hexFromArgb(color.getArgb(scheme));
-      palettes[key].modes[dark?'dark':'light']=roles;
+      palettes[key].modes[dark?'dark':'light']=createColorRoles(seed,dark,neutralPalette);
     }
   }
   return palettes;

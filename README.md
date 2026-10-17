@@ -1,6 +1,6 @@
 # Home Assistant Material 3 Expressive
 
-Configurable Material 3 Expressive cards and theme for Home Assistant. Use native HA navigation and Sections layout with independent cards. Dark appearance is the fallback; the active companion theme is inherited by default. Version **0.3.0**, Apache-2.0. Independent project, not an official Google or Home Assistant product.
+Configurable Material 3 Expressive cards and theme for Home Assistant. Use native HA navigation and Sections layout with independent cards. Dark appearance is the fallback; the active companion theme is inherited by default. Version **0.4.0**, Apache-2.0. Independent project, not an official Google or Home Assistant product.
 
 [Releases](https://github.com/nd4y/ha-material3/releases) · [Changelog](CHANGELOG.md) · [Issues](https://github.com/nd4y/ha-material3/issues)
 
@@ -49,6 +49,8 @@ frontend:
 
 If you already merge a `themes/` directory, add `themes/ha-material3.yaml` containing `!include ../www/community/ha-material3/ha-material3-theme.yaml`. Preserve existing frontend settings. Run `frontend.reload_themes`, then choose **Material 3 Expressive** in your profile or set it with `frontend.set_theme`. After future HACS updates reload themes and refresh the browser.
 
+The same HACS file also includes **Material 3 Expressive - Graphite Blue**, with neutral graphite surfaces and blue accents in dark mode, plus a matching light mode. Select this name for the neutral preset. Set both system defaults with the `frontend.set_theme` action and `mode: light` / `mode: dark` to use it throughout HA for users following the system theme. An explicit profile or dashboard-view theme takes precedence. The named preset remains available after HACS updates; do not modify the downloaded YAML.
+
 Remove explicit `appearance.seed_color` and `appearance.scheme` from cards that should follow the shared theme. An explicit seed/scheme remains an intentional per-card override. Shared colors, fonts, typography, card shapes and spacing come from `tokens/design-system.json` and `tokens/foundation.json`, rather than household-specific CSS.
 
 For a different brand without changing source code:
@@ -57,7 +59,7 @@ For a different brand without changing source code:
 node scripts/theme.mjs --config my-design.json --output my-theme.yaml
 ```
 
-The JSON can override `name`, `seed_color`, `font_family`, `shape`, `spacing`, `layout` and `temperature_surface`; omitted fields retain defaults. Install the generated YAML as a normal HA theme. Native HA and the module inherit the same exported roles. See [shared theme configuration](docs/shared-theme.md).
+The JSON can override `name`, `seed_color`, `neutral_palette`, `font_family`, `shape`, `spacing`, `layout` and `temperature_surface`; omitted fields retain defaults. Install the generated YAML as a normal HA theme. Native HA and the module inherit the same exported roles. See [shared theme configuration](docs/shared-theme.md).
 
 The theme uses HA's theme mechanism. Native administrative layouts remain native; arbitrary third-party cards may require their own theme support. See [HA frontend themes](https://www.home-assistant.io/integrations/frontend/).
 
