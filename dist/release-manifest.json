@@ -1,11 +1,11 @@
 {
   "name": "ha-material3",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "files": [
     {
       "path": "ha-material3.js",
       "bytes": 293798,
-      "sha256": "65fbff99479301a3ebb339269db15f88a1a69452ab2895b84e5a370a629e6e0a"
+      "sha256": "ea792e136807cb20fbc05b960bcc09c29577d888f740e61d36ca949f246bd3f2"
     },
     {
       "path": "LICENSE",
@@ -33,6 +33,11 @@
       "sha256": "bf5283ae85b055a0a5aa86b8ef9c559bfdf0d805ec50d616c5360253eb85540c"
     },
     {
+      "path": "assets/roboto-LICENSE.txt",
+      "bytes": 4512,
+      "sha256": "84044c09058803d87a241bd28abb4ce30a433d7db9c27a04da3efad6a0ca539c"
+    },
+    {
       "path": "assets/roboto-cyrillic.woff2",
       "bytes": 23664,
       "sha256": "481dd0c01e6bbb129fd147eb5d8571016193cba141c4627ca60ceabdb5a46ea8"
@@ -41,18 +46,13 @@
       "path": "assets/roboto-latin.woff2",
       "bytes": 43136,
       "sha256": "1404ca348bd75ef836f4dd8b6f2cc719458642d1237c368296b2fc652dca47dc"
-    },
-    {
-      "path": "assets/roboto-LICENSE.txt",
-      "bytes": 4512,
-      "sha256": "84044c09058803d87a241bd28abb4ce30a433d7db9c27a04da3efad6a0ca539c"
     }
   ],
   "sources": {
-    "package-lock.json": "3f64e5bc14144a13d743a3bf5145842a400da21550a3975d91d40ffc64eb4200",
-    "package.json": "68ad70d2a1ace7f305792042025727f3a543d8a5a62959f242e4e26c0543790a",
+    "package-lock.json": "25ddb3781acbe79d1180080ad3ac9f88af666fb74c3769ef5aff4266c778997e",
+    "package.json": "17237ab68816a269f61f8f1439211db59187719160732c7d6f363f53a0936db9",
     "scripts/audit-release.mjs": "aa614056713ae9a53b3d53855dfd01ace458b660c4d209e13ae72ced71f39d1d",
-    "scripts/build.mjs": "585153b46b1f14a430728269bd9ceca8f4da98b72a1a92b105dd6455650768b5",
+    "scripts/build.mjs": "de61c85647f433972862ca6784024fa4c620534d34987ddb7e5e195d7750444d",
     "scripts/dev-server.mjs": "53e624f36ae10eb5b41bfe518bdedad8bc86749c74bd4d032bbf186e75f256ef",
     "scripts/fetch-assets.mjs": "ac92ea336ef1a808bfb69d6b87d24ac85a129cbe9b28597b17ca55b33b7c5eca",
     "scripts/generate-tokens.js": "ecf7eee00aeb129af15313b68fd46d00606f36929dd2e21b404aa9953f8783fa",
