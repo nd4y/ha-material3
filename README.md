@@ -1,6 +1,6 @@
 # Home Assistant Material 3 Expressive
 
-Configurable Material 3 Expressive panel and reusable cards for Home Assistant. Dark theme is the default; light and system appearance are supported. Version **0.1.1**, Apache-2.0. Independent project, not an official Google or Home Assistant product.
+Configurable Material 3 Expressive panel and reusable cards for Home Assistant. Dark theme is the default; light and system appearance are supported. Version **0.1.2**, Apache-2.0. Independent project, not an official Google or Home Assistant product.
 
 [Releases](https://github.com/nd4y/ha-material3/releases) · [Changelog](CHANGELOG.md) · [Issues](https://github.com/nd4y/ha-material3/issues)
 

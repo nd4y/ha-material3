@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2 - 2026-10-17
+
+- Make manifest asset ordering deterministic across Windows and Linux. The v0.1.1 release check correctly rejected a different filesystem ordering before any release was published; its tag is retained rather than moved.
+
 ## 0.1.1 - 2026-10-17
 
 - Integrate the Lovelace dashboard into HA's existing shell: remove the duplicate app bar and second navigation rail. Keep compact section navigation and responsive mobile navigation.
