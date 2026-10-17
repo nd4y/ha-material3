@@ -1,4 +1,20 @@
-# Verification of 0.1.0
+# Verification
+
+## 0.1.3: publication and real HACS upgrade
+
+Checked 2026-10-17 on HA 2026.9.4 and HACS 2.0.5. [Release v0.1.3](https://github.com/nd4y/ha-material3/releases/tag/v0.1.3) was published by the [successful Release workflow](https://github.com/nd4y/ha-material3/actions/runs/39038125094), after 11 tests, the token/asset audit and a clean Linux rebuild matching the committed distribution. All source changes went through pull requests.
+
+The installed HACS detected a real version change from v0.1.2 to v0.1.3: its HA update entity changed to available, reporting both versions. HA's normal `update.install` service then installed v0.1.3. HACS reported installed/latest v0.1.3 and the update entity returned to current. All 9 runtime/license assets returned HTTP 200 through `/hacsfiles/`, with exact SHA-256 matches; WOFF2 MIME types were correct. The running dashboard was reloaded from that HACS resource and the camera and new integrated layout were checked in Edge. The duplicate app bar and second navigation rail were absent.
+
+Manual-to-HACS migration left one module resource, retained the previous manual files as rollback, and preserved the dashboard configuration, backend configuration files, system/user dashboard preferences and climate helper/timer states. Installing HACS required one graceful HA container restart; all existing integrations subsequently reached loaded state. No physical HVAC command was sent during the UI migration.
+
+Two release problems were found and corrected before final migration: v0.1.1 stopped before publication because Windows/Linux filesystem ordering changed the manifest order; explicit asset ordering fixed this. The v0.1.2 ZIP-only release was not an installable HACS Dashboard package: HACS saved the ZIP assets without extracting them. v0.1.3 publishes flat raw JS/font/license/manifest assets as well as archives. v0.1.2 is marked prerelease and is not the recommended HACS version.
+
+One upgrade attempt failed on transient DNS timeouts resolving GitHub. Independent DNS and HTTPS probes subsequently passed, and the same supported update operation succeeded without changes to network/firewall configuration. Long-term network availability is not established by this single successful upgrade.
+
+The following baseline results remain useful for the unchanged controller/component behavior. Companion WebViews, other browsers, direct `panel_custom` registration with restart, and executing rollback/removal remain untested.
+
+## 0.1.0 baseline
 
 Checked 2026-10-17. This report describes observed results, not Google certification or a numerical pixel-equivalence guarantee.
 
@@ -45,7 +61,7 @@ Physical control commands were exercised against the fixture adapter, not resent
 ## Remaining scope
 
 - Companion app WebViews and browsers other than Edge have not been tested.
-- GitHub publication, the configured GitHub Actions workflow, HACS download/update installation and default-catalog acceptance have not run. The source and manual-install archives are ready for publication.
+- GitHub publication/CI and HACS installation/update were not exercised at the 0.1.0 baseline; they were subsequently verified for 0.1.3 above. Default HACS catalog acceptance has not been requested; installation uses a custom repository.
 - A protected checkpoint and a guarded site-specific rollback script were prepared. Destructive rollback/removal was not executed against the installed dashboard; generic instructions are in [rollback.md](rollback.md).
 - The visual editor covers basic titles/entities. Advanced compositions, predicates, rooms and actions currently use YAML.
 - HA's administrative screens and native more-info dialogs retain HA's own layout. The optional companion theme changes supported color/font variables only.

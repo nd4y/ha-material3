@@ -13,7 +13,7 @@ Reference checked 2026-10-17: [M3](https://m3.material.io/), [motion overview/sp
 | Switch | Track52x32, outline2, icon handle24, pressed28; state layer40, icon16; selected on-primary handle, off outline handle; native role=switch |
 | Slider | Two16px tracks, inner corner2, outer full; handle4x44, focus/pressed width2; gap6 each side, stop indicators4; native range keyboard/pointer semantics,64px control target |
 | Dialog | Corner28, Surface Container High, scrim32%; native modal focus/cancel semantics and localized accessible heading |
-| Navigation | Rail80, indicator56x32; selected label On Surface, icon On Secondary Container. Compact navigation bar80 high, sticky within the owned dashboard |
+| Navigation | Standalone panel: rail80, indicator56x32; selected label On Surface, icon On Secondary Container. Integrated Lovelace dashboard: compact section navigation without a second app bar/rail. Compact navigation bar80 high, sticky within the owned dashboard |
 | App surfaces | Composite containers use28 and temperature region20. These are app compositions, not a claim that standard filled M3 cards have changed from corner12 |
 | Outlined select | Selected official Material Web field/option/menu implementation, fully namespaced; no global md-* registration |
 
