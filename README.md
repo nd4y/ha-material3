@@ -1,6 +1,6 @@
 # Home Assistant Material 3 Expressive
 
-Configurable Material 3 Expressive cards and theme for Home Assistant. Use native HA navigation and Sections layout with independent cards. Dark appearance is the fallback; the active companion theme is inherited by default. Version **0.4.0**, Apache-2.0. Independent project, not an official Google or Home Assistant product.
+Configurable Material 3 Expressive cards and theme for Home Assistant. Use native HA navigation and Sections layout with independent cards. Dark appearance is the fallback; the active companion theme is inherited by default. Version **0.5.0**, Apache-2.0. Independent project, not an official Google or Home Assistant product.
 
 [Releases](https://github.com/nd4y/ha-material3/releases) · [Changelog](CHANGELOG.md) · [Issues](https://github.com/nd4y/ha-material3/issues)
 
@@ -83,6 +83,8 @@ presets: []
 The target uses the helper's actual min/max/step. Unavailable/malformed helpers disable writes. Presets reflect HA conditions/maximum state, not the last click. Actions support `perform-action`, `toggle`, `more-info` and internal HA navigation. JavaScript templates are not accepted.
 
 Basic title/entity selection has a visual editor. Rooms, compositions and advanced actions currently use YAML.
+
+For independent permission switches and a ventilation Off preset, see [temperature-control devices](docs/climate-permissions.md). Device permissions, future-device placeholders and preset actions are configured in YAML; the HA backend owns temperature policy and recovery.
 
 For migration from an existing composite dashboard, see the [offline converter](docs/native-dashboard.md#offline-migration-from-the-composite-dashboard). It reads your configuration and preserves entities/actions rather than embedding household identifiers in source. The generated configuration uses native tabs and room Back navigation.
 

@@ -1,6 +1,6 @@
 {
   "name": "ha-material3",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "files": [
     {
       "path": "ha-material3-theme.yaml",
@@ -9,8 +9,8 @@
     },
     {
       "path": "ha-material3.js",
-      "bytes": 296377,
-      "sha256": "15b95b06b8bc60c06546a4bd8a607a9ae815cbca108e9c88272c311576f6a788"
+      "bytes": 298803,
+      "sha256": "e02e2075eee1fc80f388f60a9c1333d532636cceb2d33a8495d235222524f063"
     },
     {
       "path": "LICENSE",
@@ -54,8 +54,8 @@
     }
   ],
   "sources": {
-    "package-lock.json": "f0512c12e15467972fe0e3a4a9251138d057583c6115923d0382e1f6887ef695",
-    "package.json": "9c6093cfd6dd0ea62fb7ad26164cecde8ec369b9659e0ed88a5c2f88fff8458f",
+    "package-lock.json": "12826829cc59806104c15c4aedf611f5f5239d710a38147702902c832a301025",
+    "package.json": "913fbb59428e3221f07f983a746c3ba6b0ae4ea066e928d76eb5a8e01599d4d9",
     "scripts/audit-release.mjs": "c283314cce87edadc433a9902a0a479c763cf6096b327300bde319fb6d6dbecf",
     "scripts/build.mjs": "58f56ecf0f748bd59d50b7fc984b15885ef39f23de3601652a2a98b95c3aefcd",
     "scripts/dev-server.mjs": "0880a6a3167e5a1ec5e85f80eb5ca389db84f9bbe6c3c4df9f7bf155397d28b3",
@@ -65,15 +65,15 @@
     "scripts/package.py": "90bff17be902e0669c92c033f0c6b3c8c2190db7060d67b6d3ae41062385b579",
     "scripts/stage-hacs-release.py": "920a4de83a9f9dcbcb3d58569ec29c980d67c7e2a9f74ad6775f9526c0210795",
     "scripts/theme.mjs": "f578b6e47c3b62365da8011394bbaab86c8125cd163f68230bc51494cd468dcb",
-    "src/cards.js": "a3d06f907580224b0bbced0eccbab7dad063d74d10884348e6c2bca5cac475f6",
+    "src/cards.js": "6bbbf85698cf67e8b30bfbf14595be86eacecc4401900899409e939abad3bb6e",
     "src/color-scheme.js": "16b6d291d27ad9bcd3e0b747a5c94cd3dedeb2bd740bcf409c0b570b30c0c0f9",
     "src/components.js": "4fae5f274f0b65b79e6251d44418cd20df49ff4916a3ceb80284a24d805dc574",
     "src/design-system.js": "d469e9c0b557e66a378487679c339f3a5b9e2386c5c07ba6b668975676778025",
     "src/editor.js": "9212d33d6e3c0162431ab94e0aac22367b147303285e653f647ab76ec71c4a70",
     "src/fields.js": "20cfb3e84784c21380a79298253c3643f23358b5eff13f968242cd311b04f1a0",
-    "src/ha.js": "96a39f0c504ea31efb598b7cf5c038a1ef95c105332f4055c53fecda586431f7",
+    "src/ha.js": "592a5e58bac320cde382dd2a5209f8740dc2fceae7a74d48bd639c3d2e6af1b7",
     "src/index.js": "715072a813fb111a4eeed850e42d365ce4733176a64ea6cd30c9cdcb37d3c97e",
-    "src/localize.js": "e6e35cb2f0b10143e74aa7e06560c2926b3927762da800ef37b431738c191d40",
+    "src/localize.js": "f8d98ccda8517de1fd43b11bf95e79e17d3ca465569154410ed6c6f28498856e",
     "src/motion.js": "08e3eea7ce0006823ea4877d7f83bb75ec46603581c9a8872351ce413ac8bbb3",
     "src/native-dashboard.js": "27e298b20e8568009f14c244997c36a3c2a5c2576c1d67f900526ef8405383e7",
     "src/panel.js": "09760aa39972be12adec7b7fc432591576201ad96895c5221576fafbb75d18ac",

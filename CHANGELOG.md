@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.0 - 2026-10-18
+- Add configurable actuator-permission switches to climate cards, independent of the main thermostat switch. Controls write only the configured input_boolean flags; the HA backend decides how permitted devices maintain temperature.
+- Support explicitly disabled future devices without a connected entity, unavailable-state handling and pending feedback. Keep labels, icons, descriptions and permission entities in dashboard configuration.
+- Document a state-derived ventilation Off preset using the existing configurable preset actions. Add regression checks for permission routing, invalid/direct device bindings, unavailable controls and Off detection.
+
 ## 0.4.0 - 2026-10-18
 - Bundle a Graphite Blue companion theme with neutral surfaces and blue accents in both dark and light modes. Preserve the original theme and the existing HACS include path.
 - Add validated, optional neutral-palette configuration independent of the source accent. Generate native HA and component roles through the same color implementation, with no household-specific CSS.
