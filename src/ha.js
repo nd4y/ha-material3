@@ -1,6 +1,14 @@
 export const available=(state)=>!!state&&!['unknown','unavailable'].includes(state.state);
 export const finite=(value)=>value!==null&&value!==undefined&&value!==''&&Number.isFinite(Number(value))?Number(value):null;
 export const stateOf=(hass,entity)=>entity?hass?.states?.[entity]:undefined;
+export function actuatorState(hass,item){
+  const state=stateOf(hass,item.entity),usable=!item.disabled&&available(state)&&['on','off'].includes(state.state);
+  return {available:usable,selected:usable&&state.state==='on'};
+}
+export function actuatorAction(hass,item,selected){
+  if(!actuatorState(hass,item).available)throw new Error('Unavailable actuator permission');
+  return {action:'perform-action',perform_action:`input_boolean.turn_${selected?'on':'off'}`,target:{entity_id:item.entity}};
+}
 export function targetDecimals(state){
   const decimals=value=>{const n=finite(value);if(n===null)return 0;const[m,e='0']=String(n).split('e');return Math.max(0,(m.split('.')[1]?.length||0)-Number(e));};
   return Math.min(6,Math.max(...['step','min','max'].map(k=>decimals(state?.attributes?.[k]))));
@@ -60,6 +68,13 @@ export function validateConfig(config,kind='panel'){
     if(!config.entities.enabled.startsWith('input_boolean.'))throw new Error('Enabled control must be input_boolean');
     const ids=new Set();for(const p of config.presets||[]){if(!p.id||ids.has(p.id))throw new Error('Preset IDs must be unique');ids.add(p.id);validateAction(p.action);}
     if(config.maximum?.cancel_action)validateAction(config.maximum.cancel_action);
+    if(config.actuators!==undefined&&!Array.isArray(config.actuators))throw new Error('Actuators must be an array');
+    const actuatorIds=new Set();for(const item of config.actuators||[]){
+      if(!item||typeof item.id!=='string'||!item.id||actuatorIds.has(item.id)||typeof item.name!=='string'||!item.name.trim())throw new Error('Actuators need unique IDs and names');
+      actuatorIds.add(item.id);
+      if(item.disabled!==undefined&&typeof item.disabled!=='boolean')throw new Error('Invalid actuator disabled flag');
+      if((!item.disabled||item.entity!==undefined)&&!/^input_boolean\.[a-z0-9_]+$/.test(item.entity||''))throw new Error('Actuator permission must be input_boolean');
+    }
   }
   if(kind==='device'&&!config.entity)throw new Error('Missing entity');
   if(kind==='camera'&&!config.entity)throw new Error('Missing camera entity');
