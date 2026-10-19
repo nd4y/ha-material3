@@ -13,6 +13,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run check
+      - name: Verify committed distribution is reproducible
+        run: git diff --exit-code -- dist themes
       - run: python3 scripts/package.py
       - run: python3 scripts/stage-hacs-release.py
       - uses: actions/upload-artifact@v7.0.2
