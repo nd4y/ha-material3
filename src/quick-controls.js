@@ -1,6 +1,18 @@
 import {available,finite,stateOf,matches,validateAction} from './ha.js';
 
 const read=(state,attribute)=>attribute?state?.attributes?.[attribute]:state?.state;
+export function automationPermission(hass,item){
+  const state=stateOf(hass,item.lock_entity),known=available(state)&&['on','off'].includes(state.state);
+  return {available:known,automatic:known&&state.state==='off'};
+}
+export function automationAction(item,automatic){
+  if(typeof automatic!=='boolean')throw new Error('Automatic permission must be boolean');
+  return item.lock_action?valueAction(item.lock_action,!automatic):{action:'perform-action',perform_action:`input_boolean.turn_${automatic?'off':'on'}`,target:{entity_id:item.lock_entity}};
+}
+export function automationSummary(hass,group){
+  const online=available(stateOf(hass,group.entity));
+  return {available:online,automatic:(group.controls||[]).filter(item=>online&&automationPermission(hass,item).automatic).map(item=>item.name),manual:(group.controls||[]).filter(item=>!online||!automationPermission(hass,item).automatic).map(item=>item.name)};
+}
 export function controlModel(hass,item){
   const state=stateOf(hass,item.entity),lock=stateOf(hass,item.lock_entity),locked=lock?.state==='on';
   const saved=stateOf(hass,item.value_entity),actual=read(state,item.attribute);

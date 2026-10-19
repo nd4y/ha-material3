@@ -68,6 +68,9 @@ export function validateConfig(config,kind='panel'){
     if(!config.entities.enabled.startsWith('input_boolean.'))throw new Error('Enabled control must be input_boolean');
     const ids=new Set();for(const p of config.presets||[]){if(!p.id||ids.has(p.id))throw new Error('Preset IDs must be unique');ids.add(p.id);validateAction(p.action);}
     if(config.maximum?.cancel_action)validateAction(config.maximum.cancel_action);
+    if(config.target_action){validateAction(config.target_action);if(config.target_action.action!=='perform-action'||!config.target_action.value_field)throw new Error('Target needs a dynamic value action');}
+    if(config.automation_reset){if(!config.automation_reset.name)throw new Error('Automation reset needs a name');validateAction(config.automation_reset.action);}
+    for(const group of config.automation_groups||[]){if(!group.name||!group.entity||!Array.isArray(group.controls))throw new Error('Automation groups need names, entities and controls');for(const item of group.controls)if(!item.name||!/^input_boolean\.[a-z0-9_]+$/.test(item.lock_entity||''))throw new Error('Automation control needs a name and lock helper');}
     if(config.actuators!==undefined&&!Array.isArray(config.actuators))throw new Error('Actuators must be an array');
     const actuatorIds=new Set();for(const item of config.actuators||[]){
       if(!item||typeof item.id!=='string'||!item.id||actuatorIds.has(item.id)||typeof item.name!=='string'||!item.name.trim())throw new Error('Actuators need unique IDs and names');
