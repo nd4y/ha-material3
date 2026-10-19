@@ -7,5 +7,7 @@ Object.assign(ru,{locked:'Закреплено',automationAllowed:'Доступ�
 Object.assign(en,{locked:'Setting held',automationAllowed:'Automation allowed',lock:'Hold manual setting',unlock:'Allow automation',deviceAuto:'Device Auto'});
 Object.assign(ru,{turnOn:'Включить',turnOff:'Выключить',savedUntilOn:'Сохранено до включения'});
 Object.assign(en,{turnOn:'Turn on',turnOff:'Turn off',savedUntilOn:'Saved until switched on'});
+Object.assign(ru,{managedAutomatically:'Управляется автоматически',manualSetting:'Ручная настройка',automationAccess:'Доступно автоматике',allParameters:'Все параметры',noParameters:'Нет доступных параметров',desiredTemperature:'Желаемая температура',roomTarget:'Цель комнаты'});
+Object.assign(en,{managedAutomatically:'Managed automatically',manualSetting:'Manual setting',automationAccess:'Automation access',allParameters:'All parameters',noParameters:'No available parameters',desiredTemperature:'Desired temperature',roomTarget:'Room target'});
 export const translate=(hass,config,key)=>(locale(hass,config).startsWith('ru')?ru:en)[key]||key;
 export const formatNumber=(hass,config,value,options={})=>Number(value).toLocaleString(locale(hass,config),{maximumFractionDigits:2,...options});

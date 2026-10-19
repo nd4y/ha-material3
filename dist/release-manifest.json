@@ -1,6 +1,6 @@
 {
   "name": "ha-material3",
-  "version": "0.6.3",
+  "version": "0.7.0",
   "files": [
     {
       "path": "ha-material3-theme.yaml",
@@ -9,8 +9,8 @@
     },
     {
       "path": "ha-material3.js",
-      "bytes": 312228,
-      "sha256": "db8cb90465f56e61824cf732f1846423fc6dd811290568c887a95b07a8dc8586"
+      "bytes": 330890,
+      "sha256": "cb1db958c3bed3e98f6c4d0efe7c9fa820448e0033053f27523351ecfb703dc4"
     },
     {
       "path": "LICENSE",
@@ -54,8 +54,8 @@
     }
   ],
   "sources": {
-    "package-lock.json": "eedc4907973e9b045634929eefa30c831c2c4cfed221df8d862890502af6398b",
-    "package.json": "22b3d3e36757c29393f74b6469a1b42424b2f93b40987cacc8c7e863329976a9",
+    "package-lock.json": "f3a993748c9ff03cec593ae7b625a165012f0ee97c2ec8069db75e3d5b067411",
+    "package.json": "bb7fad748115c0501fcbf4aa818dd02020a7357b4cf8caa333597e7133f2d92f",
     "scripts/audit-release.mjs": "ca5fbff89ef1c15a3844746208aaad340f13219dda338bf8b537b52ffb649118",
     "scripts/build.mjs": "cb735d7e6677ac72c17c53a4a31ce90ce086dc515815ea9e332d187841315f2c",
     "scripts/dev-server.mjs": "24122b05d1d1db68a0721bfb8c4524799f7d7b7e33cb94af4c89dbc34451a08f",
@@ -66,20 +66,21 @@
     "scripts/stage-hacs-release.py": "920a4de83a9f9dcbcb3d58569ec29c980d67c7e2a9f74ad6775f9526c0210795",
     "scripts/theme.mjs": "f578b6e47c3b62365da8011394bbaab86c8125cd163f68230bc51494cd468dcb",
     "src/asset-url.js": "033c8020367ab43ce04061bb2196f2b866ca0b891fae019cd612a3223a256c9b",
-    "src/cards.js": "bfdf888859b79edcef647e23aafc11386862de377d675763fcc892dcd7f33717",
+    "src/cards.js": "67672abd3f32891efdaef3cb36883cbd736cbba4aa07c94c0354519c5b592fed",
     "src/color-scheme.js": "16b6d291d27ad9bcd3e0b747a5c94cd3dedeb2bd740bcf409c0b570b30c0c0f9",
     "src/components.js": "d2dba976478417490b7a995fb8a163e9201f15b53727003b52c4f12256b42b76",
     "src/design-system.js": "d469e9c0b557e66a378487679c339f3a5b9e2386c5c07ba6b668975676778025",
     "src/editor.js": "9212d33d6e3c0162431ab94e0aac22367b147303285e653f647ab76ec71c4a70",
     "src/fields.js": "20cfb3e84784c21380a79298253c3643f23358b5eff13f968242cd311b04f1a0",
-    "src/ha.js": "805d8b7548484b8c3976fa674de3e3d5073b448e51ec66bbdbda8ebed22940ec",
+    "src/ha.js": "80f859992b733c3fcee2ae4d9326e76ddb1dd66149128e590b28109333a02277",
     "src/index.js": "ba64f597f0b411917b6375f8571c3958d7d729f11111a1465b0701c1560e3299",
-    "src/localize.js": "a02f41fb50ff025421ada211fac989f4eae1b8714198c3161ef184cfba943771",
+    "src/localize.js": "df7473055ff5ba1b2a076ec9ebf67202f44da01233e3559a266852b43f476870",
     "src/motion.js": "08e3eea7ce0006823ea4877d7f83bb75ec46603581c9a8872351ce413ac8bbb3",
     "src/native-dashboard.js": "27e298b20e8568009f14c244997c36a3c2a5c2576c1d67f900526ef8405383e7",
     "src/panel.js": "09760aa39972be12adec7b7fc432591576201ad96895c5221576fafbb75d18ac",
-    "src/quick-card.js": "70aabed75f17bd7ea4df07ff325685268efb41b4d31ab79dbfe4cbd3126aa9c5",
-    "src/quick-controls.js": "0af280c9dcac38363be80185613f4b429bc50e0e29af605826dfad805ec542aa",
+    "src/quick-card.js": "67a7c0e23a0f93ece7b93bd34efc7e3c08d526f6b7b979fecf9ffee8494e7cf0",
+    "src/quick-controls.js": "338320d6c1793eae9416f8811d51a86d00da9bb6551643ee6bea53848194a91e",
+    "src/room-controls.js": "43be8f2887deda1cc516da297708b3ba8221ed45ed6b06356453d8bb480d92b4",
     "src/slider.js": "209fc0c4a84913dd5b3db8bda0e33590343ef8485285697e404c197f7dd711ea",
     "src/theme.js": "0eb5b9ae98e946678afa5e7b22725351dd4d2880733024c091f3e301fc98bf27",
     "tokens/design-system.json": "a105fba43308d92438390579f2f983b93b58f691a157f1ab42605a8c510946af",

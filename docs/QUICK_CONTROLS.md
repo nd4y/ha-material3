@@ -9,6 +9,11 @@ holds a manual setting; it does not disable the slider. Editing a held value is
 still an explicit manual action. A native device Auto mode can also be held: the
 device may vary its speed, while HA scenarios must preserve the selected Auto mode.
 
+The visible control is now a **Managed automatically** checkbox. Checked means
+the configured lock helper is `off`; unchecked means it is `on`. Existing lock
+bindings and gateway actions remain compatible. Power has its own checkbox.
+Manual edits should clear only their corresponding checkbox on the server.
+
 The backend, rather than a browser tab, must enforce locks. Every automatic write,
 including timers, recovery and preset helpers, needs an `is_state(lock, 'off')`
 guard. Unknown or unavailable lock states must fail closed. Do not use `not on` as
@@ -98,3 +103,38 @@ Use `compact: true` on `ha-m3-climate-card` for a small room summary and scenari
 controls alongside the individual quick cards. `preset_status_entity` can explain
 partially applied scenarios when some quantities are locked. The shared room target
 can be exposed by a configured quick slider rather than duplicated in the summary.
+
+For room-level intent, add `target_slider: true` to the compact climate card.
+An optional `target_action` has the same dynamic `value_field` contract as a quick
+control. Bind it to a room-goal gateway that preserves manual device permissions.
+Keep the shared room goal separate from held device targets so changing the goal
+does not overwrite a manual thermostat setting.
+
+```yaml
+target_slider: true
+target_action:
+  action: perform-action
+  perform_action: script.my_room_goal
+  value_field: value
+automation_groups:
+  - name: Air conditioner
+    entity: climate.my_device
+    controls:
+      - name: Temperature
+        lock_entity: input_boolean.my_temperature_lock
+automation_reset:
+  name: Trust all automation
+  action:
+    action: perform-action
+    perform_action: script.my_trust_all
+context_sensors:
+  - name: CO2
+    entity: sensor.my_co2
+```
+
+Configure the requested air levels as regular `presets` with `active_when` bound
+to a persistent selector. This keeps requested intent selected when manual
+parameters prevent full application. Five choices use a full-width first choice
+and two rows of two. Labels, actions and sensor bindings remain configurable.
+The reset gateway defines which permissions are released; the card itself never
+chooses devices, enables unrelated entities, or changes a requested room goal.
