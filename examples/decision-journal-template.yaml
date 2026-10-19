@@ -1,0 +1,23 @@
+# Include this list under template: in your PRIVATE HA configuration.
+# Change stream and unique_id if you maintain more than one independent controller.
+# A frontend resource cannot install a server-side controller or access health accounts.
+- triggers:
+    - trigger: event
+      event_type: ha_m3_decision
+      event_data:
+        stream: climate
+  sensor:
+    - name: Climate decisions
+      unique_id: m3_climate_decisions
+      state: "{{ trigger.event.data.record.id }}"
+      attributes:
+        entries: >-
+          {% set feed = [trigger.event.data.record] + (this.attributes.entries | default([])) %}
+          {% set bounded = namespace(entries=[]) %}
+          {% for record in feed[:20] %}
+            {% set next = bounded.entries + [record] %}
+            {% if next | to_json | length < 3500 %}
+              {% set bounded.entries = next %}
+            {% endif %}
+          {% endfor %}
+          {{ bounded.entries }}

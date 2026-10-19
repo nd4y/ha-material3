@@ -14,6 +14,10 @@ export function resolveDesignSystem(overrides={}){
   }
   for(const group of ['shape','spacing','layout'])for(const value of Object.values(c[group]))if(!Number.isFinite(value)||value<=0||value>4096)throw new Error('Invalid design dimension');
   if(!['surface','surface-container-low','surface-container','surface-container-high','surface-container-highest'].includes(c.temperature_surface))throw new Error('Invalid temperature_surface');
+  for(const[mode,roles]of Object.entries(c.color_overrides||{})){
+    if(!['dark','light'].includes(mode)||!roles||typeof roles!=='object'||Array.isArray(roles))throw new Error('Invalid color overrides');
+    for(const[role,value]of Object.entries(roles))if(!/^[a-z][a-z-]+$/.test(role)||!/^#[a-f0-9]{6}$/i.test(value))throw new Error('Invalid color role');
+  }
   return c;
 }
 export function appTokens(c=defaults){return{'card-radius':c.shape.card+'px','temperature-radius':c.shape.temperature+'px','card-padding':c.spacing.card+'px','compact-card-padding':c.spacing.compact_card+'px','section-gap':c.spacing.section+'px','row-gap':c.spacing.row+'px','content-width':c.layout.max_width+'px','primary-track':c.layout.primary_ratio+'fr','font-family':c.font_family,'temperature-background':`var(--md-sys-color-${c.temperature_surface})`};}

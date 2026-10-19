@@ -3,5 +3,23 @@
     "name": "Material 3 Expressive - Graphite Blue",
     "seed_color": "#415F91",
     "neutral_palette": {"hue": 0, "chroma": 0, "variant_chroma": 2}
+  },
+  {
+    "name": "Material 3 Expressive - Ice",
+    "seed_color": "#9ACBFF",
+    "neutral_palette": {"hue": 255, "chroma": 7, "variant_chroma": 12},
+    "shape": {"card": 20, "temperature": 16},
+    "spacing": {"card": 20, "compact_card": 16, "section": 16, "row": 8},
+    "color_overrides": {"dark": {
+      "surface": "#101317", "surface-container-lowest": "#0B0E12",
+      "surface-container-low": "#161A20", "surface-container": "#1A1E24",
+      "surface-container-high": "#242B34", "surface-container-highest": "#2E3641",
+      "on-surface": "#E3E9F1", "on-surface-variant": "#B4BFCE",
+      "outline-variant": "#3C4855", "primary": "#9ACBFF", "on-primary": "#0A335B",
+      "primary-container": "#293E54", "on-primary-container": "#D3E7FF",
+      "secondary-container": "#293440", "on-secondary-container": "#DAE5F2",
+      "tertiary": "#96D4C0", "on-tertiary": "#07382B",
+      "tertiary-container": "#253E35", "on-tertiary-container": "#B8EFDA"
+    }}
   }
 ]

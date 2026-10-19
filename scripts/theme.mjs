@@ -6,6 +6,10 @@ export async function generateThemeData(overrides={}){
   const result=await build({absWorkingDir:root,entryPoints:['scripts/generate-tokens.js'],bundle:true,platform:'node',format:'cjs',write:false,target:'node22'});
   const file=path.join(root,'build/theme-colors.cjs');await fs.mkdir(path.dirname(file),{recursive:true});await fs.writeFile(file,result.outputFiles[0].text);
   const modes=createRequire(import.meta.url)(file).generatePalettes({custom:settings.seed_color},settings.neutral_palette).custom.modes;
+  for(const[mode,roles]of Object.entries(settings.color_overrides||{})){
+    for(const role of Object.keys(roles))if(!(role in modes[mode]))throw new Error('Unknown color role: '+role);
+    Object.assign(modes[mode],roles);
+  }
   return themeDefinition(modes,settings);
 }
 export async function generateTheme(overrides={}){

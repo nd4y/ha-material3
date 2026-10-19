@@ -10,6 +10,9 @@ export function colorRoles(seed=designSystem.seed_color,dark=true){
 }
 export function applyTheme(host,config,hass){
   const a=config?.appearance||{},scheme=a.scheme||'auto',dark=scheme==='auto'?hass?.themes?.darkMode??true:scheme==='dark',inherit=!a.seed_color&&(!a.scheme||a.scheme==='auto');
+  if(a.protect_colors===true&&!document.querySelector('meta[name="darkreader-lock"]')){
+    const meta=document.createElement('meta');meta.name='darkreader-lock';meta.id='ha-material3-color-protection';document.head.append(meta);
+  }
   host.style.setProperty('--ha-m3-motion-reduced',a.motion==='reduced'?'1':'0');
   host.style.setProperty('--ha-m3-effects-duration',a.motion==='reduced'?'0ms':'150ms');
   host.style.setProperty('--ha-m3-scrim-duration',a.motion==='reduced'?'0ms':'200ms');

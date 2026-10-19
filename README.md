@@ -1,6 +1,6 @@
 # Home Assistant Material 3 Expressive
 
-Configurable Material 3 Expressive cards and theme for Home Assistant. Use native HA navigation and Sections layout with independent cards. Dark appearance is the fallback; the active companion theme is inherited by default. Version **0.5.0**, Apache-2.0. Independent project, not an official Google or Home Assistant product.
+Configurable Material 3 Expressive cards and theme for Home Assistant. Use native HA navigation and Sections layout with independent cards. Dark appearance is the fallback; the active companion theme is inherited by default. Version **0.8.0**, Apache-2.0. Independent project, not an official Google or Home Assistant product.
 
 [Releases](https://github.com/nd4y/ha-material3/releases) · [Changelog](CHANGELOG.md) · [Issues](https://github.com/nd4y/ha-material3/issues)
 
@@ -13,6 +13,7 @@ Configurable Material 3 Expressive cards and theme for Home Assistant. Use nativ
 - Optional YAML theme for the surrounding HA interface, generated from the same color roles.
 - Optional `ha-m3-panel` / `custom:ha-m3-dashboard` composition with its own navigation, retained for existing installations. See [composite example](examples/composite-dashboard.yaml).
 - Russian/English labels and localized numbers. Device, room and action names are configurable.
+- Ice theme, compact calm layout, automation permission switches, Maximum return popover and a real server decision feed: [configuration and contracts](docs/DECISION_JOURNAL.md).
 
 Entities, actions, rooms, camera, labels and preset conditions live in configuration. No credentials, cloud service, firmware patch or hardcoded household identifiers are required. Climate automation stays in HA. Ventilation actions do not write a room target.
 
