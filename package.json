@@ -1,6 +1,6 @@
 {
   "name": "ha-material3",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Configurable Material 3 Expressive panel and cards for Home Assistant",
   "type": "module",
   "license": "Apache-2.0",
