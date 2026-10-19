@@ -121,3 +121,7 @@ Refresh clients after bundle updates: custom element definitions cannot be repla
 Changes go through a branch and pull request. Run `npm version patch --no-git-tag-version`, update the changelog, then `npm run check` and commit the matching `dist/` and theme. After the PR is merged, tag that merged commit with the exact package version, for example `v0.1.2`, and push the tag. The release workflow checks that the tag is on the default branch, tests/rebuilds the module, rejects stale committed distribution files, packages archives and publishes a GitHub release with SHA-256 checksums. HACS then detects the new release. See [publishing details](docs/publishing.md).
 
 [Third-party notices](THIRD_PARTY_NOTICES.md) and font/icon licenses are included. Public examples contain generic devices only.
+
+## Quick sliders and persistent locks
+
+See [quick control configuration](docs/QUICK_CONTROLS.md) for device metadata, native Auto modes and server-enforced manual locks. Available since v0.6.0.
