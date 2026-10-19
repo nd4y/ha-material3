@@ -1,6 +1,6 @@
 {
   "name": "ha-material3",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "files": [
     {
       "path": "ha-material3-theme.yaml",
@@ -9,8 +9,8 @@
     },
     {
       "path": "ha-material3.js",
-      "bytes": 312011,
-      "sha256": "010c48368631facf41a82f29b7f5063f02bc1ed34aeda7a436bae8115664a2de"
+      "bytes": 312087,
+      "sha256": "0f9517a2db9aaa670918bac5879693896b64ae77ba60b1a009dcb9f1503d044f"
     },
     {
       "path": "LICENSE",
@@ -54,9 +54,9 @@
     }
   ],
   "sources": {
-    "package-lock.json": "84680f69422232c597bf3967abf671300edf31afbb01bb3fc0407827975c0369",
-    "package.json": "bac5270b61787da0b235f8ca8f1d7349c949935a65dab31a7d49d2347f0fb3e8",
-    "scripts/audit-release.mjs": "c283314cce87edadc433a9902a0a479c763cf6096b327300bde319fb6d6dbecf",
+    "package-lock.json": "95c8f7867e7318da41ee0ee87b2a5a362784cc9f294389d0ccc2a888c225dc90",
+    "package.json": "a6810f6456ca55677ea1523114497fe4b71670c15ca98674f477c2cd157b6e72",
+    "scripts/audit-release.mjs": "ca5fbff89ef1c15a3844746208aaad340f13219dda338bf8b537b52ffb649118",
     "scripts/build.mjs": "cb735d7e6677ac72c17c53a4a31ce90ce086dc515815ea9e332d187841315f2c",
     "scripts/dev-server.mjs": "24122b05d1d1db68a0721bfb8c4524799f7d7b7e33cb94af4c89dbc34451a08f",
     "scripts/fetch-assets.mjs": "ac92ea336ef1a808bfb69d6b87d24ac85a129cbe9b28597b17ca55b33b7c5eca",
@@ -65,6 +65,7 @@
     "scripts/package.py": "90bff17be902e0669c92c033f0c6b3c8c2190db7060d67b6d3ae41062385b579",
     "scripts/stage-hacs-release.py": "920a4de83a9f9dcbcb3d58569ec29c980d67c7e2a9f74ad6775f9526c0210795",
     "scripts/theme.mjs": "f578b6e47c3b62365da8011394bbaab86c8125cd163f68230bc51494cd468dcb",
+    "src/asset-url.js": "033c8020367ab43ce04061bb2196f2b866ca0b891fae019cd612a3223a256c9b",
     "src/cards.js": "bfdf888859b79edcef647e23aafc11386862de377d675763fcc892dcd7f33717",
     "src/color-scheme.js": "16b6d291d27ad9bcd3e0b747a5c94cd3dedeb2bd740bcf409c0b570b30c0c0f9",
     "src/components.js": "d2dba976478417490b7a995fb8a163e9201f15b53727003b52c4f12256b42b76",
@@ -80,7 +81,7 @@
     "src/quick-card.js": "2a83b561da23fb75585c1e68123292a963467e9c85f458c21545dbd6af5a0c6c",
     "src/quick-controls.js": "0af280c9dcac38363be80185613f4b429bc50e0e29af605826dfad805ec542aa",
     "src/slider.js": "209fc0c4a84913dd5b3db8bda0e33590343ef8485285697e404c197f7dd711ea",
-    "src/theme.js": "0988f19291cad1992b8854e1111e6bbac7a1a28e1c15bab0c24027ac6ce87f92",
+    "src/theme.js": "0eb5b9ae98e946678afa5e7b22725351dd4d2880733024c091f3e301fc98bf27",
     "tokens/design-system.json": "a105fba43308d92438390579f2f983b93b58f691a157f1ab42605a8c510946af",
     "tokens/foundation.json": "a79e109f67460506da60fbc6648a03d3d7978344ba9c35363b09520de88ee62c",
     "tokens/material3-palettes.json": "764a80516ba7a5812a151cffdba14e017270a3132da1a04fcb3a4c9ab2d5ce4f",

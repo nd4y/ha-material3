@@ -1,6 +1,7 @@
 import {createColorRoles} from './color-scheme.js';
 import foundation from '../tokens/foundation.json' with {type:'json'};
 import {designSystem,appTokens} from './design-system.js';
+import {assetUrl} from './asset-url.js';
 const cache=new Map();
 export function colorRoles(seed=designSystem.seed_color,dark=true){
   const key=seed+dark;if(cache.has(key))return cache.get(key);
@@ -19,7 +20,7 @@ export function applyTheme(host,config,hass){
   for(const[k,v]of Object.entries(appTokens()))host.style.setProperty('--ha-m3-ui-'+k,k==='temperature-background'&&!inherit?v:`var(--ha-m3-${k},${v})`);
   host.style.colorScheme=dark?'dark':'light';
 }
-const asset=(name)=>new URL(`./${name}`,import.meta.url).href;
+const asset=(name)=>assetUrl(name,import.meta.url,__VERSION__);
 export function loadFonts(){
   if(document.getElementById('ha-material3-fonts'))return;
   const style=document.createElement('style');style.id='ha-material3-fonts';
