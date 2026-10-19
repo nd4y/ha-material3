@@ -7,6 +7,7 @@ import {generateTheme} from './theme.mjs';
 import {resolveDesignSystem} from '../src/design-system.js';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..'),out=path.join(root,'dist');
 const pkg=JSON.parse(await fs.readFile(path.join(root,'package.json'),'utf8'));
+const copyAsset=async(source,destination)=>path.extname(source)==='.woff2'?fs.copyFile(source,destination):fs.writeFile(destination,(await fs.readFile(source,'utf8')).replace(/\r\n?/g,'\n'));
 await fs.mkdir(out,{recursive:true});
 // HACS release assets have a flat namespace. Remove only the known legacy files.
 const legacyAssets=path.join(out,'assets');
@@ -31,10 +32,10 @@ const namespace={name:'namespace-material-web',setup(b){b.onLoad({filter:/@mater
 await build({absWorkingDir:root,entryPoints:['src/index.js'],outfile:path.join(out,'ha-material3.js'),bundle:true,format:'iife',target:'es2022',minify:true,sourcemap:true,legalComments:'eof',banner:{js:'const __m3ModuleUrl = import.meta.url; if (!customElements.get("ha-m3-panel")) {'},footer:{js:`}\nexport const version = ${JSON.stringify(pkg.version)};`},define:{__VERSION__:JSON.stringify(pkg.version),'import.meta.url':'__m3ModuleUrl'},plugins:[namespace],metafile:true}).then(async r=>fs.writeFile(path.join(root,'build-meta.json'),JSON.stringify(r.metafile,null,2)));
 const fontDir=path.join(root,'node_modules/@fontsource-variable/roboto');
 for(const subset of ['latin','cyrillic'])await fs.copyFile(path.join(fontDir,`files/roboto-${subset}-wght-normal.woff2`),path.join(out,`roboto-${subset}.woff2`));
-await fs.copyFile(path.join(fontDir,'LICENSE'),path.join(out,'roboto-LICENSE.txt'));
-for(const file of ['material-symbols-rounded.woff2','material-symbols-LICENSE.txt','material-symbols-source.json'])await fs.copyFile(path.join(root,'assets',file),path.join(out,file));
-await fs.copyFile(path.join(root,'LICENSE'),path.join(out,'LICENSE'));
-await fs.copyFile(path.join(root,'THIRD_PARTY_NOTICES.md'),path.join(out,'THIRD_PARTY_NOTICES.md'));
+await copyAsset(path.join(fontDir,'LICENSE'),path.join(out,'roboto-LICENSE.txt'));
+for(const file of ['material-symbols-rounded.woff2','material-symbols-LICENSE.txt','material-symbols-source.json'])await copyAsset(path.join(root,'assets',file),path.join(out,file));
+await copyAsset(path.join(root,'LICENSE'),path.join(out,'LICENSE'));
+await copyAsset(path.join(root,'THIRD_PARTY_NOTICES.md'),path.join(out,'THIRD_PARTY_NOTICES.md'));
 const presets=JSON.parse(await fs.readFile(path.join(root,'tokens/theme-presets.json'),'utf8'));
 const themeSettings=[{},...presets],themeNames=themeSettings.map(c=>resolveDesignSystem(c).name);
 if(new Set(themeNames).size!==themeNames.length)throw new Error('Duplicate theme preset name');

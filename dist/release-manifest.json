@@ -1,6 +1,6 @@
 {
   "name": "ha-material3",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "files": [
     {
       "path": "ha-material3-theme.yaml",
@@ -10,7 +10,7 @@
     {
       "path": "ha-material3.js",
       "bytes": 312011,
-      "sha256": "351f3207dc0d7e3590ec93e8a5582af9455887cbe6036b20aae07bafacb11dc9"
+      "sha256": "010c48368631facf41a82f29b7f5063f02bc1ed34aeda7a436bae8115664a2de"
     },
     {
       "path": "LICENSE",
@@ -34,8 +34,8 @@
     },
     {
       "path": "material-symbols-source.json",
-      "bytes": 1258,
-      "sha256": "969dd12e9365e7b96c098d46786a2a9f91eb186f8346fed947a13b25f358e7bf"
+      "bytes": 1213,
+      "sha256": "a47b2e593e90be05512295e5fb5fc590d238a51601b8130853811c52bae86b4b"
     },
     {
       "path": "roboto-LICENSE.txt",
@@ -54,10 +54,10 @@
     }
   ],
   "sources": {
-    "package-lock.json": "ad064596c62fa4b19ebc230aeadae4e4a13a857070be16f2cc0be99159e9df18",
-    "package.json": "306a72e66de7a9c050650b6170a917c84d4b46eb05008abe5a048a062eae349e",
+    "package-lock.json": "84680f69422232c597bf3967abf671300edf31afbb01bb3fc0407827975c0369",
+    "package.json": "bac5270b61787da0b235f8ca8f1d7349c949935a65dab31a7d49d2347f0fb3e8",
     "scripts/audit-release.mjs": "c283314cce87edadc433a9902a0a479c763cf6096b327300bde319fb6d6dbecf",
-    "scripts/build.mjs": "58f56ecf0f748bd59d50b7fc984b15885ef39f23de3601652a2a98b95c3aefcd",
+    "scripts/build.mjs": "cb735d7e6677ac72c17c53a4a31ce90ce086dc515815ea9e332d187841315f2c",
     "scripts/dev-server.mjs": "24122b05d1d1db68a0721bfb8c4524799f7d7b7e33cb94af4c89dbc34451a08f",
     "scripts/fetch-assets.mjs": "ac92ea336ef1a808bfb69d6b87d24ac85a129cbe9b28597b17ca55b33b7c5eca",
     "scripts/generate-tokens.js": "97d835d06a626c3f29cbda56103c97222102d14fa9b4409d3590f76a7247267c",
