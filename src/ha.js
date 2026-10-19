@@ -52,7 +52,7 @@ export async function perform(host,hass,action){
   const [domain,service]=action.perform_action.split('.');
   return hass.callService(domain,service,action.data||{},action.target||{});
 }
-function validateAction(action){
+export function validateAction(action){
   if(!action||!['perform-action','toggle','more-info','navigate'].includes(action.action))throw new Error('Unsupported action');
   if(action.action==='perform-action'&&!/^[a-z_]+\.[a-z_]+$/.test(action.perform_action||''))throw new Error('Invalid service');
   if(action.action==='navigate'&&!/^\/(?!\/)/.test(action.navigation_path||''))throw new Error('Invalid HA path');

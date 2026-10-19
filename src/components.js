@@ -1,6 +1,7 @@
 import {LitElement,html,css,nothing} from 'lit';
 import {Motion} from './motion.js';
 export const symbols=['ac_unit','add','air','arrow_back','arrow_forward','auto_awesome','check','check_circle','chevron_right','close','delete','devices','eco','error','expand_more','home','humidity_percentage','info','kitchen','lightbulb','lock','meeting_room','menu','menu_book','mode_fan','more_horiz','open_in_full','pause','play_arrow','power_settings_new','refresh','remove','settings','thermostat','thermostat_auto','tune','vacuum','videocam','water_drop'];
+symbols.push('lock_open');
 const symbolSet=new Set(symbols);
 export const icon=(name)=>html`<span class="symbol" aria-hidden="true">${symbolSet.has(name)?name:'devices'}</span>`;
 export const common=css`

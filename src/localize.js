@@ -3,5 +3,9 @@ const en={home:'Home',rooms:'Rooms',cameras:'Cameras',current:'Room temperature'
 export const locale=(hass,config)=>config?.language||hass?.locale?.language||hass?.language||'en';
 Object.assign(ru,{actuators:'Температуру поддерживают',allowed:'Разрешён',excluded:'Не используется'});
 Object.assign(en,{actuators:'Temperature control devices',allowed:'Allowed',excluded:'Excluded'});
+Object.assign(ru,{locked:'Закреплено',automationAllowed:'Доступно автоматике',lock:'Закрепить настройку',unlock:'Разрешить автоматике',deviceAuto:'Авто устройства'});
+Object.assign(en,{locked:'Setting held',automationAllowed:'Automation allowed',lock:'Hold manual setting',unlock:'Allow automation',deviceAuto:'Device Auto'});
+Object.assign(ru,{turnOn:'Включить',turnOff:'Выключить',savedUntilOn:'Сохранено до включения'});
+Object.assign(en,{turnOn:'Turn on',turnOff:'Turn off',savedUntilOn:'Saved until switched on'});
 export const translate=(hass,config,key)=>(locale(hass,config).startsWith('ru')?ru:en)[key]||key;
 export const formatNumber=(hass,config,value,options={})=>Number(value).toLocaleString(locale(hass,config),{maximumFractionDigits:2,...options});
