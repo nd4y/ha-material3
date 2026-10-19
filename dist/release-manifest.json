@@ -1,6 +1,6 @@
 {
   "name": "ha-material3",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "files": [
     {
       "path": "ha-material3-theme.yaml",
@@ -9,8 +9,8 @@
     },
     {
       "path": "ha-material3.js",
-      "bytes": 312087,
-      "sha256": "0f9517a2db9aaa670918bac5879693896b64ae77ba60b1a009dcb9f1503d044f"
+      "bytes": 312228,
+      "sha256": "db8cb90465f56e61824cf732f1846423fc6dd811290568c887a95b07a8dc8586"
     },
     {
       "path": "LICENSE",
@@ -54,8 +54,8 @@
     }
   ],
   "sources": {
-    "package-lock.json": "95c8f7867e7318da41ee0ee87b2a5a362784cc9f294389d0ccc2a888c225dc90",
-    "package.json": "a6810f6456ca55677ea1523114497fe4b71670c15ca98674f477c2cd157b6e72",
+    "package-lock.json": "eedc4907973e9b045634929eefa30c831c2c4cfed221df8d862890502af6398b",
+    "package.json": "22b3d3e36757c29393f74b6469a1b42424b2f93b40987cacc8c7e863329976a9",
     "scripts/audit-release.mjs": "ca5fbff89ef1c15a3844746208aaad340f13219dda338bf8b537b52ffb649118",
     "scripts/build.mjs": "cb735d7e6677ac72c17c53a4a31ce90ce086dc515815ea9e332d187841315f2c",
     "scripts/dev-server.mjs": "24122b05d1d1db68a0721bfb8c4524799f7d7b7e33cb94af4c89dbc34451a08f",
@@ -78,7 +78,7 @@
     "src/motion.js": "08e3eea7ce0006823ea4877d7f83bb75ec46603581c9a8872351ce413ac8bbb3",
     "src/native-dashboard.js": "27e298b20e8568009f14c244997c36a3c2a5c2576c1d67f900526ef8405383e7",
     "src/panel.js": "09760aa39972be12adec7b7fc432591576201ad96895c5221576fafbb75d18ac",
-    "src/quick-card.js": "2a83b561da23fb75585c1e68123292a963467e9c85f458c21545dbd6af5a0c6c",
+    "src/quick-card.js": "70aabed75f17bd7ea4df07ff325685268efb41b4d31ab79dbfe4cbd3126aa9c5",
     "src/quick-controls.js": "0af280c9dcac38363be80185613f4b429bc50e0e29af605826dfad805ec542aa",
     "src/slider.js": "209fc0c4a84913dd5b3db8bda0e33590343ef8485285697e404c197f7dd711ea",
     "src/theme.js": "0eb5b9ae98e946678afa5e7b22725351dd4d2880733024c091f3e301fc98bf27",
