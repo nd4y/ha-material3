@@ -42,3 +42,11 @@
 - Initial configurable Material 3 Expressive panel, climate/device/camera cards and basic visual editor.
 - Local font/icon assets, namespaced components, spring motion, reduced motion, keyboard controls and pending/error/unavailable states.
 - HA-owned automation/timer state, generic examples, manual installation and rollback documentation.
+# 0.8.0
+
+- Add the generated Ice theme for the HA shell and individual cards; HA Auto and Device Auto use distinct semantic colors and text.
+- Add a compact calm climate layout, independent automation switches in popovers, physical power switches and visible ownership per slider.
+- Add a configurable Maximum return menu whose gateway preserves an active timer deadline.
+- Add a server-backed decision journal card and a bounded, restorable HA template example. Commands and HA-reported confirmations remain distinct.
+- Keep device IDs, policy thresholds, sleep/presence sources and control logic in private HA configuration. Existing layouts and HACS upgrades remain compatible.
+

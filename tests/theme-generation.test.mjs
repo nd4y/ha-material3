@@ -48,3 +48,13 @@ test('invalid neutral settings fail before generating CSS and explicit zero chro
   assert.deepEqual(resolveDesignSystem({neutral_palette:{hue:0,chroma:0,variant_chroma:0}}).neutral_palette,{hue:0,chroma:0,variant_chroma:0});
   assert.equal(resolveDesignSystem().neutral_palette,null);
 });
+test('Ice uses neutral surfaces and distinct accessible HA and native Auto colors',async()=>{
+  const ice=presets.find(p=>p.name==='Material 3 Expressive - Ice');assert.ok(ice);
+  const theme=(await generateThemeData(ice))[ice.name],dark=theme.modes.dark;
+  assert.equal(dark['primary-background-color'],'#101317');assert.equal(dark['card-background-color'],'#1A1E24');
+  assert.notEqual(dark['md-sys-color-primary'],dark['md-sys-color-tertiary']);
+  for(const mode of Object.values(theme.modes))for(const role of ['primary','tertiary'])assert.ok(contrast(mode['md-sys-color-'+role],mode['md-sys-color-surface-container'])>=4.5);
+  assert.ok(contrast(dark['primary-text-color'],dark['card-background-color'])>=7);
+  for(const color_overrides of [{bad:{surface:'#ffffff'}},{dark:{surface:'red'}},{dark:{'x;bad':'#ffffff'}}])assert.throws(()=>resolveDesignSystem({color_overrides}));
+  await assert.rejects(()=>generateThemeData({color_overrides:{dark:{'unknown-role':'#ffffff'}}}));
+});

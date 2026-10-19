@@ -5,6 +5,7 @@ import {applyTheme} from './theme.js';
 import {available,finite,stateOf,stepTarget,targetDecimals,selectedPreset,timerText,formatState,actionAvailable,perform,validateConfig,matches,actuatorState,actuatorAction} from './ha.js';
 import {translate,locale,formatNumber} from './localize.js';
 import {roomControlStyles,renderRoomTarget,renderContext,renderAutomationAccess} from './room-controls.js';
+import {calmRoomStyles,renderCalmRoom} from './calm-room.js';
 
 const cardStyles=css`
   :host{container-type:inline-size;--md-ref-typeface-plain:var(--ha-m3-ui-font-family,'HA M3 Roboto',Roboto,Arial,sans-serif);--md-ref-typeface-brand:var(--md-ref-typeface-plain)}
@@ -37,8 +38,8 @@ export class M3BaseCard extends LitElement{
 }
 
 export class M3ClimateCard extends M3BaseCard{
-  static properties={...M3BaseCard.properties,_now:{state:true},_roomTargetDraft:{state:true}};
-  static styles=[common,cardStyles,roomControlStyles,css`
+  static properties={...M3BaseCard.properties,_now:{state:true},_roomTargetDraft:{state:true},_returnDraft:{state:true}};
+  static styles=[common,cardStyles,roomControlStyles,calmRoomStyles,css`
     .actuators{border-top:1px solid var(--md-sys-color-outline-variant);padding:16px 0;margin-bottom:16px}.actuators>.body-label{color:var(--md-sys-color-on-surface-variant)}.actuators .toggle-row{min-height:56px;margin:0}.actuators .toggle-label strong{font-size:14px;line-height:20px}
     .temperature{padding:var(--ha-m3-ui-card-padding);background:var(--ha-m3-ui-temperature-background);color:var(--md-sys-color-on-surface);border-radius:var(--ha-m3-ui-temperature-radius);display:flex;flex-direction:column;gap:24px;margin-bottom:24px}.body-label{font-size:14px;line-height:20px;letter-spacing:.25px}.reading{display:flex;align-items:baseline;gap:4px;font-variant-numeric:tabular-nums}.reading strong{color:var(--md-sys-color-primary);font-size:57px;line-height:64px;letter-spacing:-.25px;font-weight:500}.reading .unit{font-size:24px;line-height:32px}.reading.unknown strong{font-size:24px;line-height:32px}
     .goal{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap}.stepper{display:flex;gap:0;align-items:center}.target-value{display:grid;font-size:32px;line-height:40px;letter-spacing:0;min-width:58px;text-align:center;font-variant-numeric:tabular-nums}.target-value>*{grid-area:1/1;font:inherit}.sizing{visibility:hidden;pointer-events:none;user-select:none}output{margin:0}
@@ -48,7 +49,7 @@ export class M3ClimateCard extends M3BaseCard{
     @container(max-width:400px){.wide{display:none}.compact{display:block;width:100%}}@container(max-width:350px){.temperature{padding:16px}.toggle-label{gap:8px}.goal .target-value{font-size:24px;line-height:32px}.goal{gap:8px}.stepper{flex-shrink:0}}
   `];
   constructor(){super();this.kind='climate';this._now=Date.now();this._roomTargetDraft=null;}
-  willUpdate(changed){super.willUpdate(changed);if(this._roomTargetDraft!==null&&Number(this.s(this._config.entities?.target_temperature)?.state)===this._roomTargetDraft){this._roomTargetDraft=null;clearTimeout(this._roomTargetTimer);}}
+  willUpdate(changed){super.willUpdate(changed);if(changed.has('hass'))this._now=Date.now();if(this._roomTargetDraft!==null&&Number(this.s(this._config.entities?.target_temperature)?.state)===this._roomTargetDraft){this._roomTargetDraft=null;clearTimeout(this._roomTargetTimer);}}
   renderActuators(){
     const c=this._config;if(!c.actuators?.length)return nothing;
     return html`<div class="actuators" role="group" aria-label=${c.actuators_name||this.t('actuators')}><span class="body-label">${c.actuators_name||this.t('actuators')}</span>${c.actuators.map(item=>{const state=actuatorState(this.hass,item);return html`<div class="toggle-row"><div class="toggle-label">${icon(item.icon||'thermostat')}<span><strong>${item.name}</strong><small>${item.description||(!state.available?this.t('unavailable'):state.selected?this.t('allowed'):this.t('excluded'))}</small></span></div><ha-m3-switch .selected=${state.selected} .disabled=${!state.available||this._busy} .loading=${this._pending==='actuator:'+item.id} .label=${item.name} motion=${this.motion} @m3-change=${event=>this.run(actuatorAction(this.hass,item,event.detail.selected),'actuator:'+item.id)}></ha-m3-switch></div>`;})}</div>`;
@@ -76,6 +77,7 @@ export class M3ClimateCard extends M3BaseCard{
     </section>`;
   }
   render(){
+    if(this._config.layout==='calm')return renderCalmRoom(this);
     if(this._config.compact)return this.renderCompact();
     const c=this._config,e=c.entities||{},room=this.s(e.room_temperature),target=this.s(e.target_temperature),enabled=this.s(e.enabled),roomNumber=available(room)?finite(room.state):null,targetNumber=available(target)?finite(target.state):null;
     const mode=selectedPreset(this.hass,c),presets=c.presets||[],selected=presets.find(p=>p.id===mode),timer=this.s(c.maximum?.timer),count=timerText(timer,this._now),max=mode===(c.maximum?.preset_id||'maximum')&&!!c.maximum;
