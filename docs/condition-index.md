@@ -1,105 +1,96 @@
 # Полный каталог условий контроллера
 
-Сгенерировано из 7 публичных Jinja-файлов v0.10.0: **250 условных операторов** и **623 логических / сравнительных выражений** в **243 исходных тегах**.
+Сгенерировано из 7 публичных Jinja-файлов v0.10.0: **250 условных операторов** и **623 логических / сравнительных выражений** в **240 исходных тегах**.
 
-Каталог включает if/elif, value if test else other, and/or/not, сравнения, Jinja-тесты и is_number, в том числе внутри присваиваний и возвращаемых флагов. Вложенные узлы посчитаны отдельно; это не число независимых сценариев. Теги приводятся целиком. Это инвентаризация кода, не заявление о полном покрытии физических событий.
+Каталог включает if/elif, value if test else other, and/or/not, сравнения, Jinja-тесты и is_number, в том числе внутри присваиваний и возвращаемых флагов. Вложенные узлы посчитаны отдельно; это не число независимых сценариев. Теги приводятся целиком; соседние теги на одной строке объединены, поскольку Jinja AST хранит номер строки без позиции столбца. Это инвентаризация кода, не заявление о полном покрытии физических событий.
 
 [Обзор и блок-схемы](automation-flow.md). Обновление: python3 docs/tools/generate-condition-index.py.
 
 ## air-goals.jinja
 
-### air_goal - L4
+### air_goal - L5
 
-[Исходник](../controller/air-goals.jinja#L4) | if/elif: 0, inline-if: 0, предикаты: 1
+[Исходник](../controller/air-goals.jinja#L5) | if/elif: 0, inline-if: 0, предикаты: 1
 
 ```jinja
-{% macro air_goal(p) -%}
+{%- set n = namespace(valid=p is mapping) -%}
 ```
 
-### air_goal - L8
+### air_goal - L10
 
-[Исходник](../controller/air-goals.jinja#L8) | if/elif: 1, inline-if: 0, предикаты: 0
+[Исходник](../controller/air-goals.jinja#L10) | if/elif: 1, inline-if: 0, предикаты: 0
 
 ```jinja
-{%- set steps = ['default_request', 'sensor_request', 'hardware_max',
-                  'hard_cap', 'noise_cap', 'boost_increment', 'boost_ceiling'] -%}
+{%- if n.valid -%}
 ```
 
-### air_goal - L11
+### air_goal - L12
 
-[Исходник](../controller/air-goals.jinja#L11) | if/elif: 1, inline-if: 0, предикаты: 2
+[Исходник](../controller/air-goals.jinja#L12) | if/elif: 1, inline-if: 0, предикаты: 2
 
 ```jinja
-{%- for key in flags -%}
+{%- if p.get(key) is not boolean -%} {%- set n.valid = false -%} {%- endif -%}
 ```
 
-### air_goal - L15
+### air_goal - L16
 
-[Исходник](../controller/air-goals.jinja#L15) | if/elif: 1, inline-if: 0, предикаты: 4
+[Исходник](../controller/air-goals.jinja#L16) | if/elif: 1, inline-if: 0, предикаты: 4
 
 ```jinja
-{%- set value = p.get(key) -%}
+{%- if value is not number or value is boolean -%}
 ```
 
-### air_goal - L17
+### air_goal - L18
 
-[Исходник](../controller/air-goals.jinja#L17) | if/elif: 1, inline-if: 0, предикаты: 4
+[Исходник](../controller/air-goals.jinja#L18) | if/elif: 1, inline-if: 0, предикаты: 4
 
 ```jinja
-{%- set n.valid = false -%}
+{%- elif not (-1000000 <= value <= 1000000) or value != value|int -%}
 ```
 
-### air_goal - L23
+### air_goal - L24
 
-[Исходник](../controller/air-goals.jinja#L23) | if/elif: 1, inline-if: 0, предикаты: 4
+[Исходник](../controller/air-goals.jinja#L24) | if/elif: 1, inline-if: 0, предикаты: 4
 
 ```jinja
-{%- set value = p.get(key) -%}
+{%- if value is not number or value is boolean -%}
 ```
 
-### air_goal - L25
+### air_goal - L26
 
-[Исходник](../controller/air-goals.jinja#L25) | if/elif: 1, inline-if: 0, предикаты: 2
+[Исходник](../controller/air-goals.jinja#L26) | if/elif: 1, inline-if: 0, предикаты: 2
 
 ```jinja
-{%- set n.valid = false -%}
+{%- elif not (-1000000000000 <= value <= 1000000000000) -%}
 ```
 
-### air_goal - L29
+### air_goal - L30
 
-[Исходник](../controller/air-goals.jinja#L29) | if/elif: 1, inline-if: 0, предикаты: 3
+[Исходник](../controller/air-goals.jinja#L30) | if/elif: 1, inline-if: 0, предикаты: 3
 
 ```jinja
-{%- endfor -%}
+{%- if p.get('hardware_max', 0) is number and p.get('hardware_max', 0) <= 0 -%}
 ```
 
-### air_goal - L32
+### air_goal - L33
 
-[Исходник](../controller/air-goals.jinja#L32) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/air-goals.jinja#L33) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- endif -%}
+{%- if p.get('current_power') not in ['on', 'off', 'unknown'] -%}
 ```
 
-### air_goal - L36
+### air_goal - L37
 
-[Исходник](../controller/air-goals.jinja#L36) | if/elif: 1, inline-if: 0, предикаты: 1
-
-```jinja
-{%- endif -%}
-```
-
-### air_goal - L52
-
-[Исходник](../controller/air-goals.jinja#L52) | if/elif: 0, inline-if: 0, предикаты: 2
+[Исходник](../controller/air-goals.jinja#L37) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- set ceiling = [maximum - 1, [0, p.boost_ceiling]|max]|min -%}
+{%- if not n.valid -%}
 ```
 
 ### air_goal - L53
 
-[Исходник](../controller/air-goals.jinja#L53) | if/elif: 0, inline-if: 1, предикаты: 4
+[Исходник](../controller/air-goals.jinja#L53) | if/elif: 0, inline-if: 0, предикаты: 6
 
 ```jinja
 {%- set boost = p.boost_deadline > p.now and p.boost_deadline > 0
@@ -117,39 +108,39 @@
 
 ### air_goal - L57
 
-[Исходник](../controller/air-goals.jinja#L57) | if/elif: 1, inline-if: 0, предикаты: 4
+[Исходник](../controller/air-goals.jinja#L57) | if/elif: 0, inline-if: 1, предикаты: 0
 
 ```jinja
 {%- set mode = 'automatic' if p.automatic else 'manual' -%}
 ```
 
-### air_goal - L63
+### air_goal - L58
 
-[Исходник](../controller/air-goals.jinja#L63) | if/elif: 1, inline-if: 0, предикаты: 2
+[Исходник](../controller/air-goals.jinja#L58) | if/elif: 1, inline-if: 0, предикаты: 4
 
 ```jinja
-{%- endif -%}
+{%- if p.global_off or (not p.automatic and desired == 0) -%}
 ```
 
-### air_goal - L66
+### air_goal - L64
 
-[Исходник](../controller/air-goals.jinja#L66) | if/elif: 1, inline-if: 0, предикаты: 0
+[Исходник](../controller/air-goals.jinja#L64) | if/elif: 1, inline-if: 0, предикаты: 2
 
 ```jinja
-{%- set mode = 'maximum' -%}
+{%- if p.global_maximum and not p.global_off -%}
 ```
 
-### air_goal - L71
+### air_goal - L67
 
-[Исходник](../controller/air-goals.jinja#L71) | if/elif: 0, inline-if: 0, предикаты: 1
+[Исходник](../controller/air-goals.jinja#L67) | if/elif: 1, inline-if: 0, предикаты: 0
 
 ```jinja
-{%- set target = [requested, hard, noise]|min -%}
+{%- elif boost -%}
 ```
 
 ### air_goal - L72
 
-[Исходник](../controller/air-goals.jinja#L72) | if/elif: 0, inline-if: 1, предикаты: 2
+[Исходник](../controller/air-goals.jinja#L72) | if/elif: 0, inline-if: 0, предикаты: 1
 
 ```jinja
 {%- set limited = target < requested -%}
@@ -157,7 +148,7 @@
 
 ### air_goal - L73
 
-[Исходник](../controller/air-goals.jinja#L73) | if/elif: 0, inline-if: 1, предикаты: 4
+[Исходник](../controller/air-goals.jinja#L73) | if/elif: 0, inline-if: 2, предикаты: 4
 
 ```jinja
 {%- set reason = 'noise_cap' if noise < requested and noise <= hard
@@ -166,7 +157,7 @@
 
 ### air_goal - L75
 
-[Исходник](../controller/air-goals.jinja#L75) | if/elif: 0, inline-if: 0, предикаты: 4
+[Исходник](../controller/air-goals.jinja#L75) | if/elif: 0, inline-if: 0, предикаты: 5
 
 ```jinja
 {%- set speed = target > 0 and p.speed_allowed
@@ -184,42 +175,50 @@
 
 ### air_goal - L79
 
-[Исходник](../controller/air-goals.jinja#L79) | if/elif: 1, inline-if: 0, предикаты: 3
+[Исходник](../controller/air-goals.jinja#L79) | if/elif: 0, inline-if: 0, предикаты: 1
 
 ```jinja
 {%- set can_command = speed or power -%}
 ```
 
-### air_goal - L81
+### air_goal - L80
 
-[Исходник](../controller/air-goals.jinja#L81) | if/elif: 1, inline-if: 0, предикаты: 5
+[Исходник](../controller/air-goals.jinja#L80) | if/elif: 1, inline-if: 0, предикаты: 3
 
 ```jinja
-{%- set reason = 'speed_locked' -%}
+{%- if target > 0 and not p.speed_allowed -%}
 ```
 
-### air_goal - L84
+### air_goal - L82
 
-[Исходник](../controller/air-goals.jinja#L84) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/air-goals.jinja#L82) | if/elif: 1, inline-if: 0, предикаты: 5
 
 ```jinja
-{%- endif -%}
+{%- elif not p.power_allowed and (target == 0 or p.current_power != 'on') -%}
 ```
 
-### air_goal - L87
+### air_goal - L85
 
-[Исходник](../controller/air-goals.jinja#L87) | if/elif: 1, inline-if: 0, предикаты: 0
+[Исходник](../controller/air-goals.jinja#L85) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- set boost = false -%}
+{%- if not p.enabled -%}
 ```
 
-### air_goal - L90
+### air_goal - L88
 
-[Исходник](../controller/air-goals.jinja#L90) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/air-goals.jinja#L88) | if/elif: 1, inline-if: 0, предикаты: 0
 
 ```jinja
-{%- set reason = 'fault' -%}
+{%- elif p.fault -%}
+```
+
+### air_goal - L91
+
+[Исходник](../controller/air-goals.jinja#L91) | if/elif: 1, inline-if: 0, предикаты: 1
+
+```jinja
+{%- elif not p.available -%}
 ```
 
 ### air_goal - L95
@@ -236,116 +235,116 @@
 
 ## comfort-preferences.jinja
 
-### comfort_preferences - L4
-
-[Исходник](../controller/comfort-preferences.jinja#L4) | if/elif: 0, inline-if: 0, предикаты: 1
-
-```jinja
-{% macro comfort_preferences(p) -%}
-```
-
 ### comfort_preferences - L5
 
-[Исходник](../controller/comfort-preferences.jinja#L5) | if/elif: 1, inline-if: 0, предикаты: 0
+[Исходник](../controller/comfort-preferences.jinja#L5) | if/elif: 0, inline-if: 0, предикаты: 1
 
 ```jinja
 {%- set n = namespace(valid=p is mapping, requests={}, caps={}, reasons={}) -%}
 ```
 
-### comfort_preferences - L8
+### comfort_preferences - L6
 
-[Исходник](../controller/comfort-preferences.jinja#L8) | if/elif: 1, inline-if: 0, предикаты: 4
+[Исходник](../controller/comfort-preferences.jinja#L6) | if/elif: 1, inline-if: 0, предикаты: 0
 
 ```jinja
-{%- set value = p.get(key) -%}
+{%- if n.valid -%}
 ```
 
-### comfort_preferences - L10
+### comfort_preferences - L9
 
-[Исходник](../controller/comfort-preferences.jinja#L10) | if/elif: 1, inline-if: 0, предикаты: 2
+[Исходник](../controller/comfort-preferences.jinja#L9) | if/elif: 1, inline-if: 0, предикаты: 4
 
 ```jinja
-{%- set n.valid = false -%}
+{%- if value is not number or value is boolean -%}
 ```
 
-### comfort_preferences - L17
+### comfort_preferences - L11
 
-[Исходник](../controller/comfort-preferences.jinja#L17) | if/elif: 1, inline-if: 0, предикаты: 4
+[Исходник](../controller/comfort-preferences.jinja#L11) | if/elif: 1, inline-if: 0, предикаты: 2
 
 ```jinja
-{%- set value = p.get(axis ~ '_' ~ suffix) -%}
+{%- elif not (0 <= value <= 100) -%}
 ```
 
-### comfort_preferences - L19
+### comfort_preferences - L18
 
-[Исходник](../controller/comfort-preferences.jinja#L19) | if/elif: 1, inline-if: 0, предикаты: 4
+[Исходник](../controller/comfort-preferences.jinja#L18) | if/elif: 1, inline-if: 0, предикаты: 4
 
 ```jinja
-{%- set n.valid = false -%}
+{%- if value is not number or value is boolean -%}
 ```
 
-### comfort_preferences - L21
+### comfort_preferences - L20
 
-[Исходник](../controller/comfort-preferences.jinja#L21) | if/elif: 1, inline-if: 0, предикаты: 3
+[Исходник](../controller/comfort-preferences.jinja#L20) | if/elif: 1, inline-if: 0, предикаты: 4
 
 ```jinja
-{%- set n.valid = false -%}
+{%- elif not (0 <= value <= 1000000) or value != value|int -%}
 ```
 
-### comfort_preferences - L29
+### comfort_preferences - L22
 
-[Исходник](../controller/comfort-preferences.jinja#L29) | if/elif: 1, inline-if: 0, предикаты: 4
+[Исходник](../controller/comfort-preferences.jinja#L22) | if/elif: 1, inline-if: 0, предикаты: 3
 
 ```jinja
-{%- set value = p.get(axis ~ '_' ~ suffix) -%}
+{%- elif suffix == 'max' and value == 0 -%}
 ```
 
-### comfort_preferences - L31
+### comfort_preferences - L30
 
-[Исходник](../controller/comfort-preferences.jinja#L31) | if/elif: 1, inline-if: 0, предикаты: 4
+[Исходник](../controller/comfort-preferences.jinja#L30) | if/elif: 1, inline-if: 0, предикаты: 4
 
 ```jinja
-{%- set n.valid = false -%}
+{%- if value is not number or value is boolean -%}
 ```
 
-### comfort_preferences - L33
+### comfort_preferences - L32
 
-[Исходник](../controller/comfort-preferences.jinja#L33) | if/elif: 1, inline-if: 0, предикаты: 3
+[Исходник](../controller/comfort-preferences.jinja#L32) | if/elif: 1, inline-if: 0, предикаты: 4
 
 ```jinja
-{%- set n.valid = false -%}
+{%- elif not (0 <= value <= 1000000) or value != value|int -%}
 ```
 
-### comfort_preferences - L38
+### comfort_preferences - L34
 
-[Исходник](../controller/comfort-preferences.jinja#L38) | if/elif: 1, inline-if: 0, предикаты: 0
+[Исходник](../controller/comfort-preferences.jinja#L34) | if/elif: 1, inline-if: 0, предикаты: 3
 
 ```jinja
-{%- endfor -%}
+{%- elif suffix == 'adjustment_steps' and value == 0 -%}
 ```
 
-### comfort_preferences - L40
+### comfort_preferences - L39
 
-[Исходник](../controller/comfort-preferences.jinja#L40) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/comfort-preferences.jinja#L39) | if/elif: 1, inline-if: 0, предикаты: 0
 
 ```jinja
-{%- for axis in ['fresh', 'clean', 'ac_fan'] -%}
+{%- if n.valid -%}
 ```
 
-### comfort_preferences - L45
+### comfort_preferences - L41
 
-[Исходник](../controller/comfort-preferences.jinja#L45) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/comfort-preferences.jinja#L41) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- for axis in ['fresh', 'clean'] -%}
+{%- if p[axis ~ '_base'] > p[axis ~ '_max'] -%}
 ```
 
-### comfort_preferences - L51
+### comfort_preferences - L46
 
-[Исходник](../controller/comfort-preferences.jinja#L51) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/comfort-preferences.jinja#L46) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- endif -%}
+{%- if p[axis ~ '_need'] > p[axis ~ '_max'] -%}
+```
+
+### comfort_preferences - L52
+
+[Исходник](../controller/comfort-preferences.jinja#L52) | if/elif: 1, inline-if: 0, предикаты: 1
+
+```jinja
+{%- if not n.valid -%}
 ```
 
 ### comfort_preferences - L64
@@ -356,17 +355,9 @@
 {%- set floor = 1 if p[axis ~ '_base'] > 0 or p[axis ~ '_need'] > 0 else 0 -%}
 ```
 
-### comfort_preferences - L66
-
-[Исходник](../controller/comfort-preferences.jinja#L66) | if/elif: 0, inline-if: 1, предикаты: 1
-
-```jinja
-{%- set requested = [p[axis ~ '_max'], [preferred, p[axis ~ '_need']] | max] | min | int -%}
-```
-
 ### comfort_preferences - L67
 
-[Исходник](../controller/comfort-preferences.jinja#L67) | if/elif: 0, inline-if: 2, предикаты: 2
+[Исходник](../controller/comfort-preferences.jinja#L67) | if/elif: 0, inline-if: 3, предикаты: 3
 
 ```jinja
 {%- set reason = 'sensor_need' if p[axis ~ '_need'] > preferred else
@@ -374,12 +365,12 @@
                        'prefer_less' if adjustment < 0 else 'neutral' -%}
 ```
 
-### comfort_preferences - L75
+### comfort_preferences - L76
 
-[Исходник](../controller/comfort-preferences.jinja#L75) | if/elif: 0, inline-if: 1, предикаты: 1
+[Исходник](../controller/comfort-preferences.jinja#L76) | if/elif: 0, inline-if: 1, предикаты: 1
 
 ```jinja
-{%- set reduction = (p.quiet / 100 * p[axis ~ '_quiet_reduction_steps']) | round(0) | int -%}
+{%- set cap = [1, original - reduction] | max if original > 0 else 0 -%}
 ```
 
 ### comfort_preferences - L79
@@ -394,44 +385,36 @@
          'reasons': dict(n.reasons, quiet='prefer_quiet' if p.quiet > 0 else 'neutral')} | tojson -}}
 ```
 
-### comfort_transition - L90
+### comfort_transition - L91
 
-[Исходник](../controller/comfort-preferences.jinja#L90) | if/elif: 1, inline-if: 0, предикаты: 5
+[Исходник](../controller/comfort-preferences.jinja#L91) | if/elif: 1, inline-if: 0, предикаты: 5
 
 ```jinja
-{%- set n = namespace(error='', result=state) -%}
+{%- if state is not mapping or event is not mapping -%}
 ```
 
-### comfort_transition - L95
+### comfort_transition - L96
 
-[Исходник](../controller/comfort-preferences.jinja#L95) | if/elif: 1, inline-if: 0, предикаты: 4
+[Исходник](../controller/comfort-preferences.jinja#L96) | if/elif: 1, inline-if: 0, предикаты: 4
 
 ```jinja
-{%- set value = state.get(axis) -%}
+{%- if value is not number or value is boolean -%}
 ```
 
-### comfort_transition - L97
+### comfort_transition - L98
 
-[Исходник](../controller/comfort-preferences.jinja#L97) | if/elif: 1, inline-if: 0, предикаты: 4
+[Исходник](../controller/comfort-preferences.jinja#L98) | if/elif: 1, inline-if: 0, предикаты: 4
 
 ```jinja
-{%- set n.error = 'invalid_state' -%}
+{%- elif not (0 <= value <= 100) or value % 5 != 0 -%}
 ```
 
-### comfort_transition - L101
+### comfort_transition - L102
 
-[Исходник](../controller/comfort-preferences.jinja#L101) | if/elif: 1, inline-if: 0, предикаты: 1
-
-```jinja
-{%- endfor -%}
-```
-
-### comfort_transition - L103
-
-[Исходник](../controller/comfort-preferences.jinja#L103) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/comfort-preferences.jinja#L102) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- set n.error = 'unsupported_event' -%}
+{%- if event.get('type') not in ['set', 'reset'] -%}
 ```
 
 ### comfort_transition - L104
@@ -442,33 +425,33 @@
 {%- elif event.type == 'set' -%}
 ```
 
-### comfort_transition - L108
+### comfort_transition - L105
 
-[Исходник](../controller/comfort-preferences.jinja#L108) | if/elif: 1, inline-if: 0, предикаты: 4
+[Исходник](../controller/comfort-preferences.jinja#L105) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- set value = event.get('value') -%}
+{%- if event.get('axis') not in ['fresh', 'clean', 'quiet'] -%}
 ```
 
-### comfort_transition - L110
+### comfort_transition - L109
 
-[Исходник](../controller/comfort-preferences.jinja#L110) | if/elif: 1, inline-if: 0, предикаты: 4
+[Исходник](../controller/comfort-preferences.jinja#L109) | if/elif: 1, inline-if: 0, предикаты: 4
 
 ```jinja
-{%- set n.error = 'invalid_value' -%}
+{%- if value is not number or value is boolean -%}
 ```
 
-### comfort_transition - L114
+### comfort_transition - L111
 
-[Исходник](../controller/comfort-preferences.jinja#L114) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/comfort-preferences.jinja#L111) | if/elif: 1, inline-if: 0, предикаты: 4
 
 ```jinja
-{%- endif -%}
+{%- elif not (0 <= value <= 100) or value % 5 != 0 -%}
 ```
 
 ### comfort_transition - L115
 
-[Исходник](../controller/comfort-preferences.jinja#L115) | if/elif: 0, inline-if: 1, предикаты: 0
+[Исходник](../controller/comfort-preferences.jinja#L115) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
 {%- if n.error == '' -%}
@@ -476,24 +459,16 @@
 
 ### comfort_transition - L116
 
-[Исходник](../controller/comfort-preferences.jinja#L116) | if/elif: 0, inline-if: 0, предикаты: 1
+[Исходник](../controller/comfort-preferences.jinja#L116) | if/elif: 0, inline-if: 1, предикаты: 1
 
 ```jinja
 {%- set n.result = dict(state, fresh=50, clean=50, quiet=0) if event.type == 'reset'
                          else dict(state, **{event.axis: event.value}) -%}
 ```
 
-### comfort_transition - L119
-
-[Исходник](../controller/comfort-preferences.jinja#L119) | if/elif: 0, inline-if: 0, предикаты: 1
-
-```jinja
-{%- endif -%}
-```
-
 ### comfort_transition - L120
 
-[Исходник](../controller/comfort-preferences.jinja#L120) | if/elif: 0, inline-if: 0, предикаты: 3
+[Исходник](../controller/comfort-preferences.jinja#L120) | if/elif: 0, inline-if: 0, предикаты: 4
 
 ```jinja
 {{- {'valid': n.error == '', 'error': n.error, 'state': n.result,
@@ -502,198 +477,198 @@
 
 ## command-guards.jinja
 
-### command_guard - L2
-
-[Исходник](../controller/command-guards.jinja#L2) | if/elif: 0, inline-if: 0, предикаты: 1
-
-```jinja
-{% macro command_guard(p) -%}
-```
-
 ### command_guard - L3
 
-[Исходник](../controller/command-guards.jinja#L3) | if/elif: 1, inline-if: 0, предикаты: 0
+[Исходник](../controller/command-guards.jinja#L3) | if/elif: 0, inline-if: 0, предикаты: 1
 
 ```jinja
 {%- set n = namespace(valid=p is mapping, allowed=false, reason='invalid_input', safety=false) -%}
 ```
 
-### command_guard - L5
+### command_guard - L4
 
-[Исходник](../controller/command-guards.jinja#L5) | if/elif: 1, inline-if: 0, предикаты: 2
-
-```jinja
-{%- for key in ['automatic', 'available', 'eligible', 'fault_shutdown', 'explicit_error', 'latched', 'stopping', 'master_enabled'] -%}
-```
-
-### command_guard - L8
-
-[Исходник](../controller/command-guards.jinja#L8) | if/elif: 1, inline-if: 0, предикаты: 1
-
-```jinja
-{%- for key in ['power_lock', 'saved_power', 'current_power'] -%}
-```
-
-### command_guard - L10
-
-[Исходник](../controller/command-guards.jinja#L10) | if/elif: 1, inline-if: 0, предикаты: 1
-
-```jinja
-{%- endfor -%}
-```
-
-### command_guard - L12
-
-[Исходник](../controller/command-guards.jinja#L12) | if/elif: 1, inline-if: 0, предикаты: 0
-
-```jinja
-{%- endif -%}
-```
-
-### command_guard - L13
-
-[Исходник](../controller/command-guards.jinja#L13) | if/elif: 1, inline-if: 0, предикаты: 2
+[Исходник](../controller/command-guards.jinja#L4) | if/elif: 1, inline-if: 0, предикаты: 0
 
 ```jinja
 {%- if n.valid -%}
 ```
 
-### command_guard - L15
+### command_guard - L6
 
-[Исходник](../controller/command-guards.jinja#L15) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/command-guards.jinja#L6) | if/elif: 1, inline-if: 0, предикаты: 2
 
 ```jinja
-{%- set n.reason = 'invalid_fault_shutdown' -%}
+{%- if p.get(key) is not boolean -%} {%- set n.valid = false -%} {%- endif -%}
 ```
 
-### command_guard - L17
+### command_guard - L9
 
-[Исходник](../controller/command-guards.jinja#L17) | if/elif: 1, inline-if: 0, предикаты: 0
+[Исходник](../controller/command-guards.jinja#L9) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- set n.reason = 'unavailable' -%}
+{%- if p.get(key) not in ['on', 'off', 'unknown'] -%} {%- set n.valid = false -%} {%- endif -%}
+```
+
+### command_guard - L11
+
+[Исходник](../controller/command-guards.jinja#L11) | if/elif: 1, inline-if: 0, предикаты: 1
+
+```jinja
+{%- if p.get('parameter_lock') not in ['', 'on', 'off', 'unknown'] -%} {%- set n.valid = false -%} {%- endif -%}
+```
+
+### command_guard - L13
+
+[Исходник](../controller/command-guards.jinja#L13) | if/elif: 1, inline-if: 0, предикаты: 0
+
+```jinja
+{%- if n.valid -%}
+```
+
+### command_guard - L14
+
+[Исходник](../controller/command-guards.jinja#L14) | if/elif: 1, inline-if: 0, предикаты: 2
+
+```jinja
+{%- if p.fault_shutdown and not p.stopping -%}
+```
+
+### command_guard - L16
+
+[Исходник](../controller/command-guards.jinja#L16) | if/elif: 1, inline-if: 0, предикаты: 1
+
+```jinja
+{%- elif not p.available -%}
 ```
 
 ### command_guard - L18
 
-[Исходник](../controller/command-guards.jinja#L18) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/command-guards.jinja#L18) | if/elif: 1, inline-if: 0, предикаты: 0
 
 ```jinja
 {%- elif p.fault_shutdown -%}
 ```
 
-### command_guard - L24
+### command_guard - L19
 
-[Исходник](../controller/command-guards.jinja#L24) | if/elif: 1, inline-if: 0, предикаты: 2
+[Исходник](../controller/command-guards.jinja#L19) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- endif -%}
+{%- if p.explicit_error and p.latched -%}
 ```
 
-### command_guard - L26
+### command_guard - L25
 
-[Исходник](../controller/command-guards.jinja#L26) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/command-guards.jinja#L25) | if/elif: 1, inline-if: 0, предикаты: 2
 
 ```jinja
-{%- set n.reason = 'manual_stop' -%}
+{%- elif not p.automatic and p.stopping -%}
 ```
 
-### command_guard - L28
+### command_guard - L27
 
-[Исходник](../controller/command-guards.jinja#L28) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/command-guards.jinja#L27) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- set n.reason = 'ineligible' -%}
+{%- elif not p.eligible -%}
 ```
 
-### command_guard - L30
+### command_guard - L29
 
-[Исходник](../controller/command-guards.jinja#L30) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/command-guards.jinja#L29) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- set n.reason = 'manual' -%}
+{%- elif not p.automatic -%}
 ```
 
-### command_guard - L32
+### command_guard - L31
 
-[Исходник](../controller/command-guards.jinja#L32) | if/elif: 1, inline-if: 0, предикаты: 10
+[Исходник](../controller/command-guards.jinja#L31) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- set n.reason = 'master_disabled' -%}
+{%- elif not p.master_enabled -%}
 ```
 
-### command_guard - L34
+### command_guard - L33
 
-[Исходник](../controller/command-guards.jinja#L34) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/command-guards.jinja#L33) | if/elif: 1, inline-if: 0, предикаты: 10
 
 ```jinja
-{%- set n.reason = 'power_locked' -%}
+{%- elif p.power_lock != 'off' and not (p.power_lock == 'on' and p.saved_power == 'on' and p.current_power == 'on' and not p.stopping) -%}
+```
+
+### command_guard - L35
+
+[Исходник](../controller/command-guards.jinja#L35) | if/elif: 1, inline-if: 0, предикаты: 1
+
+```jinja
+{%- elif p.parameter_lock not in ['', 'off'] -%}
 ```
 
 ## control-dynamics.jinja
 
-### critical_hysteresis - L3
-
-[Исходник](../controller/control-dynamics.jinja#L3) | if/elif: 0, inline-if: 0, предикаты: 1
-
-```jinja
-{% macro critical_hysteresis(p) -%}
-```
-
 ### critical_hysteresis - L4
 
-[Исходник](../controller/control-dynamics.jinja#L4) | if/elif: 1, inline-if: 0, предикаты: 0
+[Исходник](../controller/control-dynamics.jinja#L4) | if/elif: 0, inline-if: 0, предикаты: 1
 
 ```jinja
 {%- set n=namespace(valid=p is mapping) -%}
 ```
 
-### critical_hysteresis - L6
+### critical_hysteresis - L5
 
-[Исходник](../controller/control-dynamics.jinja#L6) | if/elif: 1, inline-if: 0, предикаты: 2
+[Исходник](../controller/control-dynamics.jinja#L5) | if/elif: 1, inline-if: 0, предикаты: 0
 
 ```jinja
-{%- for key in ['above','valid','clear'] -%}
+{%- if n.valid -%}
 ```
 
-### critical_hysteresis - L9
+### critical_hysteresis - L7
 
-[Исходник](../controller/control-dynamics.jinja#L9) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/control-dynamics.jinja#L7) | if/elif: 1, inline-if: 0, предикаты: 2
 
 ```jinja
-{%- for key in ['pending','active','clear_pending'] -%}
+{%- if p.get(key) is not boolean -%} {%- set n.valid=false -%} {%- endif -%}
 ```
 
-### critical_hysteresis - L13
+### critical_hysteresis - L10
 
-[Исходник](../controller/control-dynamics.jinja#L13) | if/elif: 1, inline-if: 0, предикаты: 4
+[Исходник](../controller/control-dynamics.jinja#L10) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- set value=p.get(key) -%}
+{%- if p.get(key) not in ['on','off','unknown'] -%} {%- set n.valid=false -%} {%- endif -%}
 ```
 
-### critical_hysteresis - L15
+### critical_hysteresis - L14
 
-[Исходник](../controller/control-dynamics.jinja#L15) | if/elif: 1, inline-if: 0, предикаты: 2
+[Исходник](../controller/control-dynamics.jinja#L14) | if/elif: 1, inline-if: 0, предикаты: 4
 
 ```jinja
-{%- set n.valid=false -%}
+{%- if value is not number or value is boolean -%}
 ```
 
-### critical_hysteresis - L19
+### critical_hysteresis - L16
 
-[Исходник](../controller/control-dynamics.jinja#L19) | if/elif: 1, inline-if: 0, предикаты: 4
+[Исходник](../controller/control-dynamics.jinja#L16) | if/elif: 1, inline-if: 0, предикаты: 2
 
 ```jinja
-{%- endfor -%}
+{%- elif not (-1000000000000 <= value <= 1000000000000) -%}
 ```
 
-### critical_hysteresis - L23
+### critical_hysteresis - L20
 
-[Исходник](../controller/control-dynamics.jinja#L23) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/control-dynamics.jinja#L20) | if/elif: 1, inline-if: 0, предикаты: 4
 
 ```jinja
-{%- endif -%}
+{%- if n.valid and (p.dwell <= 0 or p.release_dwell <= 0) -%}
+```
+
+### critical_hysteresis - L24
+
+[Исходник](../controller/control-dynamics.jinja#L24) | if/elif: 1, inline-if: 0, предикаты: 1
+
+```jinja
+{%- if not n.valid -%}
 ```
 
 ### critical_hysteresis - L28
@@ -710,89 +685,81 @@
          'release':(not p.valid or (p['clear'] and p.clear_pending=='on' and p.clear_elapsed>=p.release_dwell)) and p.active!='off'}|tojson -}}
 ```
 
-### supply_pi - L38
-
-[Исходник](../controller/control-dynamics.jinja#L38) | if/elif: 0, inline-if: 0, предикаты: 1
-
-```jinja
-{% macro supply_pi(p) -%}
-```
-
 ### supply_pi - L39
 
-[Исходник](../controller/control-dynamics.jinja#L39) | if/elif: 1, inline-if: 0, предикаты: 0
+[Исходник](../controller/control-dynamics.jinja#L39) | if/elif: 0, inline-if: 0, предикаты: 1
 
 ```jinja
 {%- set n=namespace(valid=p is mapping) -%}
 ```
 
-### supply_pi - L41
+### supply_pi - L40
 
-[Исходник](../controller/control-dynamics.jinja#L41) | if/elif: 1, inline-if: 0, предикаты: 2
+[Исходник](../controller/control-dynamics.jinja#L40) | if/elif: 1, inline-if: 0, предикаты: 0
 
 ```jinja
-{%- for key in ['force','reset'] -%}
+{%- if n.valid -%}
 ```
 
-### supply_pi - L45
+### supply_pi - L42
 
-[Исходник](../controller/control-dynamics.jinja#L45) | if/elif: 1, inline-if: 0, предикаты: 4
+[Исходник](../controller/control-dynamics.jinja#L42) | if/elif: 1, inline-if: 0, предикаты: 2
 
 ```jinja
-{%- set value=p.get(key) -%}
+{%- if p.get(key) is not boolean -%} {%- set n.valid=false -%} {%- endif -%}
 ```
 
-### supply_pi - L47
+### supply_pi - L46
 
-[Исходник](../controller/control-dynamics.jinja#L47) | if/elif: 1, inline-if: 0, предикаты: 2
+[Исходник](../controller/control-dynamics.jinja#L46) | if/elif: 1, inline-if: 0, предикаты: 4
 
 ```jinja
-{%- set n.valid=false -%}
+{%- if value is not number or value is boolean -%}
 ```
 
-### supply_pi - L52
+### supply_pi - L48
 
-[Исходник](../controller/control-dynamics.jinja#L52) | if/elif: 0, inline-if: 1, предикаты: 1
+[Исходник](../controller/control-dynamics.jinja#L48) | if/elif: 1, inline-if: 0, предикаты: 2
 
 ```jinja
-{%- endif -%}
+{%- elif not (-1000000 <= value <= 1000000) -%}
 ```
 
-### supply_pi - L57
+### supply_pi - L53
 
-[Исходник](../controller/control-dynamics.jinja#L57) | if/elif: 1, inline-if: 0, предикаты: 2
+[Исходник](../controller/control-dynamics.jinja#L53) | if/elif: 0, inline-if: 1, предикаты: 1
 
 ```jinja
-{%- set cfg=namespace(values={}) -%}
+{%- set tuning=p.get('tuning',{}) if p is mapping else {} -%}
 ```
 
-### supply_pi - L62
+### supply_pi - L58
 
-[Исходник](../controller/control-dynamics.jinja#L62) | if/elif: 1, inline-if: 0, предикаты: 4
+[Исходник](../controller/control-dynamics.jinja#L58) | if/elif: 1, inline-if: 0, предикаты: 2
 
 ```jinja
-{%- set value=tuning.get(key,fallback) -%}
+{%- if tuning is not mapping -%}
 ```
 
-### supply_pi - L64
+### supply_pi - L63
 
-[Исходник](../controller/control-dynamics.jinja#L64) | if/elif: 1, inline-if: 0, предикаты: 2
+[Исходник](../controller/control-dynamics.jinja#L63) | if/elif: 1, inline-if: 0, предикаты: 4
 
 ```jinja
-{%- set n.valid=false -%}
+{%- if value is not number or value is boolean -%}
 ```
 
-### supply_pi - L69
+### supply_pi - L65
 
-[Исходник](../controller/control-dynamics.jinja#L69) | if/elif: 1, inline-if: 0, предикаты: 2
+[Исходник](../controller/control-dynamics.jinja#L65) | if/elif: 1, inline-if: 0, предикаты: 2
 
 ```jinja
-{%- endfor -%}
+{%- elif not (-1000000 <= value <= 1000000) -%}
 ```
 
 ### supply_pi - L70
 
-[Исходник](../controller/control-dynamics.jinja#L70) | if/elif: 0, inline-if: 0, предикаты: 23
+[Исходник](../controller/control-dynamics.jinja#L70) | if/elif: 1, inline-if: 0, предикаты: 25
 
 ```jinja
 {%- if n.valid and (cfg.values.supply_min>=cfg.values.supply_max
@@ -806,75 +773,67 @@
           or not cfg.values.supply_min<=p.current<=cfg.values.supply_max) -%}
 ```
 
-### supply_pi - L81
+### supply_pi - L82
 
-[Исходник](../controller/control-dynamics.jinja#L81) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/control-dynamics.jinja#L82) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- endif -%}
+{%- if not n.valid -%}
 ```
 
-### supply_pi - L85
+### supply_pi - L86
 
-[Исходник](../controller/control-dynamics.jinja#L85) | if/elif: 0, inline-if: 1, предикаты: 0
+[Исходник](../controller/control-dynamics.jinja#L86) | if/elif: 0, inline-if: 1, предикаты: 0
 
 ```jinja
-{%- set desired=p.desired -%}
+{%- set old_i=0 if p.reset else p.old_i -%}
 ```
 
-### supply_pi - L87
+### supply_pi - L88
 
-[Исходник](../controller/control-dynamics.jinja#L87) | if/elif: 0, inline-if: 1, предикаты: 0
+[Исходник](../controller/control-dynamics.jinja#L88) | if/elif: 0, inline-if: 1, предикаты: 0
 
 ```jinja
-{%- set elapsed=[0,p.elapsed]|max -%}
+{%- set dt=0 if p.force else [cfg.values.max_dt_minutes,elapsed/60]|min -%}
 ```
 
-### supply_pi - L89
+### supply_pi - L90
 
-[Исходник](../controller/control-dynamics.jinja#L89) | if/elif: 0, inline-if: 1, предикаты: 1
+[Исходник](../controller/control-dynamics.jinja#L90) | if/elif: 0, inline-if: 1, предикаты: 1
 
 ```jinja
-{%- set error=desired-measured -%}
+{%- set candidate_i=[[old_i+(cfg.values.ki*error*dt if error|abs>cfg.values.deadband else 0),cfg.values.integral_min]|max,cfg.values.integral_max]|min -%}
 ```
 
-### supply_pi - L91
+### supply_pi - L92
 
-[Исходник](../controller/control-dynamics.jinja#L91) | if/elif: 0, inline-if: 1, предикаты: 7
+[Исходник](../controller/control-dynamics.jinja#L92) | if/elif: 0, inline-if: 1, предикаты: 7
 
 ```jinja
-{%- set candidate_raw=desired+cfg.values.kp*error+candidate_i -%}
+{%- set new_i=old_i if (candidate_raw>cfg.values.supply_max and error>0) or (candidate_raw<cfg.values.supply_min and error<0) else candidate_i -%}
 ```
 
-### supply_pi - L95
+### supply_pi - L96
 
-[Исходник](../controller/control-dynamics.jinja#L95) | if/elif: 0, inline-if: 1, предикаты: 0
+[Исходник](../controller/control-dynamics.jinja#L96) | if/elif: 0, inline-if: 1, предикаты: 0
 
 ```jinja
-{%- set current=p.current -%}
+{%- set command=requested if p.force else [[requested,current-cfg.values.max_step]|max,current+cfg.values.max_step]|min|round(0)|int -%}
 ```
 
 ## device-health.jinja
 
-### _boolean - L2
+### _boolean - L3
 
-[Исходник](../controller/device-health.jinja#L2) | if/elif: 1, inline-if: 0, предикаты: 3
-
-```jinja
-{% macro _boolean(value) -%}
-```
-
-### _boolean - L4
-
-[Исходник](../controller/device-health.jinja#L4) | if/elif: 1, inline-if: 0, предикаты: 3
+[Исходник](../controller/device-health.jinja#L3) | if/elif: 1, inline-if: 0, предикаты: 3
 
 ```jinja
-{{- value | to_json -}}
+{%- if value is sameas true or value is sameas false -%}
 ```
 
 ### _boolean - L5
 
-[Исходник](../controller/device-health.jinja#L5) | if/elif: 0, inline-if: 0, предикаты: 1
+[Исходник](../controller/device-health.jinja#L5) | if/elif: 1, inline-if: 0, предикаты: 3
 
 ```jinja
 {%- elif value is string and value | lower | trim in ['true', 'on', '1', 'false', 'off', '0'] -%}
@@ -882,7 +841,7 @@
 
 ### _boolean - L6
 
-[Исходник](../controller/device-health.jinja#L6) | if/elif: 1, inline-if: 0, предикаты: 3
+[Исходник](../controller/device-health.jinja#L6) | if/elif: 0, inline-if: 0, предикаты: 1
 
 ```jinja
 {{- (value | lower | trim in ['true', 'on', '1']) | to_json -}}
@@ -890,55 +849,55 @@
 
 ### _boolean - L7
 
-[Исходник](../controller/device-health.jinja#L7) | if/elif: 0, inline-if: 0, предикаты: 1
+[Исходник](../controller/device-health.jinja#L7) | if/elif: 1, inline-if: 0, предикаты: 3
 
 ```jinja
 {%- elif value is number and value in [0, 1] -%}
 ```
 
-### _availability - L12
+### _boolean - L8
 
-[Исходник](../controller/device-health.jinja#L12) | if/elif: 1, inline-if: 0, предикаты: 3
+[Исходник](../controller/device-health.jinja#L8) | if/elif: 0, inline-if: 0, предикаты: 1
 
 ```jinja
-{% macro _availability(value) -%}
+{{- (value == 1) | to_json -}}
 ```
 
-### _availability - L16
+### _availability - L13
 
-[Исходник](../controller/device-health.jinja#L16) | if/elif: 0, inline-if: 2, предикаты: 2
+[Исходник](../controller/device-health.jinja#L13) | if/elif: 1, inline-if: 0, предикаты: 3
 
 ```jinja
-{%- set boolean = _boolean(value) | from_json -%}
+{%- if value is string and value | lower | trim in ['available', 'unavailable'] -%}
 ```
 
-### _power - L22
+### _availability - L17
 
-[Исходник](../controller/device-health.jinja#L22) | if/elif: 0, inline-if: 2, предикаты: 2
+[Исходник](../controller/device-health.jinja#L17) | if/elif: 0, inline-if: 2, предикаты: 2
 
 ```jinja
-{%- set boolean = _boolean(value) | from_json -%}
+{{- ('available' if boolean is sameas true else 'unavailable' if boolean is sameas false else 'unknown') | to_json -}}
 ```
 
-### device_health - L26
+### _power - L23
 
-[Исходник](../controller/device-health.jinja#L26) | if/elif: 0, inline-if: 1, предикаты: 1
+[Исходник](../controller/device-health.jinja#L23) | if/elif: 0, inline-if: 2, предикаты: 2
 
 ```jinja
-{% macro device_health(p) -%}
+{{- ('on' if boolean is sameas true else 'off' if boolean is sameas false else 'unknown') | to_json -}}
 ```
 
-### device_health - L33
+### device_health - L27
 
-[Исходник](../controller/device-health.jinja#L33) | if/elif: 0, inline-if: 0, предикаты: 9
+[Исходник](../controller/device-health.jinja#L27) | if/elif: 0, inline-if: 1, предикаты: 1
 
 ```jinja
-{%- set power = _power(p.get('observed_power')) | from_json -%}
+{%- set p = p if p is mapping else {} -%}
 ```
 
 ### device_health - L34
 
-[Исходник](../controller/device-health.jinja#L34) | if/elif: 0, inline-if: 0, предикаты: 3
+[Исходник](../controller/device-health.jinja#L34) | if/elif: 0, inline-if: 0, предикаты: 9
 
 ```jinja
 {%- set state_valid = latched is not none and attempted is not none and not (attempted and not latched) -%}
@@ -954,7 +913,7 @@
 
 ### device_health - L36
 
-[Исходник](../controller/device-health.jinja#L36) | if/elif: 0, inline-if: 0, предикаты: 1
+[Исходник](../controller/device-health.jinja#L36) | if/elif: 0, inline-if: 0, предикаты: 3
 
 ```jinja
 {%- set known_clear = known is sameas true and active is sameas false -%}
@@ -962,7 +921,7 @@
 
 ### device_health - L37
 
-[Исходник](../controller/device-health.jinja#L37) | if/elif: 0, inline-if: 0, предикаты: 4
+[Исходник](../controller/device-health.jinja#L37) | if/elif: 0, inline-if: 0, предикаты: 1
 
 ```jinja
 {%- set available = availability == 'available' -%}
@@ -970,7 +929,7 @@
 
 ### device_health - L38
 
-[Исходник](../controller/device-health.jinja#L38) | if/elif: 0, inline-if: 0, предикаты: 6
+[Исходник](../controller/device-health.jinja#L38) | if/elif: 0, inline-if: 0, предикаты: 4
 
 ```jinja
 {%- set healthy = available and known_clear and state_valid and latched is sameas false -%}
@@ -978,7 +937,7 @@
 
 ### device_health - L39
 
-[Исходник](../controller/device-health.jinja#L39) | if/elif: 0, inline-if: 0, предикаты: 2
+[Исходник](../controller/device-health.jinja#L39) | if/elif: 0, inline-if: 0, предикаты: 6
 
 ```jinja
 {%- set shutdown = explicit_error and available and state_valid and attempted is sameas false and power != 'off' -%}
@@ -986,7 +945,7 @@
 
 ### device_health - L40
 
-[Исходник](../controller/device-health.jinja#L40) | if/elif: 0, inline-if: 4, предикаты: 6
+[Исходник](../controller/device-health.jinja#L40) | if/elif: 0, inline-if: 0, предикаты: 2
 
 ```jinja
 {%- set fault = explicit_error or latched is sameas true -%}
@@ -994,7 +953,7 @@
 
 ### device_health - L41
 
-[Исходник](../controller/device-health.jinja#L41) | if/elif: 0, inline-if: 3, предикаты: 4
+[Исходник](../controller/device-health.jinja#L41) | if/elif: 0, inline-if: 4, предикаты: 6
 
 ```jinja
 {%- set condition = 'error' if explicit_error else 'unavailable' if availability == 'unavailable' else 'health_unknown' if not available or not known_clear or not state_valid else 'recovery_required' if latched else 'healthy' -%}
@@ -1002,10 +961,18 @@
 
 ### device_health - L42
 
-[Исходник](../controller/device-health.jinja#L42) | if/elif: 0, inline-if: 3, предикаты: 2
+[Исходник](../controller/device-health.jinja#L42) | if/elif: 0, inline-if: 3, предикаты: 4
 
 ```jinja
 {%- set confirmation = 'not_required' if not fault else 'confirmed' if available and power == 'off' else 'not_confirmed' if attempted is sameas true else 'not_requested' -%}
+```
+
+### device_health - L43
+
+[Исходник](../controller/device-health.jinja#L43) | if/elif: 0, inline-if: 3, предикаты: 2
+
+```jinja
+{%- set notice = 'device_error' if fault else 'device_unavailable' if condition == 'unavailable' else 'health_unknown' if condition == 'health_unknown' else '' -%}
 ```
 
 ### device_health - L44
@@ -1038,14 +1005,6 @@
   } | to_json -}}
 ```
 
-### health_transition - L69
-
-[Исходник](../controller/device-health.jinja#L69) | if/elif: 0, inline-if: 1, предикаты: 1
-
-```jinja
-{% macro health_transition(s, event) -%}
-```
-
 ### health_transition - L70
 
 [Исходник](../controller/device-health.jinja#L70) | if/elif: 0, inline-if: 1, предикаты: 1
@@ -1054,20 +1013,28 @@
 {%- set s = s if s is mapping else {} -%}
 ```
 
-### health_transition - L73
+### health_transition - L71
 
-[Исходник](../controller/device-health.jinja#L73) | if/elif: 0, inline-if: 0, предикаты: 1
+[Исходник](../controller/device-health.jinja#L71) | if/elif: 0, inline-if: 1, предикаты: 1
 
 ```jinja
-{%- set kind = event.get('type', 'observe') -%}
+{%- set event = event if event is mapping else {} -%}
 ```
 
-### health_transition - L75
+### health_transition - L74
 
-[Исходник](../controller/device-health.jinja#L75) | if/elif: 1, inline-if: 0, предикаты: 2
+[Исходник](../controller/device-health.jinja#L74) | if/elif: 0, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- set ns = namespace(state=dict(s), acknowledge='not_requested', shutdown=false) -%}
+{%- set supported = kind in ['observe', 'acknowledge', 'restart', 'shutdown_result'] -%}
+```
+
+### health_transition - L76
+
+[Исходник](../controller/device-health.jinja#L76) | if/elif: 1, inline-if: 0, предикаты: 2
+
+```jinja
+{%- if supported and kind != 'restart' -%}
 ```
 
 ### health_transition - L78
@@ -1078,60 +1045,60 @@
 {%- if kind == 'observe' -%}
 ```
 
-### health_transition - L79
+### health_transition - L80
 
-[Исходник](../controller/device-health.jinja#L79) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/device-health.jinja#L80) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- set ns.state = dict(ns.state, availability=event.get('availability'), error_known=event.get('error_known'), error_active=event.get('error_active'), observed_power=event.get('observed_power')) -%}
+{%- elif kind in ['acknowledge', 'shutdown_result'] -%}
 ```
 
-### health_transition - L81
+### health_transition - L82
 
-[Исходник](../controller/device-health.jinja#L81) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/device-health.jinja#L82) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- for key in ['availability', 'error_known', 'error_active', 'observed_power'] -%}
+{%- if key in event -%} {%- set ns.state = dict(ns.state, **{key: event[key]}) -%} {%- endif -%}
 ```
 
-### health_transition - L85
+### health_transition - L86
 
-[Исходник](../controller/device-health.jinja#L85) | if/elif: 1, inline-if: 0, предикаты: 1
-
-```jinja
-{%- set current = device_health(ns.state) | from_json -%}
-```
-
-### health_transition - L89
-
-[Исходник](../controller/device-health.jinja#L89) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/device-health.jinja#L86) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- set current = device_health(ns.state) | from_json -%}
+{%- if current.explicit_error and current.state_valid -%}
 ```
 
 ### health_transition - L90
 
-[Исходник](../controller/device-health.jinja#L90) | if/elif: 1, inline-if: 0, предикаты: 0
+[Исходник](../controller/device-health.jinja#L90) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
 {%- if kind == 'acknowledge' -%}
 ```
 
-### health_transition - L98
+### health_transition - L91
 
-[Исходник](../controller/device-health.jinja#L98) | if/elif: 1, inline-if: 0, предикаты: 2
+[Исходник](../controller/device-health.jinja#L91) | if/elif: 1, inline-if: 0, предикаты: 0
 
 ```jinja
-{%- set current = device_health(ns.state) | from_json -%}
+{%- if current.acknowledgement_allowed -%}
 ```
 
-### health_transition - L105
+### health_transition - L99
 
-[Исходник](../controller/device-health.jinja#L105) | if/elif: 0, inline-if: 0, предикаты: 1
+[Исходник](../controller/device-health.jinja#L99) | if/elif: 1, inline-if: 0, предикаты: 2
 
 ```jinja
-{%- set after = device_health(ns.state) | from_json -%}
+{%- if current.shutdown_required and kind != 'shutdown_result' -%}
+```
+
+### health_transition - L106
+
+[Исходник](../controller/device-health.jinja#L106) | if/elif: 0, inline-if: 0, предикаты: 1
+
+```jinja
+{%- set changed = before.notification != after.notification -%}
 ```
 
 ### health_transition - L107
@@ -1155,188 +1122,180 @@
 
 ## intent-transition.jinja
 
-### intent_transition - L7
+### intent_transition - L8
 
-[Исходник](../controller/intent-transition.jinja#L7) | if/elif: 1, inline-if: 0, предикаты: 8
+[Исходник](../controller/intent-transition.jinja#L8) | if/elif: 1, inline-if: 0, предикаты: 8
 
 ```jinja
-{%- set n = namespace(error='', result=state, changed=false) -%}
+{%- if state is not mapping or event is not mapping or policy is not mapping -%}
 ```
 
-### intent_transition - L10
+### intent_transition - L11
 
-[Исходник](../controller/intent-transition.jinja#L10) | if/elif: 1, inline-if: 0, предикаты: 4
+[Исходник](../controller/intent-transition.jinja#L11) | if/elif: 1, inline-if: 0, предикаты: 4
 
 ```jinja
-{%- else -%}
+{%- if state.get('mode') not in modes or state.get('master') is not boolean -%}
 ```
 
-### intent_transition - L15
+### intent_transition - L16
 
-[Исходник](../controller/intent-transition.jinja#L15) | if/elif: 1, inline-if: 0, предикаты: 2
+[Исходник](../controller/intent-transition.jinja#L16) | if/elif: 1, inline-if: 0, предикаты: 2
 
 ```jinja
-{%- set channel = state.get(axis) -%}
+{%- if channel is not mapping -%}
 ```
 
-### intent_transition - L18
+### intent_transition - L19
 
-[Исходник](../controller/intent-transition.jinja#L18) | if/elif: 1, inline-if: 0, предикаты: 5
+[Исходник](../controller/intent-transition.jinja#L19) | if/elif: 1, inline-if: 0, предикаты: 5
 
 ```jinja
-{%- else -%}
+{%- if channel.get('automatic') is not boolean or channel.get('active') is not boolean -%}
 ```
 
-### intent_transition - L22
+### intent_transition - L23
 
-[Исходник](../controller/intent-transition.jinja#L22) | if/elif: 1, inline-if: 0, предикаты: 4
+[Исходник](../controller/intent-transition.jinja#L23) | if/elif: 1, inline-if: 0, предикаты: 4
 
 ```jinja
-{%- set value = channel.get('value') -%}
+{%- if value is not number or value is boolean -%}
 ```
 
-### intent_transition - L24
+### intent_transition - L25
 
-[Исходник](../controller/intent-transition.jinja#L24) | if/elif: 1, inline-if: 0, предикаты: 2
+[Исходник](../controller/intent-transition.jinja#L25) | if/elif: 1, inline-if: 0, предикаты: 2
 
 ```jinja
-{%- set n.error = 'invalid_state' -%}
+{%- elif not (0 <= value <= 100) -%}
 ```
 
-### intent_transition - L28
+### intent_transition - L29
 
-[Исходник](../controller/intent-transition.jinja#L28) | if/elif: 1, inline-if: 0, предикаты: 4
+[Исходник](../controller/intent-transition.jinja#L29) | if/elif: 1, inline-if: 0, предикаты: 4
 
 ```jinja
-{%- set deadline = channel.get('deadline') -%}
+{%- if deadline is not number or deadline is boolean -%}
 ```
 
-### intent_transition - L30
+### intent_transition - L31
 
-[Исходник](../controller/intent-transition.jinja#L30) | if/elif: 1, inline-if: 0, предикаты: 2
+[Исходник](../controller/intent-transition.jinja#L31) | if/elif: 1, inline-if: 0, предикаты: 2
 
 ```jinja
-{%- set n.error = 'invalid_state' -%}
+{%- elif not (0 <= deadline <= 1000000000000) -%}
 ```
 
-### intent_transition - L35
+### intent_transition - L36
 
-[Исходник](../controller/intent-transition.jinja#L35) | if/elif: 1, inline-if: 0, предикаты: 6
+[Исходник](../controller/intent-transition.jinja#L36) | if/elif: 1, inline-if: 0, предикаты: 6
 
 ```jinja
-{%- endfor -%}
+{%- if policy.get('maximum_return') not in modes or policy.get('maximum_return') == 'maximum' or policy.get('profiles') is not mapping -%}
 ```
 
-### intent_transition - L39
+### intent_transition - L40
 
-[Исходник](../controller/intent-transition.jinja#L39) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/intent-transition.jinja#L40) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- set kind = event.get('type') -%}
+{%- if kind not in ['goal_set', 'goal_auto', 'boost_start', 'boost_cancel', 'tick', 'master', 'profile'] -%}
 ```
 
-### intent_transition - L42
+### intent_transition - L43
 
-[Исходник](../controller/intent-transition.jinja#L42) | if/elif: 1, inline-if: 0, предикаты: 3
+[Исходник](../controller/intent-transition.jinja#L43) | if/elif: 1, inline-if: 0, предикаты: 3
 
 ```jinja
-{%- endif -%}
+{%- if kind in ['goal_set', 'goal_auto', 'boost_start', 'boost_cancel'] and event.get('axis') not in axes -%}
 ```
 
-### intent_transition - L45
+### intent_transition - L46
 
-[Исходник](../controller/intent-transition.jinja#L45) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/intent-transition.jinja#L46) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- endif -%}
+{%- if kind == 'goal_set' -%}
 ```
 
-### intent_transition - L47
+### intent_transition - L48
 
-[Исходник](../controller/intent-transition.jinja#L47) | if/elif: 1, inline-if: 0, предикаты: 4
+[Исходник](../controller/intent-transition.jinja#L48) | if/elif: 1, inline-if: 0, предикаты: 4
 
 ```jinja
-{%- set value = event.get('value') -%}
+{%- if value is not number or value is boolean -%}
 ```
 
-### intent_transition - L49
+### intent_transition - L50
 
-[Исходник](../controller/intent-transition.jinja#L49) | if/elif: 1, inline-if: 0, предикаты: 4
+[Исходник](../controller/intent-transition.jinja#L50) | if/elif: 1, inline-if: 0, предикаты: 4
 
 ```jinja
-{%- set n.error = 'invalid_value' -%}
+{%- elif not (0 <= value <= 100) or value % 5 != 0 -%}
 ```
 
-### intent_transition - L52
+### intent_transition - L53
 
-[Исходник](../controller/intent-transition.jinja#L52) | if/elif: 1, inline-if: 0, предикаты: 4
+[Исходник](../controller/intent-transition.jinja#L53) | if/elif: 1, inline-if: 0, предикаты: 4
 
 ```jinja
-{%- endif -%}
+{%- elif kind == 'goal_auto' and event.get('automatic') is not boolean -%}
 ```
 
-### intent_transition - L54
+### intent_transition - L55
 
-[Исходник](../controller/intent-transition.jinja#L54) | if/elif: 1, inline-if: 0, предикаты: 4
+[Исходник](../controller/intent-transition.jinja#L55) | if/elif: 1, inline-if: 0, предикаты: 4
 
 ```jinja
-{%- set n.error = 'invalid_automatic' -%}
+{%- elif kind == 'master' and event.get('enabled') is not boolean -%}
 ```
 
-### intent_transition - L57
+### intent_transition - L58
 
-[Исходник](../controller/intent-transition.jinja#L57) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/intent-transition.jinja#L58) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- endif -%}
+{%- if kind in ['boost_start', 'tick', 'profile'] -%}
 ```
 
-### intent_transition - L59
+### intent_transition - L60
 
-[Исходник](../controller/intent-transition.jinja#L59) | if/elif: 1, inline-if: 0, предикаты: 4
+[Исходник](../controller/intent-transition.jinja#L60) | if/elif: 1, inline-if: 0, предикаты: 4
 
 ```jinja
-{%- set now = event.get('now') -%}
+{%- if now is not number or now is boolean -%}
 ```
 
-### intent_transition - L61
+### intent_transition - L62
 
-[Исходник](../controller/intent-transition.jinja#L61) | if/elif: 1, inline-if: 0, предикаты: 2
-
-```jinja
-{%- set n.error = 'invalid_now' -%}
-```
-
-### intent_transition - L65
-
-[Исходник](../controller/intent-transition.jinja#L65) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/intent-transition.jinja#L62) | if/elif: 1, inline-if: 0, предикаты: 2
 
 ```jinja
-{%- endif -%}
+{%- elif not (0 <= now <= 999999999100) -%}
 ```
 
 ### intent_transition - L66
 
-[Исходник](../controller/intent-transition.jinja#L66) | if/elif: 1, inline-if: 0, предикаты: 6
+[Исходник](../controller/intent-transition.jinja#L66) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
 {%- if kind == 'boost_start' -%}
 ```
 
-### intent_transition - L68
+### intent_transition - L67
 
-[Исходник](../controller/intent-transition.jinja#L68) | if/elif: 1, inline-if: 0, предикаты: 2
+[Исходник](../controller/intent-transition.jinja#L67) | if/elif: 1, inline-if: 0, предикаты: 6
 
 ```jinja
-{%- set n.error = 'invalid_duration' -%}
+{%- if event.get('duration') is not number or event.get('duration') is boolean or event.get('duration') not in [10, 15] -%}
 ```
 
-### intent_transition - L71
+### intent_transition - L69
 
-[Исходник](../controller/intent-transition.jinja#L71) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/intent-transition.jinja#L69) | if/elif: 1, inline-if: 0, предикаты: 2
 
 ```jinja
-{%- endif -%}
+{%- elif event.get('eligible') is not boolean -%}
 ```
 
 ### intent_transition - L72
@@ -1347,100 +1306,108 @@
 {%- elif kind == 'profile' -%}
 ```
 
-### intent_transition - L74
+### intent_transition - L73
 
-[Исходник](../controller/intent-transition.jinja#L74) | if/elif: 1, inline-if: 0, предикаты: 3
+[Исходник](../controller/intent-transition.jinja#L73) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- set n.error = 'invalid_mode' -%}
+{%- if event.get('mode') not in modes -%}
 ```
 
-### intent_transition - L76
+### intent_transition - L75
 
-[Исходник](../controller/intent-transition.jinja#L76) | if/elif: 1, inline-if: 0, предикаты: 2
+[Исходник](../controller/intent-transition.jinja#L75) | if/elif: 1, inline-if: 0, предикаты: 3
 
 ```jinja
-{%- set profile = policy.profiles.get(event.mode) -%}
+{%- elif event.get('mode') != 'maximum' and policy.get('profiles') is mapping -%}
 ```
 
-### intent_transition - L81
+### intent_transition - L77
 
-[Исходник](../controller/intent-transition.jinja#L81) | if/elif: 1, inline-if: 0, предикаты: 2
+[Исходник](../controller/intent-transition.jinja#L77) | if/elif: 1, inline-if: 0, предикаты: 2
 
 ```jinja
-{%- set baseline = profile.get(axis) -%}
+{%- if profile is not mapping -%}
 ```
 
-### intent_transition - L85
+### intent_transition - L82
 
-[Исходник](../controller/intent-transition.jinja#L85) | if/elif: 1, inline-if: 0, предикаты: 7
+[Исходник](../controller/intent-transition.jinja#L82) | if/elif: 1, inline-if: 0, предикаты: 2
 
 ```jinja
-{%- set value = baseline.get('value') -%}
+{%- if baseline is not mapping -%}
 ```
 
-### intent_transition - L87
+### intent_transition - L86
 
-[Исходник](../controller/intent-transition.jinja#L87) | if/elif: 1, inline-if: 0, предикаты: 2
+[Исходник](../controller/intent-transition.jinja#L86) | if/elif: 1, inline-if: 0, предикаты: 7
 
 ```jinja
-{%- set n.error = 'invalid_profile' -%}
+{%- if baseline.get('automatic') is not boolean or value is not number or value is boolean -%}
+```
+
+### intent_transition - L88
+
+[Исходник](../controller/intent-transition.jinja#L88) | if/elif: 1, inline-if: 0, предикаты: 2
+
+```jinja
+{%- elif not (0 <= value <= 100) -%}
 ```
 
 ### intent_transition - L97
 
-[Исходник](../controller/intent-transition.jinja#L97) | if/elif: 2, inline-if: 0, предикаты: 4
+[Исходник](../controller/intent-transition.jinja#L97) | if/elif: 1, inline-if: 0, предикаты: 3
 
 ```jinja
 {%- if n.error == '' and kind == 'boost_start' -%}
 ```
 
-### intent_transition - L99
+### intent_transition - L98
 
-[Исходник](../controller/intent-transition.jinja#L99) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/intent-transition.jinja#L98) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- set n.error = 'master_disabled' -%}
+{%- if not state.master -%}
 ```
 
-### intent_transition - L101
+### intent_transition - L100
 
-[Исходник](../controller/intent-transition.jinja#L101) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/intent-transition.jinja#L100) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- set n.error = 'maximum_active' -%}
+{%- elif state.mode == 'maximum' -%}
 ```
 
-### intent_transition - L103
+### intent_transition - L102
 
-[Исходник](../controller/intent-transition.jinja#L103) | if/elif: 1, inline-if: 0, предикаты: 2
+[Исходник](../controller/intent-transition.jinja#L102) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- set n.error = 'ineligible' -%}
+{%- elif not event.eligible -%}
 ```
 
-### intent_transition - L107
+### intent_transition - L104
 
-[Исходник](../controller/intent-transition.jinja#L107) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/intent-transition.jinja#L104) | if/elif: 1, inline-if: 0, предикаты: 2
 
 ```jinja
-{%- endif -%}
+{%- elif state[event.axis].active and state[event.axis].deadline > event.now -%}
 ```
 
-### intent_transition - L109
+### intent_transition - L108
 
-[Исходник](../controller/intent-transition.jinja#L109) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/intent-transition.jinja#L108) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- set n.result = dict(state) -%}
+{%- if n.error == '' -%}
 ```
 
-### intent_transition - L112
+### intent_transition - L110
 
-[Исходник](../controller/intent-transition.jinja#L112) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/intent-transition.jinja#L110) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- set n.result = dict(n.result, **{event.axis: channel}) -%}
+{%- if kind == 'goal_set' -%}
 ```
 
 ### intent_transition - L113
@@ -1448,15 +1415,15 @@
 [Исходник](../controller/intent-transition.jinja#L113) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- endif -%}
+{%- if state.mode == 'maximum' -%} {%- set n.result = dict(n.result, mode=policy.maximum_return) -%} {%- endif -%}
 ```
 
-### intent_transition - L115
+### intent_transition - L114
 
-[Исходник](../controller/intent-transition.jinja#L115) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/intent-transition.jinja#L114) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- set n.result = dict(n.result, **{event.axis: dict(state[event.axis], automatic=event.automatic)}) -%}
+{%- elif kind == 'goal_auto' -%}
 ```
 
 ### intent_transition - L116
@@ -1464,79 +1431,87 @@
 [Исходник](../controller/intent-transition.jinja#L116) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- endif -%}
+{%- if state.mode == 'maximum' -%} {%- set n.result = dict(n.result, mode=policy.maximum_return) -%} {%- endif -%}
 ```
 
-### intent_transition - L118
+### intent_transition - L117
 
-[Исходник](../controller/intent-transition.jinja#L118) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/intent-transition.jinja#L117) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- set n.result = dict(n.result, **{event.axis: dict(state[event.axis], active=true, deadline=event.now + event.duration * 60)}) -%}
+{%- elif kind == 'boost_start' -%}
 ```
 
-### intent_transition - L120
+### intent_transition - L119
 
-[Исходник](../controller/intent-transition.jinja#L120) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/intent-transition.jinja#L119) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- set n.result = dict(n.result, **{event.axis: dict(state[event.axis], active=false, deadline=0)}) -%}
+{%- elif kind == 'boost_cancel' -%}
 ```
 
-### intent_transition - L122
+### intent_transition - L121
 
-[Исходник](../controller/intent-transition.jinja#L122) | if/elif: 1, inline-if: 0, предикаты: 5
+[Исходник](../controller/intent-transition.jinja#L121) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- for axis in axes -%}
+{%- elif kind == 'tick' -%}
 ```
 
-### intent_transition - L126
+### intent_transition - L123
 
-[Исходник](../controller/intent-transition.jinja#L126) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/intent-transition.jinja#L123) | if/elif: 1, inline-if: 0, предикаты: 5
 
 ```jinja
-{%- endfor -%}
+{%- if not state[axis].active or state[axis].deadline <= event.now or not state.master -%}
 ```
 
-### intent_transition - L128
+### intent_transition - L127
 
-[Исходник](../controller/intent-transition.jinja#L128) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/intent-transition.jinja#L127) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- set n.result = dict(n.result, master=event.enabled) -%}
+{%- elif kind == 'master' -%}
 ```
 
-### intent_transition - L133
+### intent_transition - L129
 
-[Исходник](../controller/intent-transition.jinja#L133) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/intent-transition.jinja#L129) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- endif -%}
+{%- if not event.enabled -%}
 ```
 
-### intent_transition - L136
+### intent_transition - L134
 
-[Исходник](../controller/intent-transition.jinja#L136) | if/elif: 0, inline-if: 1, предикаты: 1
+[Исходник](../controller/intent-transition.jinja#L134) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- for axis in axes -%}
+{%- elif kind == 'profile' -%}
 ```
 
-### intent_transition - L141
+### intent_transition - L137
 
-[Исходник](../controller/intent-transition.jinja#L141) | if/elif: 0, inline-if: 0, предикаты: 1
+[Исходник](../controller/intent-transition.jinja#L137) | if/elif: 0, inline-if: 1, предикаты: 1
 
 ```jinja
-{%- endif -%}
+{%- set baseline = {} if event.mode == 'maximum' else {'automatic': policy.profiles[event.mode][axis].automatic, 'value': policy.profiles[event.mode][axis].value} -%}
 ```
 
-### intent_transition - L144
+### intent_transition - L142
 
-[Исходник](../controller/intent-transition.jinja#L144) | if/elif: 0, inline-if: 0, предикаты: 1
+[Исходник](../controller/intent-transition.jinja#L142) | if/elif: 0, inline-if: 0, предикаты: 1
 
 ```jinja
-{%- endif -%}
+{%- set n.changed = n.result != state -%}
+```
+
+### intent_transition - L145
+
+[Исходник](../controller/intent-transition.jinja#L145) | if/elif: 0, inline-if: 0, предикаты: 1
+
+```jinja
+{{- {'valid': n.error == '', 'error': n.error, 'state': n.result, 'changed': n.changed} | to_json -}}
 ```
 
 ## legacy-policy.jinja
@@ -1666,7 +1641,7 @@
 [Исходник](../controller/legacy-policy.jinja#L34) | if/elif: 0, inline-if: 0, предикаты: 2
 
 ```jinja
-{% set full=selected=='Полностью автоматически' %}
+{% set full=selected=='Полностью автоматически' %} {% set automatic=selected in ['Автоматически','Полностью автоматически'] %}
 ```
 
 ### legacy_air - L37
@@ -1794,7 +1769,7 @@
 [Исходник](../controller/legacy-policy.jinja#L56) | if/elif: 0, inline-if: 1, предикаты: 0
 
 ```jinja
-{% set ranks={'low':1,'medium':2,'high':3} %}
+{% set ranks={'low':1,'medium':2,'high':3} %} {% set fcap=context.ac_fan_cap if full else 'high' %}
 ```
 
 ### legacy_air - L57
@@ -1850,7 +1825,7 @@
 [Исходник](../controller/legacy-policy.jinja#L87) | if/elif: 0, inline-if: 1, предикаты: 2
 
 ```jinja
-{% set ns.action='stop' if owned and ac_mode == 'cool' else 'release' %}
+{% set ns.action='stop' if owned and ac_mode == 'cool' else 'release' %} {% set ns.reason='Охлаждение приостановлено: закреплён нагрев притока' %}
 ```
 
 ### legacy_thermal - L88
@@ -1890,7 +1865,7 @@
 [Исходник](../controller/legacy-policy.jinja#L95) | if/elif: 0, inline-if: 1, предикаты: 0
 
 ```jinja
-{% set ns.action='stop' if owned else 'adopt' %}
+{% set ns.action='stop' if owned else 'adopt' %} {% set ns.reason='Температура вышла за защитный порог' %}
 ```
 
 ### legacy_thermal - L96
@@ -1930,7 +1905,7 @@
 [Исходник](../controller/legacy-policy.jinja#L103) | if/elif: 0, inline-if: 1, предикаты: 1
 
 ```jinja
-{% set ns.mode='cool' %}
+{% set ns.mode='cool' %} {% set ns.action='start' if since_change >= 300 else 'wait' %}
 ```
 
 ### legacy_thermal - L104
@@ -1986,7 +1961,7 @@
 [Исходник](../controller/legacy-policy.jinja#L115) | if/elif: 0, inline-if: 0, предикаты: 1
 
 ```jinja
-{% set ns.value=plan.target %}
+{% set ns.value=plan.target %} {% set ns.send=current_target != plan.target %} {% set ns.reason='Начало цикла' %}
 ```
 
 ### legacy_thermal - L116
@@ -2002,7 +1977,7 @@
 [Исходник](../controller/legacy-policy.jinja#L117) | if/elif: 0, inline-if: 0, предикаты: 1
 
 ```jinja
-{% set ns.value=plan.target %}
+{% set ns.value=plan.target %} {% set ns.send=current_target != plan.target %} {% set ns.reason='Новая цель комнаты' %}
 ```
 
 ### legacy_thermal - L118
