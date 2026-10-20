@@ -57,3 +57,17 @@ Keep the basic **Automatic** profile separate from **Fully automatic**. Basic Au
 Recommended precedence: explicit Off and per-parameter manual holds; unavailable devices and invalid readings; hardware bounds and compressor protection; confirmed, sustained air-quality demand; context-dependent soft noise ceilings; minimum changes and hysteresis. A sleeping occupant or conflicting sleep evidence uses quiet bounds. Confirmed absence can remove the soft noise limit without forcing maximum speed. Unknown context uses conservative day/night bounds. Escalation during sleep must have explicit configurable air-quality thresholds, persistence, a bounded speed and release hysteresis. It never releases a manual hold or exceeds a hard ceiling.
 
 This is a finite fault model, not a guarantee of all physical scenarios. Test stale/missing/conflicting sensors, unavailable actuators, time changes, restart, command timeout, manual edits during execution and infeasible goals. Report unmet goals and degraded inputs instead of claiming success. Multiple occupants require an aggregate presence/sleep source; any sleeping or unknown relevant occupant should retain the stricter limit. Acoustic caps cannot guarantee measured dB before calibrated hardware is installed.
+
+## Readable action records (v0.10.1)
+
+The default view shows commands, blocked actions and observations. The latest calculation is separate, with its full inputs under details. `All records` also shows earlier plans. Reasons and outcomes are visible without expanding a row. Calculated demand is never presented as an executed action.
+
+Supply structured metadata on request and result records:
+
+```json
+{"command_id":"server-generated-unique-command-id","trigger":"Air regulation","cause":"Particle demand increased; the quiet ceiling still applies.","action":{"device":"Air purifier","service":"fan.set_percentage","changes":[{"parameter":"Power","from":30,"to":40,"unit":"%"}]}}
+```
+
+Reuse a `command_id` only for stages of that exact command, including any blocked result. IDs must be unique across concurrent calls and restarts. The frontend folds these stages using the server's newest-first order; it never pairs records by title, source or time proximity. Legacy entries remain readable but stay separate. A newer pending status is not upgraded using an older confirmation. Structured values and diagnostics are bounded and rendered as escaped text. Source snapshots belong in `inputs`, the decision basis in `cause`, and the reported result in `reported`.
+
+Capture `from` before submitting the command, and log the actual final payload after all clamps. A request is not proof of dispatch or success. Emit `confirmed` only when HA reports the expected state; an unconfirmed result remains explicit. An observation records external state and must not imply HA sent a command. Correlation and this card never cause retries or device commands.

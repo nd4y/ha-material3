@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.10.1 - 2026-10-20
+- Make automation actions readable without expanding records: show before/after values, decision basis and explicit HA result.
+- Fold command stages only by an explicit server correlation ID; preserve uncertainty, legacy compatibility and open detail state during updates.
+- Separate latest calculation from action history; retain full technical details and configurable native history navigation.
 ## 0.10.0 - 2026-10-20
 - Add opt-in user preference semantics: persistent qualitative freshness, cleaning and quietness inputs stay independent of device telemetry, profiles and automation mode.
 - Adjust automatic demand relative to its baseline and sensor need, with a separate configurable quietness budget. Neutral wishes preserve the existing plan; no preference maps to a motor percentage or implies power-off.

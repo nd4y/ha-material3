@@ -1,5 +1,5 @@
 {
-  "module_version": "0.10.0",
+  "module_version": "0.10.1",
   "synthetic_data_only": true,
   "live_ha_connection": false,
   "camera_media": false,
@@ -8,17 +8,17 @@
   "screenshots": [
     {
       "file": "docs/images/desktop.png",
-      "sha256": "53e2862782117e2621ecffeae8427942e7586b54505d5d1d094dfcbcfee647ba",
+      "sha256": "20a9a5593ee92cc2f004e4eb1d2278c51992b0d52f42ec494b97322c77789f40",
       "metadata_text_chunks": false,
       "width": 1560,
-      "height": 1216
+      "height": 1466
     },
     {
       "file": "docs/images/maximum-menu.png",
-      "sha256": "24f924b4477c8d5b2758b2c9bffda629203488641e02b54d4c51de9cb1e27369",
+      "sha256": "0b145701654811efec0f651fe9e64d68d6725291be205413c622692237916d48",
       "metadata_text_chunks": false,
       "width": 1560,
-      "height": 1216
+      "height": 1466
     },
     {
       "file": "docs/images/device-error.png",
