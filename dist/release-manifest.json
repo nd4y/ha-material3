@@ -1,6 +1,6 @@
 {
   "name": "ha-material3",
-  "version": "0.9.1",
+  "version": "0.10.0",
   "files": [
     {
       "path": "ha-material3-theme.yaml",
@@ -9,8 +9,8 @@
     },
     {
       "path": "ha-material3.js",
-      "bytes": 355164,
-      "sha256": "8db2b46792e0e8355585c800c0bd7e5facd1cc0777be331623f70b8bb4e6d926"
+      "bytes": 359564,
+      "sha256": "babcdba3199c4dc4f1cbe57de78dc7513b4d7c49d1eefc6011ac27e2751df52d"
     },
     {
       "path": "LICENSE",
@@ -58,6 +58,11 @@
       "sha256": "a5831175dbe77160f76fa6ca3686c62d859c12cf683a8e569891ddf8bf27d8c0"
     },
     {
+      "path": "ha-m3-comfort-preferences.jinja",
+      "bytes": 6027,
+      "sha256": "18b6f9ee0eaf84d59224330c636de719550fd335d3f9cd843c9c6fefdab1116d"
+    },
+    {
       "path": "ha-m3-command-guards.jinja",
       "bytes": 2178,
       "sha256": "382037ad6ba5efc11e96a2fda5e2df3523fb6590197bbba6b472e349257fc7e7"
@@ -85,17 +90,18 @@
   ],
   "sources": {
     "controller/air-goals.jinja": "a5831175dbe77160f76fa6ca3686c62d859c12cf683a8e569891ddf8bf27d8c0",
+    "controller/comfort-preferences.jinja": "18b6f9ee0eaf84d59224330c636de719550fd335d3f9cd843c9c6fefdab1116d",
     "controller/command-guards.jinja": "382037ad6ba5efc11e96a2fda5e2df3523fb6590197bbba6b472e349257fc7e7",
     "controller/control-dynamics.jinja": "3e481ca559925cee3a85cb741e8de32d4c70ab3ee1b93a5dab2d82b9871acf81",
     "controller/device-health.jinja": "3775f6f201079c2d1c14bd909de1e18cd4e17d183708d1025661066afd4affce",
     "controller/intent-transition.jinja": "7e099608ae77316d25c16542d3f8d7a6934b3417aeb1c722cddf382ee903a688",
     "controller/legacy-policy.jinja": "ed8532fa2855d58d18dd1ade70807acc3e2412adf3b5a418588b9cef7b10ef07",
-    "package-lock.json": "569b83163eb071f79445e6c9ce8030d4b28e6eb0f77a3cdd5455d75f03da7735",
-    "package.json": "eaeef1895ffe41e41f136c10020082f39dc934d05d63133044c0760b1e1690cf",
+    "package-lock.json": "59b8100cedc65189cad18766b88b6a5651ec138b3ead18ef66d65f925a331077",
+    "package.json": "1c2f5bbd84a62aaabeef5702cb120b3385281cb1db943b76b58cdceb6253156b",
     "scripts/audit-release.mjs": "ca5fbff89ef1c15a3844746208aaad340f13219dda338bf8b537b52ffb649118",
     "scripts/build.mjs": "ba715c54ed44408e583a14ffcc8d77b046d943b894691137019f9f3722ffd29f",
     "scripts/dev-server.mjs": "9a708517056f40cf7fdd778b0c8a8627137c48ebe59ad47a81b518a459900bb2",
-    "scripts/fetch-assets.mjs": "ac92ea336ef1a808bfb69d6b87d24ac85a129cbe9b28597b17ca55b33b7c5eca",
+    "scripts/fetch-assets.mjs": "3f6d883f634e179aacc608cde395eddb0cb89224405df4b54aabc2ced60fac48",
     "scripts/generate-tokens.js": "97d835d06a626c3f29cbda56103c97222102d14fa9b4409d3590f76a7247267c",
     "scripts/link-controller.py": "7d808abcf9ba9e9d7b5e19f3825d5ea3a31908cac68abb78b6082a1781f4e773",
     "scripts/native-dashboard.mjs": "8c39c8a60e9129464522e822f22a962151a29b7d40b255d1c780f645f78c738d",
@@ -104,16 +110,17 @@
     "scripts/test-controller.mjs": "4e6817fe666e14d0d914cc210913986be5ebbf36be35f890147eb343e921813d",
     "scripts/test-controller.py": "63ddf326f25f2261a8e3abc100122337af1954642a82082f964b0c1461068789",
     "scripts/theme.mjs": "5b420fdb40cd38a5412666d32fa5332f07328e72aac0c8b86ef5caf6eafa33b5",
-    "src/air-goals.js": "6bb9b0b439e382ffc523725235adc9823af1428de4c20c04b1d323dcfbc61a36",
+    "src/air-goals.js": "af9d367f71f80f50aeb1905f58bd8ab0e9c17644aa297af6db994396eed7fd5e",
     "src/asset-url.js": "033c8020367ab43ce04061bb2196f2b866ca0b891fae019cd612a3223a256c9b",
-    "src/calm-room.js": "9a3e63814b14462c7b48bf55584d014a5c3d3dffa62f835beda8040ce4763cf2",
+    "src/calm-room.js": "45f63802e5794236292c8cf1abe2291dcfb333f02fa2483bb10a4ae24ea3e697",
     "src/cards.js": "6eda221ce6bfeea15f06de3ecfa94528fe1a3c8802ac840a0ab570f1ec0fb404",
     "src/color-scheme.js": "16b6d291d27ad9bcd3e0b747a5c94cd3dedeb2bd740bcf409c0b570b30c0c0f9",
-    "src/components.js": "ea108adfe7d9636a663bdffc0aa3a95d6ed54275e65b3f2cb879ccddbff2f0fe",
+    "src/components.js": "0363c7cc2bba1492d237204118e355ecb5fd2bb3538686cbd89a805d29ee88f2",
     "src/design-system.js": "b064de96f2262dde8e6fcf2ab63ea624160088570bdd4edb2402cb61b79f1a3a",
     "src/editor.js": "cf816ccf91354e88d0933bc1abd323845d54b637d924d2cd9f50fc8ae4881f7b",
     "src/fields.js": "20cfb3e84784c21380a79298253c3643f23358b5eff13f968242cd311b04f1a0",
-    "src/ha.js": "e5e3901b54906eec5821d3338fdfac489e8385b58cfd36b616399a3b63b15ed4",
+    "src/ha.js": "e308fd32a4342dddbc4868ab40db9e3fff04075eabf9d7b208d7ff25dc8886dc",
+    "src/icons.js": "f7805d4b165397d44d5e502f3e45bb441cb8ce76874514e0d693d3a4180c4922",
     "src/index.js": "6fa64787b5489503bff1dca9902af5472e3795f06c9f5643d0a379491b629594",
     "src/journal-card.js": "e96f8055832de9188e012e2a7976c7ba5c61a7a1a7b52c47d7c7ce18ae84aba0",
     "src/journal-model.js": "c7c645f0fa586475cb1af1066ca3914986b842c2c22401f4b117219708f73759",
@@ -122,10 +129,11 @@
     "src/native-dashboard.js": "27e298b20e8568009f14c244997c36a3c2a5c2576c1d67f900526ef8405383e7",
     "src/panel.js": "09760aa39972be12adec7b7fc432591576201ad96895c5221576fafbb75d18ac",
     "src/popover.js": "136b825932e978d6544658e479d65d7654d189913a9790e20ec72dced5e3f9e0",
+    "src/preset-controls.js": "e0c482b44554c7e500ab8a6af14df6874e804f5d2de8e8f8d844ac71fdcd1b68",
     "src/quick-card.js": "d3ba424055c8ed606725de7dff214fa18123ddf55b4d2075c4680a1809bc87ae",
     "src/quick-controls.js": "338320d6c1793eae9416f8811d51a86d00da9bb6551643ee6bea53848194a91e",
     "src/room-controls.js": "43be8f2887deda1cc516da297708b3ba8221ed45ed6b06356453d8bb480d92b4",
-    "src/slider.js": "209fc0c4a84913dd5b3db8bda0e33590343ef8485285697e404c197f7dd711ea",
+    "src/slider.js": "60ddcc55f5ce78fec9fcbbe8715cea7b9fa8460f4bb17d72c1a4128aac7437e1",
     "src/theme.js": "e03dbcbc2d7cf09fc6875268995d97c725e831f94dbca78ef8db9429b6f44e9b",
     "tokens/design-system.json": "a105fba43308d92438390579f2f983b93b58f691a157f1ab42605a8c510946af",
     "tokens/foundation.json": "a79e109f67460506da60fbc6648a03d3d7978344ba9c35363b09520de88ee62c",

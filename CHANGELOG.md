@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.10.0 - 2026-10-20
+- Add opt-in user preference semantics: persistent qualitative freshness, cleaning and quietness inputs stay independent of device telemetry, profiles and automation mode.
+- Adjust automatic demand relative to its baseline and sensor need, with a separate configurable quietness budget. Neutral wishes preserve the existing plan; no preference maps to a motor percentage or implies power-off.
+- Add configurable compact circular preset icons with accessible labels, selected-mode text and the existing Maximum return menu.
+- Preserve legacy air-goal configurations, manual permissions, fault isolation and independent boost deadlines; test the shared production preference policy in every build.
+
 ## 0.9.1 - 2026-10-20
 - Display a configured computed wish in Auto HA while preserving the independent stored manual wish. Show missing computed data explicitly and keep manual editing available.
 - Gate starting a temporary boost with a separate binary availability source. Active boosts remain cancellable when starting becomes unavailable.

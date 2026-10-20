@@ -1,3 +1,4 @@
+import {isBundledIcon} from './icons.js';
 export const available=(state)=>!!state&&!['unknown','unavailable'].includes(state.state);
 export const finite=(value)=>value!==null&&value!==undefined&&value!==''&&Number.isFinite(Number(value))?Number(value):null;
 export const stateOf=(hass,entity)=>entity?hass?.states?.[entity]:undefined;
@@ -63,9 +64,20 @@ export function validateAirGoals(config){
   if(config.air_goals!==undefined&&!Array.isArray(config.air_goals))throw new Error('air_goals must be an array');
   const ids=new Set();for(const item of config.air_goals||[]){
     if(!item||!/^[-a-z0-9_]+$/.test(item.id||'')||ids.has(item.id)||typeof item.name!=='string'||!item.name.trim())throw new Error('Air goals require unique safe IDs and names');ids.add(item.id);
-    if(!entityId(item.entity,'input_number')||!entityId(item.automatic_entity,'input_boolean'))throw new Error('Air goal requires numeric intention and automatic helpers');
+    if(item.semantics!==undefined&&item.semantics!=='preference')throw new Error('Unsupported air goal semantics');
+    if(!entityId(item.entity,'input_number'))throw new Error('Air goal requires a numeric intention helper');
+    if(item.semantics==='preference'){
+      if(['automatic_entity','automatic_value_entity','automatic_action'].some(key=>item[key]!==undefined))throw new Error('User preferences cannot have automatic values or ownership');
+      if(!Array.isArray(item.value_labels)||item.value_labels.length<2||item.value_labels[0]?.value!==0||item.value_labels.at(-1)?.value!==100)throw new Error('Preference labels must cover 0 through 100');
+      let previous=-1;for(const mark of item.value_labels){if(!mark||typeof mark.value!=='number'||!Number.isFinite(mark.value)||mark.value<=previous||mark.value>100||typeof mark.label!=='string'||!mark.label.trim())throw new Error('Preference labels need increasing finite values and names');previous=mark.value;}
+      if(item.neutral_value!==undefined&&(typeof item.neutral_value!=='number'||!Number.isFinite(item.neutral_value)||item.neutral_value<0||item.neutral_value>100))throw new Error('Preference neutral_value must be from 0 to 100');
+      for(const key of ['preference_note','low_label','high_label'])if(item[key]!==undefined&&(typeof item[key]!=='string'||!item[key].trim()))throw new Error('Preference labels must be nonempty text');
+    }else{
+      if(!entityId(item.automatic_entity,'input_boolean'))throw new Error('Air goal requires an automatic helper');
+      dynamicAction(item.automatic_action);
+    }
     for(const key of ['status_entity','availability_entity','automatic_value_entity'])if(item[key]!==undefined&&!entityId(item[key]))throw new Error('Invalid air goal source');
-    dynamicAction(item.set_action);dynamicAction(item.automatic_action);
+    dynamicAction(item.set_action);
     if(item.boost!==undefined){const boost=item.boost;if(!boost||!entityId(boost.active_entity,'input_boolean')||!entityId(boost.deadline_entity,'input_datetime'))throw new Error('Air boost requires active and absolute deadline helpers');
       if(boost.availability_entity!==undefined&&!entityId(boost.availability_entity,'binary_sensor'))throw new Error('Air boost availability must be binary_sensor');
       dynamicAction(boost.start_action);validateAction(boost.cancel_action);
@@ -85,7 +97,8 @@ export function validateConfig(config,kind='panel'){
     for(const k of ['room_temperature','target_temperature','enabled'])if(typeof config.entities?.[k]!=='string')throw new Error(`Missing entities.${k}`);
     if(!config.entities.target_temperature.startsWith('input_number.'))throw new Error('Target must be input_number');
     if(!config.entities.enabled.startsWith('input_boolean.'))throw new Error('Enabled control must be input_boolean');
-    const ids=new Set();for(const p of config.presets||[]){if(!p.id||ids.has(p.id))throw new Error('Preset IDs must be unique');ids.add(p.id);validateAction(p.action);}
+    if(config.preset_style!==undefined&&!['text','icons'].includes(config.preset_style))throw new Error('preset_style must be text or icons');
+    const ids=new Set();for(const p of config.presets||[]){if(!p.id||ids.has(p.id))throw new Error('Preset IDs must be unique');ids.add(p.id);validateAction(p.action);if(config.preset_style==='icons'&&(typeof p.name!=='string'||!p.name.trim()||!isBundledIcon(p.icon)))throw new Error('Icon presets need names and bundled icons');}
     if(config.maximum?.cancel_action)validateAction(config.maximum.cancel_action);
       if(config.maximum?.start_action){
         const m=config.maximum;validateAction(m.start_action);
