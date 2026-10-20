@@ -1,0 +1,122 @@
+{# Persistent comfort wishes are user input, never actuator telemetry. This pure
+   policy only adjusts an automatic plan and its soft acoustic caps. The caller
+   still owns Off/Maximum, boosts, hard limits, health and manual permissions. #}
+{% macro comfort_preferences(p) -%}
+  {%- set n = namespace(valid=p is mapping, requests={}, caps={}, reasons={}) -%}
+  {%- if n.valid -%}
+    {%- for key in ['fresh', 'clean', 'quiet'] -%}
+      {%- set value = p.get(key) -%}
+      {%- if value is not number or value is boolean -%}
+        {%- set n.valid = false -%}
+      {%- elif not (0 <= value <= 100) -%}
+        {%- set n.valid = false -%}
+      {%- endif -%}
+    {%- endfor -%}
+    {%- for axis in ['fresh', 'clean', 'ac_fan'] -%}
+      {%- for suffix in ['base', 'max', 'noise_cap', 'quiet_reduction_steps'] -%}
+        {%- set value = p.get(axis ~ '_' ~ suffix) -%}
+        {%- if value is not number or value is boolean -%}
+          {%- set n.valid = false -%}
+        {%- elif not (0 <= value <= 1000000) or value != value|int -%}
+          {%- set n.valid = false -%}
+        {%- elif suffix == 'max' and value == 0 -%}
+          {%- set n.valid = false -%}
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endfor -%}
+    {%- for axis in ['fresh', 'clean'] -%}
+      {%- for suffix in ['need', 'adjustment_steps'] -%}
+        {%- set value = p.get(axis ~ '_' ~ suffix) -%}
+        {%- if value is not number or value is boolean -%}
+          {%- set n.valid = false -%}
+        {%- elif not (0 <= value <= 1000000) or value != value|int -%}
+          {%- set n.valid = false -%}
+        {%- elif suffix == 'adjustment_steps' and value == 0 -%}
+          {%- set n.valid = false -%}
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endfor -%}
+    {%- if n.valid -%}
+      {%- for axis in ['fresh', 'clean', 'ac_fan'] -%}
+        {%- if p[axis ~ '_base'] > p[axis ~ '_max'] -%}
+          {%- set n.valid = false -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- for axis in ['fresh', 'clean'] -%}
+        {%- if p[axis ~ '_need'] > p[axis ~ '_max'] -%}
+          {%- set n.valid = false -%}
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endif -%}
+  {%- endif -%}
+  {%- if not n.valid -%}
+    {{- {'valid': false, 'error': 'invalid_input', 'fresh_request': none,
+         'clean_request': none, 'ac_fan_request': none,
+         'fresh_noise_cap': none, 'clean_noise_cap': none, 'ac_fan_cap': none,
+         'reasons': {'fresh': 'invalid_input', 'clean': 'invalid_input',
+                     'quiet': 'invalid_input'}} | tojson -}}
+  {%- else -%}
+    {%- for axis in ['fresh', 'clean'] -%}
+      {%- set adjustment = ((p[axis] - 50) / 50 * p[axis ~ '_adjustment_steps']) | round(0) | int -%}
+      {# A preference for less is not authority to turn off a running automatic
+         baseline. Preserve its smallest nonzero step; an already-zero plan
+         with zero sensor need may stay zero. Explicit Off belongs outside. #}
+      {%- set floor = 1 if p[axis ~ '_base'] > 0 or p[axis ~ '_need'] > 0 else 0 -%}
+      {%- set preferred = [floor, p[axis ~ '_base'] + adjustment] | max -%}
+      {%- set requested = [p[axis ~ '_max'], [preferred, p[axis ~ '_need']] | max] | min | int -%}
+      {%- set reason = 'sensor_need' if p[axis ~ '_need'] > preferred else
+                       'prefer_more' if adjustment > 0 else
+                       'prefer_less' if adjustment < 0 else 'neutral' -%}
+      {%- set n.requests = dict(n.requests, **{axis: requested}) -%}
+      {%- set n.reasons = dict(n.reasons, **{axis: reason}) -%}
+    {%- endfor -%}
+    {%- for axis in ['fresh', 'clean', 'ac_fan'] -%}
+      {%- set original = [p[axis ~ '_max'], p[axis ~ '_noise_cap']] | min | int -%}
+      {%- set reduction = (p.quiet / 100 * p[axis ~ '_quiet_reduction_steps']) | round(0) | int -%}
+      {%- set cap = [1, original - reduction] | max if original > 0 else 0 -%}
+      {%- set n.caps = dict(n.caps, **{axis: cap | int}) -%}
+    {%- endfor -%}
+    {{- {'valid': true, 'error': '', 'fresh_request': n.requests.fresh,
+         'clean_request': n.requests.clean, 'ac_fan_request': p.ac_fan_base | int,
+         'fresh_noise_cap': n.caps.fresh, 'clean_noise_cap': n.caps.clean,
+         'ac_fan_cap': n.caps.ac_fan,
+         'reasons': dict(n.reasons, quiet='prefer_quiet' if p.quiet > 0 else 'neutral')} | tojson -}}
+  {%- endif -%}
+{%- endmacro %}
+
+{# This reducer is called only for explicit user preference edits/resets. Other
+   room events have no authority to rewrite these persisted values. #}
+{% macro comfort_transition(state, event) -%}
+  {%- set n = namespace(error='', result=state) -%}
+  {%- if state is not mapping or event is not mapping -%}
+    {%- set n.error = 'invalid_input' -%}
+  {%- else -%}
+    {%- for axis in ['fresh', 'clean', 'quiet'] -%}
+      {%- set value = state.get(axis) -%}
+      {%- if value is not number or value is boolean -%}
+        {%- set n.error = 'invalid_state' -%}
+      {%- elif not (0 <= value <= 100) or value % 5 != 0 -%}
+        {%- set n.error = 'invalid_state' -%}
+      {%- endif -%}
+    {%- endfor -%}
+    {%- if event.get('type') not in ['set', 'reset'] -%}
+      {%- set n.error = 'unsupported_event' -%}
+    {%- elif event.type == 'set' -%}
+      {%- if event.get('axis') not in ['fresh', 'clean', 'quiet'] -%}
+        {%- set n.error = 'invalid_axis' -%}
+      {%- endif -%}
+      {%- set value = event.get('value') -%}
+      {%- if value is not number or value is boolean -%}
+        {%- set n.error = 'invalid_value' -%}
+      {%- elif not (0 <= value <= 100) or value % 5 != 0 -%}
+        {%- set n.error = 'invalid_value' -%}
+      {%- endif -%}
+    {%- endif -%}
+    {%- if n.error == '' -%}
+      {%- set n.result = dict(state, fresh=50, clean=50, quiet=0) if event.type == 'reset'
+                         else dict(state, **{event.axis: event.value}) -%}
+    {%- endif -%}
+  {%- endif -%}
+  {{- {'valid': n.error == '', 'error': n.error, 'state': n.result,
+       'changed': n.error == '' and n.result != state} | tojson -}}
+{%- endmacro %}
