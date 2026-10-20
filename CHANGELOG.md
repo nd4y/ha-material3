@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.0 - 2026-10-20
+- Add optional room fresh-air and cleaning wishes alongside temperature, independent Auto HA baseline switches and configurable 10/15-minute per-channel boosts. Preserve native navigation and shared themes.
+- Read server deadlines, keep independent optimistic drafts, allow cancellation when a device is offline, and show explicit error/recovery notices without claiming an unconfirmed shutdown.
+- Distribute reusable Jinja policies for intent transitions, goal arbitration, device health, last-moment command guards, context, thermal control and hysteresis. Household bindings remain private configuration.
+- Run exhaustive finite scenario matrices and existing regression cases before every build and release; publish the tested policy files with the HACS-managed assets. Document the boundary between software verification and physical behavior.
+
 ## 0.5.0 - 2026-10-18
 - Add configurable actuator-permission switches to climate cards, independent of the main thermostat switch. Controls write only the configured input_boolean flags; the HA backend decides how permitted devices maintain temperature.
 - Support explicitly disabled future devices without a connected entity, unavailable-state handling and pending feedback. Keep labels, icons, descriptions and permission entities in dashboard configuration.

@@ -1,6 +1,6 @@
 # Home Assistant Material 3 Expressive
 
-Configurable Material 3 Expressive cards and theme for Home Assistant. Use native HA navigation and Sections layout with independent cards. Dark appearance is the fallback; the active companion theme is inherited by default. Version **0.8.0**, Apache-2.0. Independent project, not an official Google or Home Assistant product.
+Configurable Material 3 Expressive cards and theme for Home Assistant. Use native HA navigation and Sections layout with independent cards. Dark appearance is the fallback; the active companion theme is inherited by default. Version **0.9.0**, Apache-2.0. Independent project, not an official Google or Home Assistant product.
 
 [Releases](https://github.com/nd4y/ha-material3/releases) · [Changelog](CHANGELOG.md) · [Issues](https://github.com/nd4y/ha-material3/issues)
 
@@ -103,9 +103,15 @@ Node.js 24 and Python 3:
 
 ```sh
 npm ci
+python3 -m pip install -r tests/controller/requirements.txt
 npm run check
 python scripts/package.py
 ```
+
+Every build first runs the frontend tests and portable production controller
+tests. Set `M3_PYTHON` to a Python interpreter when `python3` is not on PATH.
+See [air intentions](docs/air-goals.md), [device health](docs/device-health.md)
+and the explicit [scenario coverage boundary](docs/scenario-matrix.md).
 
 `npm run dev` serves fixture data at `127.0.0.1:8769`, never real devices. The lab includes normal/loading/error/unavailable/maximum/long-label states, dark/light, reduced motion and an axe audit button. Its code is excluded from the production bundle.
 

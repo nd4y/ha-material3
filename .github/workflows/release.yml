@@ -26,6 +26,7 @@ jobs:
           default_branch=$(gh api "repos/$GITHUB_REPOSITORY" --jq .default_branch)
           git merge-base --is-ancestor "$GITHUB_SHA" "origin/$default_branch"
       - run: npm ci
+      - run: python3 -m pip install -r tests/controller/requirements.txt
       - run: npm run check
       - name: Check committed distribution
         run: git diff --exit-code -- dist themes

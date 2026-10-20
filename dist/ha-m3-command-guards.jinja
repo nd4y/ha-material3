@@ -1,0 +1,42 @@
+{# The shared last-moment guard for every physical write. It performs no write. #}
+{% macro command_guard(p) -%}
+  {%- set n = namespace(valid=p is mapping, allowed=false, reason='invalid_input', safety=false) -%}
+  {%- if n.valid -%}
+    {%- for key in ['automatic', 'available', 'eligible', 'fault_shutdown', 'explicit_error', 'latched', 'stopping', 'master_enabled'] -%}
+      {%- if p.get(key) is not boolean -%}{%- set n.valid = false -%}{%- endif -%}
+    {%- endfor -%}
+    {%- for key in ['power_lock', 'saved_power', 'current_power'] -%}
+      {%- if p.get(key) not in ['on', 'off', 'unknown'] -%}{%- set n.valid = false -%}{%- endif -%}
+    {%- endfor -%}
+    {%- if p.get('parameter_lock') not in ['', 'on', 'off', 'unknown'] -%}{%- set n.valid = false -%}{%- endif -%}
+  {%- endif -%}
+  {%- if n.valid -%}
+    {%- if p.fault_shutdown and not p.stopping -%}
+      {%- set n.reason = 'invalid_fault_shutdown' -%}
+    {%- elif not p.available -%}
+      {%- set n.reason = 'unavailable' -%}
+    {%- elif p.fault_shutdown -%}
+      {%- if p.explicit_error and p.latched -%}
+        {%- set n.allowed = true -%}{%- set n.safety = true -%}
+        {%- set n.reason = 'safety_shutdown' -%}
+      {%- else -%}
+        {%- set n.reason = 'fault_not_confirmed' -%}
+      {%- endif -%}
+    {%- elif not p.automatic and p.stopping -%}
+      {%- set n.allowed = true -%}{%- set n.reason = 'manual_stop' -%}
+    {%- elif not p.eligible -%}
+      {%- set n.reason = 'ineligible' -%}
+    {%- elif not p.automatic -%}
+      {%- set n.allowed = true -%}{%- set n.reason = 'manual' -%}
+    {%- elif not p.master_enabled -%}
+      {%- set n.reason = 'master_disabled' -%}
+    {%- elif p.power_lock != 'off' and not (p.power_lock == 'on' and p.saved_power == 'on' and p.current_power == 'on' and not p.stopping) -%}
+      {%- set n.reason = 'power_locked' -%}
+    {%- elif p.parameter_lock not in ['', 'off'] -%}
+      {%- set n.reason = 'parameter_locked' -%}
+    {%- else -%}
+      {%- set n.allowed = true -%}{%- set n.reason = 'automatic' -%}
+    {%- endif -%}
+  {%- endif -%}
+  {{- {'allowed': n.allowed, 'reason': n.reason, 'safety_override': n.safety} | to_json -}}
+{%- endmacro %}

@@ -14,7 +14,7 @@ with zipfile.ZipFile(payload,'w') as archive:
     for item in manifest['files']:put(archive,root/'dist'/item['path'],item['path'])
     put(archive,root/'dist/release-manifest.json','release-manifest.json')
 source=out/f"ha-material3-{pkg['version']}-source.zip"
-directories=['src','scripts','tests','dev','tokens','assets','examples','docs','themes','dist','.github']
+directories=['src','scripts','tests','controller','dev','tokens','assets','examples','docs','themes','dist','.github']
 files=['package.json','package-lock.json','README.md','CHANGELOG.md','LICENSE','THIRD_PARTY_NOTICES.md','hacs.json','.gitignore','.gitattributes']
 with zipfile.ZipFile(source,'w') as archive:
     for name in files:

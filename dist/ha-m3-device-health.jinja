@@ -1,0 +1,119 @@
+{# Portable, side-effect-free device health policy. See docs/device-health.md. #}
+{% macro _boolean(value) -%}
+  {%- if value is sameas true or value is sameas false -%}
+    {{- value | to_json -}}
+  {%- elif value is string and value | lower | trim in ['true', 'on', '1', 'false', 'off', '0'] -%}
+    {{- (value | lower | trim in ['true', 'on', '1']) | to_json -}}
+  {%- elif value is number and value in [0, 1] -%}
+    {{- (value == 1) | to_json -}}
+  {%- else -%}null{%- endif -%}
+{%- endmacro %}
+
+{% macro _availability(value) -%}
+  {%- if value is string and value | lower | trim in ['available', 'unavailable'] -%}
+    {{- value | lower | trim | to_json -}}
+  {%- else -%}
+    {%- set boolean = _boolean(value) | from_json -%}
+    {{- ('available' if boolean is sameas true else 'unavailable' if boolean is sameas false else 'unknown') | to_json -}}
+  {%- endif -%}
+{%- endmacro %}
+
+{% macro _power(value) -%}
+  {%- set boolean = _boolean(value) | from_json -%}
+  {{- ('on' if boolean is sameas true else 'off' if boolean is sameas false else 'unknown') | to_json -}}
+{%- endmacro %}
+
+{% macro device_health(p) -%}
+  {%- set p = p if p is mapping else {} -%}
+  {%- set availability = _availability(p.get('availability')) | from_json -%}
+  {%- set known = _boolean(p.get('error_known')) | from_json -%}
+  {%- set active = _boolean(p.get('error_active')) | from_json -%}
+  {%- set latched = _boolean(p.get('latched', false)) | from_json -%}
+  {%- set attempted = _boolean(p.get('stop_attempted', false)) | from_json -%}
+  {%- set power = _power(p.get('observed_power')) | from_json -%}
+  {%- set state_valid = latched is not none and attempted is not none and not (attempted and not latched) -%}
+  {%- set explicit_error = known is sameas true and active is sameas true -%}
+  {%- set known_clear = known is sameas true and active is sameas false -%}
+  {%- set available = availability == 'available' -%}
+  {%- set healthy = available and known_clear and state_valid and latched is sameas false -%}
+  {%- set shutdown = explicit_error and available and state_valid and attempted is sameas false and power != 'off' -%}
+  {%- set fault = explicit_error or latched is sameas true -%}
+  {%- set condition = 'error' if explicit_error else 'unavailable' if availability == 'unavailable' else 'health_unknown' if not available or not known_clear or not state_valid else 'recovery_required' if latched else 'healthy' -%}
+  {%- set confirmation = 'not_required' if not fault else 'confirmed' if available and power == 'off' else 'not_confirmed' if attempted is sameas true else 'not_requested' -%}
+  {%- set notice = 'device_error' if fault else 'device_unavailable' if condition == 'unavailable' else 'health_unknown' if condition == 'health_unknown' else '' -%}
+  {{- {
+    'availability': availability,
+    'condition': condition,
+    'eligible': healthy,
+    'error_known': known is sameas true and active is not none,
+    'explicit_error': explicit_error,
+    'latched': latched,
+    'state_valid': state_valid,
+    'stop_attempted': attempted,
+    'observed_power': power,
+    'shutdown_required': shutdown,
+    'shutdown_confirmation': confirmation,
+    'override_manual_power': shutdown,
+    'acknowledgement_allowed': available and known_clear and state_valid and latched is sameas true,
+    'notification': {
+      'required': not healthy,
+      'persistent': not healthy,
+      'kind': notice,
+      'severity': 'error' if fault else 'warning' if not healthy else 'none',
+      'reason': condition,
+      'shutdown_confirmation': confirmation
+    }
+  } | to_json -}}
+{%- endmacro %}
+
+{% macro health_transition(s, event) -%}
+  {%- set s = s if s is mapping else {} -%}
+  {%- set event = event if event is mapping else {} -%}
+  {%- set before = device_health(s) | from_json -%}
+  {%- set kind = event.get('type', 'observe') -%}
+  {%- set supported = kind in ['observe', 'acknowledge', 'restart', 'shutdown_result'] -%}
+  {%- set ns = namespace(state=dict(s), acknowledge='not_requested', shutdown=false) -%}
+  {%- if supported and kind != 'restart' -%}
+    {# Observe is a complete snapshot: omitted health fields become unknown. #}
+    {%- if kind == 'observe' -%}
+      {%- set ns.state = dict(ns.state, availability=event.get('availability'), error_known=event.get('error_known'), error_active=event.get('error_active'), observed_power=event.get('observed_power')) -%}
+    {%- elif kind in ['acknowledge', 'shutdown_result'] -%}
+      {%- for key in ['availability', 'error_known', 'error_active', 'observed_power'] -%}
+        {%- if key in event -%}{%- set ns.state = dict(ns.state, **{key: event[key]}) -%}{%- endif -%}
+      {%- endfor -%}
+    {%- endif -%}
+    {%- set current = device_health(ns.state) | from_json -%}
+    {%- if current.explicit_error and current.state_valid -%}
+      {%- set ns.state = dict(ns.state, latched=true) -%}
+    {%- endif -%}
+    {%- set current = device_health(ns.state) | from_json -%}
+    {%- if kind == 'acknowledge' -%}
+      {%- if current.acknowledgement_allowed -%}
+        {%- set ns.state = dict(ns.state, latched=false, stop_attempted=false) -%}
+        {%- set ns.acknowledge = 'accepted' -%}
+      {%- else -%}
+        {%- set ns.acknowledge = 'rejected' -%}
+      {%- endif -%}
+    {%- endif -%}
+    {%- set current = device_health(ns.state) | from_json -%}
+    {%- if current.shutdown_required and kind != 'shutdown_result' -%}
+      {%- set ns.shutdown = true -%}
+      {# Persist before the side effect, including unsuccessful service calls. #}
+      {%- set ns.state = dict(ns.state, stop_attempted=true) -%}
+    {%- endif -%}
+  {%- endif -%}
+  {%- set after = device_health(ns.state) | from_json -%}
+  {%- set changed = before.notification != after.notification -%}
+  {{- {
+    'state': ns.state,
+    'health': after,
+    'effects': {
+      'shutdown': ns.shutdown,
+      'override_manual_power': ns.shutdown,
+      'notify': supported and kind != 'restart' and changed and after.notification.required,
+      'clear_notification': supported and kind != 'restart' and before.notification.required and not after.notification.required,
+      'acknowledgement': ns.acknowledge,
+      'unsupported_event': not supported
+    }
+  } | to_json -}}
+{%- endmacro %}

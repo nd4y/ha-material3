@@ -1,0 +1,101 @@
+{# Stateful effects remain in the HA adapter. These pure formulas are shared by
+   the installed custom templates and the offline build tests. #}
+{% macro critical_hysteresis(p) -%}
+  {%- set n=namespace(valid=p is mapping) -%}
+  {%- if n.valid -%}
+    {%- for key in ['above','valid','clear'] -%}
+      {%- if p.get(key) is not boolean -%}{%- set n.valid=false -%}{%- endif -%}
+    {%- endfor -%}
+    {%- for key in ['pending','active','clear_pending'] -%}
+      {%- if p.get(key) not in ['on','off','unknown'] -%}{%- set n.valid=false -%}{%- endif -%}
+    {%- endfor -%}
+    {%- for key in ['elapsed','clear_elapsed','dwell','release_dwell'] -%}
+      {%- set value=p.get(key) -%}
+      {%- if value is not number or value is boolean -%}
+        {%- set n.valid=false -%}
+      {%- elif not (-1000000000000 <= value <= 1000000000000) -%}
+        {%- set n.valid=false -%}
+      {%- endif -%}
+    {%- endfor -%}
+    {%- if n.valid and (p.dwell <= 0 or p.release_dwell <= 0) -%}
+      {%- set n.valid=false -%}
+    {%- endif -%}
+  {%- endif -%}
+  {%- if not n.valid -%}
+    {{- {'valid':false,'start_pending':false,'cancel_pending':false,
+         'activate':false,'start_clear':false,'cancel_clear':false,'release':false}|tojson -}}
+  {%- else -%}
+    {{- {'valid':true,
+         'start_pending':p.above and p.pending!='on',
+         'cancel_pending':not p.above and p.pending!='off',
+         'activate':p.above and p.pending=='on' and p.elapsed>=p.dwell and p.active!='on',
+         'start_clear':p.valid and p['clear'] and p.clear_pending!='on',
+         'cancel_clear':not p['clear'] and p.clear_pending!='off',
+         'release':(not p.valid or (p['clear'] and p.clear_pending=='on' and p.clear_elapsed>=p.release_dwell)) and p.active!='off'}|tojson -}}
+  {%- endif -%}
+{%- endmacro %}
+
+{% macro supply_pi(p) -%}
+  {%- set n=namespace(valid=p is mapping) -%}
+  {%- if n.valid -%}
+    {%- for key in ['force','reset'] -%}
+      {%- if p.get(key) is not boolean -%}{%- set n.valid=false -%}{%- endif -%}
+    {%- endfor -%}
+    {%- for key in ['measured','desired','old_i','elapsed','current'] -%}
+      {%- set value=p.get(key) -%}
+      {%- if value is not number or value is boolean -%}
+        {%- set n.valid=false -%}
+      {%- elif not (-1000000 <= value <= 1000000) -%}
+        {%- set n.valid=false -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+  {%- set tuning=p.get('tuning',{}) if p is mapping else {} -%}
+  {%- set defaults={'kp':4,'ki':0.15,'deadband':0.2,'integral_min':-20,
+                    'integral_max':5,'supply_min':5,'supply_max':25,
+                    'max_dt_minutes':5,'max_step':2} -%}
+  {%- set cfg=namespace(values={}) -%}
+  {%- if tuning is not mapping -%}
+    {%- set n.valid=false -%}
+  {%- else -%}
+    {%- for key,fallback in defaults.items() -%}
+      {%- set value=tuning.get(key,fallback) -%}
+      {%- if value is not number or value is boolean -%}
+        {%- set n.valid=false -%}
+      {%- elif not (-1000000 <= value <= 1000000) -%}
+        {%- set n.valid=false -%}
+      {%- endif -%}
+      {%- set cfg.values=dict(cfg.values,**{key:value}) -%}
+    {%- endfor -%}
+    {%- if n.valid and (cfg.values.supply_min>=cfg.values.supply_max
+          or cfg.values.integral_min>cfg.values.integral_max
+          or cfg.values.kp<0 or cfg.values.ki<0 or cfg.values.deadband<0
+          or cfg.values.max_dt_minutes<0 or cfg.values.max_step<0
+          or cfg.values.supply_min!=cfg.values.supply_min|int
+          or cfg.values.supply_max!=cfg.values.supply_max|int
+          or cfg.values.max_step!=cfg.values.max_step|int
+          or p.current!=p.current|int
+          or not cfg.values.supply_min<=p.current<=cfg.values.supply_max) -%}
+      {%- set n.valid=false -%}
+    {%- endif -%}
+  {%- endif -%}
+  {%- if not n.valid -%}
+    {{- {'valid':false,'command':none,'requested':none,'new_i':none}|tojson -}}
+  {%- else -%}
+    {%- set measured=p.measured -%}{%- set desired=p.desired -%}
+    {%- set old_i=0 if p.reset else p.old_i -%}
+    {%- set elapsed=[0,p.elapsed]|max -%}
+    {%- set dt=0 if p.force else [cfg.values.max_dt_minutes,elapsed/60]|min -%}
+    {%- set error=desired-measured -%}
+    {%- set candidate_i=[[old_i+(cfg.values.ki*error*dt if error|abs>cfg.values.deadband else 0),cfg.values.integral_min]|max,cfg.values.integral_max]|min -%}
+    {%- set candidate_raw=desired+cfg.values.kp*error+candidate_i -%}
+    {%- set new_i=old_i if (candidate_raw>cfg.values.supply_max and error>0) or (candidate_raw<cfg.values.supply_min and error<0) else candidate_i -%}
+    {%- set raw=desired+cfg.values.kp*error+new_i -%}
+    {%- set requested=[[raw,cfg.values.supply_min]|max,cfg.values.supply_max]|min|round(0)|int -%}
+    {%- set current=p.current -%}
+    {%- set command=requested if p.force else [[requested,current-cfg.values.max_step]|max,current+cfg.values.max_step]|min|round(0)|int -%}
+    {{- {'valid':true,'measured':measured,'desired':desired,'old_i':old_i,
+         'dt':dt,'error':error,'candidate_i':candidate_i,'candidate_raw':candidate_raw,
+         'new_i':new_i,'raw':raw,'requested':requested,'current':current,'command':command}|tojson -}}
+  {%- endif -%}
+{%- endmacro %}

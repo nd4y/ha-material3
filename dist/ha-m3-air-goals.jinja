@@ -1,0 +1,101 @@
+{# Portable intent arbitration. All household entities, sensor policy and limits
+   are supplied by the caller. This macro is shared by HA and the build tests.
+   See docs/scenario-matrix.md for the finite state contract. #}
+{% macro air_goal(p) -%}
+  {%- set n = namespace(valid=p is mapping) -%}
+  {%- set flags = ['enabled', 'global_off', 'global_maximum', 'automatic',
+                  'available', 'fault', 'speed_allowed', 'power_allowed'] -%}
+  {%- set steps = ['default_request', 'sensor_request', 'hardware_max',
+                  'hard_cap', 'noise_cap', 'boost_increment', 'boost_ceiling'] -%}
+  {%- if n.valid -%}
+    {%- for key in flags -%}
+      {%- if p.get(key) is not boolean -%}{%- set n.valid = false -%}{%- endif -%}
+    {%- endfor -%}
+    {%- for key in steps -%}
+      {%- set value = p.get(key) -%}
+      {%- if value is not number or value is boolean -%}
+        {%- set n.valid = false -%}
+      {%- elif not (-1000000 <= value <= 1000000) or value != value|int -%}
+        {%- set n.valid = false -%}
+      {%- endif -%}
+    {%- endfor -%}
+    {%- for key in ['desired', 'boost_deadline', 'now'] -%}
+      {%- set value = p.get(key) -%}
+      {%- if value is not number or value is boolean -%}
+        {%- set n.valid = false -%}
+      {%- elif not (-1000000000000 <= value <= 1000000000000) -%}
+        {%- set n.valid = false -%}
+      {%- endif -%}
+    {%- endfor -%}
+    {%- if p.get('hardware_max', 0) is number and p.get('hardware_max', 0) <= 0 -%}
+      {%- set n.valid = false -%}
+    {%- endif -%}
+    {%- if p.get('current_power') not in ['on', 'off', 'unknown'] -%}
+      {%- set n.valid = false -%}
+    {%- endif -%}
+  {%- endif -%}
+  {%- if not n.valid -%}
+    {{- {'requested': none, 'target': none, 'boost_active': false,
+         'can_command': false, 'can_set_speed': false, 'can_set_power': false,
+         'reason': 'invalid_input', 'limited': false, 'mode': 'invalid',
+         'requires_shutdown': false, 'notify': false}|tojson -}}
+  {%- else -%}
+    {%- set maximum = p.hardware_max|int -%}
+    {%- set desired = [100, [0, p.desired]|max]|min -%}
+    {%- set sensor = [maximum, [0, p.sensor_request]|max]|min -%}
+    {%- set default = [maximum, [0, p.default_request]|max]|min -%}
+    {%- set hard = [maximum, [0, p.hard_cap]|max]|min -%}
+    {%- set noise = [maximum, [0, p.noise_cap]|max]|min -%}
+    {%- set increment = [maximum, [0, p.boost_increment]|max]|min -%}
+    {# A per-channel boost is deliberately below the physical maximum.
+       If hardware has only one nonzero step, its safe ceiling is zero. #}
+    {%- set ceiling = [maximum - 1, [0, p.boost_ceiling]|max]|min -%}
+    {%- set boost = p.boost_deadline > p.now and p.boost_deadline > 0
+                    and not p.global_maximum and p.enabled -%}
+    {%- set requested = default if p.automatic else
+          ((desired * maximum / 100)|round(0, 'ceil')|int) -%}
+    {%- set mode = 'automatic' if p.automatic else 'manual' -%}
+    {%- if p.global_off or (not p.automatic and desired == 0) -%}
+      {%- set requested = 0 -%}
+      {%- set mode = 'off' -%}
+    {%- else -%}
+      {%- set requested = [requested, sensor]|max -%}
+    {%- endif -%}
+    {%- if p.global_maximum and not p.global_off -%}
+      {%- set requested = maximum -%}
+      {%- set mode = 'maximum' -%}
+    {%- elif boost -%}
+      {%- set requested = [requested, [requested + increment, ceiling]|min]|max -%}
+      {%- set mode = 'boost' -%}
+    {%- endif -%}
+    {%- set target = [requested, hard, noise]|min -%}
+    {%- set limited = target < requested -%}
+    {%- set reason = 'noise_cap' if noise < requested and noise <= hard
+                     else 'hard_cap' if hard < requested else mode -%}
+    {%- set speed = target > 0 and p.speed_allowed
+                    and (p.current_power == 'on' or p.power_allowed) -%}
+    {%- set power = p.power_allowed and
+                    ((target == 0) or (target > 0 and p.speed_allowed)) -%}
+    {%- set can_command = speed or power -%}
+    {%- if target > 0 and not p.speed_allowed -%}
+      {%- set reason = 'speed_locked' -%}
+    {%- elif not p.power_allowed and (target == 0 or p.current_power != 'on') -%}
+      {%- set reason = 'power_locked' -%}
+    {%- endif -%}
+    {%- if not p.enabled -%}
+      {%- set can_command = false -%}{%- set speed = false -%}{%- set power = false -%}
+      {%- set reason = 'disabled' -%}{%- set boost = false -%}
+    {%- elif p.fault -%}
+      {%- set can_command = false -%}{%- set speed = false -%}{%- set power = false -%}
+      {%- set reason = 'fault' -%}
+    {%- elif not p.available -%}
+      {%- set can_command = false -%}{%- set speed = false -%}{%- set power = false -%}
+      {%- set reason = 'unavailable' -%}
+    {%- endif -%}
+    {{- {'requested': requested, 'target': target, 'boost_active': boost,
+         'can_command': can_command, 'can_set_speed': speed, 'can_set_power': power,
+         'reason': reason, 'limited': limited, 'mode': mode,
+         'requires_shutdown': p.fault and p.available and p.current_power != 'off',
+         'notify': p.fault}|tojson -}}
+  {%- endif -%}
+{%- endmacro %}

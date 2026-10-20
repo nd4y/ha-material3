@@ -1,0 +1,127 @@
+{# Existing decision formulas extracted without household bindings.
+   Inputs and installed-source parity are documented in docs/scenario-matrix.md. #}
+{% macro legacy_context(p) -%}
+{% set src_ns=namespace(items={}) %}
+{% for key in ['presence','sleep','confidence','interactive','worn'] %}
+  {% set item=p.sources[key] %}
+  {% set ttl=p['values']['context_' ~ ('sleep' if key in ['sleep','confidence'] else 'presence' if key=='presence' else 'active') ~ '_ttl'] | int(300) %}
+  {% set valid=item.available and 0 <= item.age and (key=='worn' or item.age <= ttl) %}
+  {% set src_ns.items=dict(src_ns.items,**{key:{'valid':valid,'value':item.value | string | lower if valid else 'unknown','age':item.age | int,'changed':item.changed}}) %}
+{% endfor %}
+{% set src=src_ns.items %}
+{% set watch=src.sleep %}{% set confidence=src.confidence %}{% set phone=src.interactive %}{% set presence=src.presence %}
+{% set worn=src.worn %}
+
+{% set watch_usable=watch.valid and (not p.worn_configured or (worn.valid and worn.value=='on')) %}
+{% set active=phone.valid and phone.value=='on' %}
+{% set asleep=(watch_usable and watch.value in ['on','asleep','sleeping']) or (confidence.valid and is_number(confidence.value) and 0 <= confidence.value | float <= 100 and confidence.value | float >= p['values']['sleep_confidence_threshold'] | float(85)) %}
+{% set awake=active or (watch_usable and watch.value in ['off','awake','passive','exercise']) %}
+{% set sleep='conflict' if asleep and awake else 'asleep' if asleep else 'awake' if awake else 'unknown' %}
+{% set present=presence.valid and presence.value in ['on','present','occupied'] %}
+{% set absent=presence.valid and presence.value in ['off','absent','clear'] and presence.changed >= p['values']['absence_dwell'] | int(900) %}
+{% set start=p['values']['quiet_hour_start'] | int(23) %}{% set end=p['values']['quiet_hour_end'] | int(8) %}
+{% set night=(p.hour>=start or p.hour<end) if start>=end else (start<=p.hour<end) %}
+{% set profile='absent' if absent else 'sleep' if sleep in ['asleep','conflict'] else 'awake' if sleep=='awake' else 'night_unknown' if night else 'unknown' %}
+{% set pc=p['values']['purifier_max'] if profile=='absent' else p['values']['sleep_purifier_cap'] | int(1) if profile in ['sleep','night_unknown'] else p['values']['awake_purifier_cap'] | int(4) if profile=='awake' else p['values']['purifier_quiet_limit'] | int(3) %}
+{% set bc=p['values']['breather_max'] if profile=='absent' else p['values']['sleep_breather_cap'] | int(1) if profile in ['sleep','night_unknown'] else p['values']['awake_breather_cap'] | int(4) if profile=='awake' else p['values']['unknown_breather_cap'] | int(3) %}
+{% set result={'profile':profile,'sleep':sleep,'presence':'present' if present else 'absent' if absent else 'unknown','night':night,'purifier_cap':pc,'breather_cap':bc,'ac_fan_cap':'high' if profile=='absent' else 'medium' if profile=='awake' else 'low','confidence_available':confidence.valid,'phone_active_available':phone.valid,'watch_available':watch_usable,'watch_worn_available':worn.valid,'watch_worn':worn.value if worn.valid else 'unknown'} %}
+{{ result | tojson }}
+{%- endmacro %}
+
+{% macro legacy_air(p) -%}
+{% set context=p.context %}{% set noise=p.noise %}
+{% set selected=p['values']['air_level'] %}
+{% set full=selected=='Полностью автоматически' %}{% set automatic=selected in ['Автоматически','Полностью автоматически'] %}
+{% set co2item=p.co2 %}{% set pmitem=p.pm %}
+{% set ttl=p['values']['air_quality_ttl'] | int(600) %}
+{% set co2valid=co2item.available and is_number(co2item.value) and 250 <= co2item.value | float <= 10000 and 0 <= co2item.age <= ttl %}
+{% set pmvalid=pmitem.available and is_number(pmitem.value) and 0 <= pmitem.value | float <= 2000 and (p.trust_availability or (0 <= pmitem.age <= ttl)) %}
+{% set co2=co2item.value | float(800) %}{% set pm=pmitem.value | float(0) %}
+{% set b=2 if co2<800 else 3 if co2<1000 else 4 if co2<1400 else 5 if co2<1800 else 7 %}
+{% set particle_request=1 if pm<=8 else 3 if pm<=15 else 4 if pm<=35 else 7 if pm<=75 else 11 %}
+{% set error=(p['values']['room_temperature'] | float(24)-p['values']['room_target_temperature'] | float(24)) | abs %}
+{% set critical_pm=full and pmvalid and p.pm_critical %}
+{% set critical_co2=full and co2valid and p.co2_critical %}
+{% set psoft=[context.purifier_cap,p['values']['critical_purifier_cap'] | int(7)] | max if critical_pm else context.purifier_cap %}
+{% set bsoft=[context.breather_cap,p['values']['critical_breather_cap'] | int(5)] | max if critical_co2 else context.breather_cap %}
+{% set profile=psoft if full else p['values']['purifier_quiet_limit'] | int(3) if selected=='Тихий' else p['values']['purifier_standard_limit'] | int(4) if selected=='Стандартный' else p['values']['purifier_auto_limit'] | int(6) if selected=='Автоматически' else 11 %}
+{% set hardcap=p['values']['purifier_speed_limit'] | int(3) %}
+{% set learned=p['values']['purifier_noise_cap'] | int(3) if noise.valid and not(full and (context.profile=='absent' or critical_pm)) else 11 %}
+{% set cap=[1,[11,profile,hardcap,learned] | min] | max %}
+{% set floor=11 if selected=='Максимум' else 2 if selected=='Стандартный' else 1 %}
+{% set demand=[floor,particle_request if pmvalid else p['values']['invalid_pm_fallback'] | int(3)] | max %}
+{% set bdemand=(b if co2valid else 3) if automatic else 3 if selected=='Тихий' else 4 if selected=='Стандартный' else 7 if selected=='Максимум' else 0 %}
+{% set bcap=[1,[7,bsoft,p['values']['breather_speed_limit'] | int(7)] | min] | max if full else p['values']['breather_speed_limit'] | int(7) %}
+{% set fan=('high' if error>=1.5 else 'medium' if error>=0.7 else 'low') if automatic else 'high' if selected=='Максимум' else 'medium' if selected=='Стандартный' else 'low' %}
+{% set ranks={'low':1,'medium':2,'high':3} %}{% set fcap=context.ac_fan_cap if full else 'high' %}
+{% set result={'mode':selected,'breather':[bdemand,bcap] | min,'breather_requested':bdemand,'breather_sensor_requested':b if co2valid else 3,'breather_cap':bcap,'purifier':([demand,cap] | min) if selected!='Отключено' else 'off','purifier_requested':demand,'purifier_cap':cap,'purifier_limited':demand>cap,'ac_fan':fan if ranks[fan]<=ranks[fcap] else fcap,'co2_valid':co2valid,'pm_valid':pmvalid,'co2':co2 if co2valid else 'unknown','pm':pm if pmvalid else 'unknown','critical_pm':critical_pm,'critical_co2':critical_co2,'context':context.profile if full else 'fixed','noise_valid':noise.valid,'noise_configured':noise.configured} %}
+{{ result | tojson }}
+{%- endmacro %}
+
+{% macro legacy_thermal(p) -%}
+{% set auto_enabled=p["auto_enabled"] %}
+{% set room_ok=p["room_ok"] %}
+{% set measured=p["measured"] %}
+{% set desired=p["desired"] %}
+{% set ac_mode=p["ac_mode"] %}
+{% set owned=p["owned"] %}
+{% set device_fault=p["device_fault"] %}
+{% set maximum_fan_only=p["maximum_fan_only"] %}
+{% set native_room_ok=p["native_room_ok"] %}
+{% set native_room=p["native_room"] %}
+{% set since_change=p["since_change"] %}
+{% set since_target=p["since_target"] %}
+{% set current_target=p["current_target"] %}
+{% set cycle_target=p["cycle_target"] %}
+{% set target_changed=p["target_changed"] %}
+{% set breather_at_limit=p["breather_at_limit"] %}
+{% set supply_conflict=p["supply_conflict"] %}
+{% set heating_ready=p["heating_ready"] %}
+{% set ns = namespace(action='idle', mode='', reason='В пределах допуска') %}
+    {% if ac_mode in ['unknown','unavailable'] %}
+      {% set ns.action='unavailable' %}{% set ns.reason='Кондиционер недоступен' %}
+    {% elif not auto_enabled or not room_ok or device_fault %}
+      {% set ns.action='stop' if owned and ac_mode in ['cool','heat'] else 'release' %}
+      {% set ns.reason='Климат-контроль выключен' if not auto_enabled else ('Нет достоверной температуры комнаты' if not room_ok else 'Ошибка кондиционера') %}
+    {% elif supply_conflict and measured > desired + 0.1 %}
+      {% set ns.action='stop' if owned and ac_mode == 'cool' else 'release' %}{% set ns.reason='Охлаждение приостановлено: закреплён нагрев притока' %}
+    {% elif ac_mode not in ['off','cool','heat'] and not (ac_mode == 'fan_only' and maximum_fan_only) %}
+      {% set ns.action='release' %}{% set ns.reason='Ручной режим: ' ~ ac_mode %}
+    {% elif owned and ac_mode not in ['cool','heat'] %}
+      {% set ns.action='reconcile' %}{% set ns.reason='Пауза после остановки кондиционера' %}
+    {% elif ac_mode in ['cool','heat'] %}
+      {% set ns.mode=ac_mode %}
+      {% if (ac_mode == 'cool' and measured <= desired - 0.5) or (ac_mode == 'heat' and measured >= desired + 0.5) %}
+        {% set ns.action='stop' if owned else 'adopt' %}{% set ns.reason='Температура вышла за защитный порог' %}
+      {% elif owned and since_change >= 300 and ((ac_mode == 'cool' and measured <= desired + 0.1) or (ac_mode == 'heat' and measured >= desired - 0.1)) %}
+        {% set ns.action='stop' %}{% set ns.reason='Температура достигнута' %}
+      {% else %}
+        {% set ns.action='maintain' if owned else 'adopt' %}
+        {% set ns.reason='Охлаждение' if ac_mode == 'cool' else 'Обогрев' %}
+      {% endif %}
+    {% elif measured >= desired + 0.7 %}
+      {% set ns.mode='cool' %}{% set ns.action='start' if since_change >= 300 else 'wait' %}
+      {% set ns.reason='Охлаждение' if since_change >= 300 else 'Пауза перед пуском' %}
+    {% elif measured <= desired - 0.7 and breather_at_limit %}
+      {% set ns.mode='heat' %}
+      {% set ns.action='start' if since_change >= 300 and heating_ready else 'wait' %}
+      {% set ns.reason='Помощь бризеру: обогрев' if ns.action == 'start' else 'Ожидание: бризер / защитная пауза' %}
+    {% endif %}
+    {% set offset = [[native_room - measured,-3] | max,3] | min if native_room_ok else 0 %}
+    {% set requested = [[(desired + offset) | round(0),16] | max,32] | min | int %}
+    {% set plan={'action':ns.action,'mode':ns.mode,'reason':ns.reason,'target':requested} %}
+{% set ns=namespace(send=false,value=cycle_target,reason='Уставка удерживается') %}
+    {% if plan.action in ['start','adopt'] %}
+      {% set ns.value=plan.target %}{% set ns.send=current_target != plan.target %}{% set ns.reason='Начало цикла' %}
+    {% elif plan.action == 'maintain' and target_changed %}
+      {% set ns.value=plan.target %}{% set ns.send=current_target != plan.target %}{% set ns.reason='Новая цель комнаты' %}
+    {% elif plan.action == 'maintain' and since_target >= 600 %}
+      {% if plan.mode == 'cool' and measured >= desired + 0.5 and plan.target < cycle_target %}
+        {% set ns.value=[plan.target,cycle_target - 1] | max %}{% set ns.send=true %}{% set ns.reason='Редкая коррекция охлаждения' %}
+      {% elif plan.mode == 'heat' and measured <= desired - 0.5 and plan.target > cycle_target %}
+        {% set ns.value=[plan.target,cycle_target + 1] | min %}{% set ns.send=true %}{% set ns.reason='Редкая коррекция обогрева' %}
+      {% endif %}
+    {% endif %}
+    {% set adjustment={'send':ns.send,'value':ns.value | int,'reason':ns.reason} %}
+{{ {"plan":plan,"adjustment":adjustment} | tojson }}
+{%- endmacro %}
