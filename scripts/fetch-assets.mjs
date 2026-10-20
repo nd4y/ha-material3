@@ -1,10 +1,10 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {symbols} from '../src/icons.js';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const output=path.join(root,'assets');await fs.mkdir(output,{recursive:true});
-const source=await fs.readFile(path.join(root,'src/components.js'),'utf8');
-const names=JSON.parse(source.match(/export const symbols=(\[[^;]+\]);/)[1].replaceAll("'",'"')).sort().join(',');
+const names=[...symbols].sort().join(',');
 const cssUrl='https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0..1,0&icon_names='+names+'&display=block';
 const response=await fetch(cssUrl,{headers:{'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'}});
 const css=await response.text();

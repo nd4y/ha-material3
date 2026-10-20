@@ -1,9 +1,8 @@
 import {LitElement,html,css,nothing} from 'lit';
 import {Motion} from './motion.js';
-export const symbols=['ac_unit','add','air','arrow_back','arrow_forward','auto_awesome','check','check_circle','chevron_right','close','delete','devices','eco','error','expand_more','home','humidity_percentage','info','kitchen','lightbulb','lock','meeting_room','menu','menu_book','mode_fan','more_horiz','open_in_full','pause','play_arrow','power_settings_new','refresh','remove','settings','thermostat','thermostat_auto','tune','vacuum','videocam','water_drop'];
-symbols.push('lock_open');
-const symbolSet=new Set(symbols);
-export const icon=(name)=>html`<span class="symbol" aria-hidden="true">${symbolSet.has(name)?name:'devices'}</span>`;
+import {isBundledIcon} from './icons.js';
+export {symbols} from './icons.js';
+export const icon=(name)=>html`<span class="symbol" aria-hidden="true">${isBundledIcon(name)?name:'devices'}</span>`;
 export const common=css`
   :host{display:block;font-family:var(--ha-m3-ui-font-family,var(--ha-m3-font-family,'HA M3 Roboto',Roboto,Arial,sans-serif));color:var(--md-sys-color-on-surface);font-size:14px;line-height:20px;letter-spacing:.25px;--fx-fast:var(--ha-m3-effects-duration,150ms) cubic-bezier(.31,.94,.34,1)}
   *,*::before,*::after{box-sizing:border-box} [hidden]{display:none!important}
