@@ -65,7 +65,7 @@ rules belong to the health handler and its separate tests.
 | --- | --- | --- | --- |
 | Baseline goals | Automatic, manual 0, fractional wish, 100, out-of-range numeric | Manual 0 is Off; valid positive wishes map upward to physical steps; measured need can raise a positive request | `test_air_goals.py` boundary matrix and automatic-floor tests |
 | Three independent intentions | Temperature, fresh air, air cleaning | A boost/edit affects only its own channel; temperature edits preserve both boosts | Air-goal sequence tests plus frontend action tests |
-| Per-channel boost | Start 10/15 min, replace deadline, cancel, run simultaneously | One absolute deadline per channel; own boost may temporarily operate from global Off; no physical-maximum requirement | Deadline and sequence tests; caller transition tests |
+| Per-channel boost | Start 10/15 min, repeat without extension, cancel then restart, run simultaneously | One absolute deadline per channel; own boost may temporarily operate from global Off; no physical-maximum requirement | Deadline and sequence tests; caller transition tests |
 | Deadline | Before, equal to, after, invalid, restored after restart | Strict expiry boundary; expired overlay is ignored even if a timer event was missed | Air-goal deadline/restart test |
 | Boost ceiling | Base below/at/above ceiling, 1-step device | Increase only within its own ceiling; never reduce an already higher request | Numeric matrix and explicit ceiling witnesses |
 | Global profiles | Off, ordinary, Maximum, inconsistent flags | Off wins inconsistent state; Maximum supersedes overlay; global profile change cancels old overlays at caller | Profile matrix and caller transition tests |

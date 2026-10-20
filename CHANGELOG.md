@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.9.1 - 2026-10-20
+- Display a configured computed wish in Auto HA while preserving the independent stored manual wish. Show missing computed data explicitly and keep manual editing available.
+- Gate starting a temporary boost with a separate binary availability source. Active boosts remain cancellable when starting becomes unavailable.
+- Add regression matrices for computed wish values, missing data and independent boost start/cancel permissions.
+
 ## 0.9.0 - 2026-10-20
 - Add optional room fresh-air and cleaning wishes alongside temperature, independent Auto HA baseline switches and configurable 10/15-minute per-channel boosts. Preserve native navigation and shared themes.
 - Read server deadlines, keep independent optimistic drafts, allow cancellation when a device is offline, and show explicit error/recovery notices without claiming an unconfirmed shutdown.
