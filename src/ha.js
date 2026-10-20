@@ -57,12 +57,31 @@ export function validateAction(action){
   if(action.action==='perform-action'&&!/^[a-z_]+\.[a-z_]+$/.test(action.perform_action||''))throw new Error('Invalid service');
   if(action.action==='navigate'&&!/^\/(?!\/)/.test(action.navigation_path||''))throw new Error('Invalid HA path');
 }
+const entityId=(value,domain)=>new RegExp(`^${domain||'[a-z_][a-z0-9_]*'}\\.[a-z0-9_]+$`).test(value||'');
+function dynamicAction(action){validateAction(action);if(action.action!=='perform-action'||!/^[a-z_][a-z0-9_]*$/.test(action.value_field||''))throw new Error('A dynamic service action and value_field are required');}
+export function validateAirGoals(config){
+  if(config.air_goals!==undefined&&!Array.isArray(config.air_goals))throw new Error('air_goals must be an array');
+  const ids=new Set();for(const item of config.air_goals||[]){
+    if(!item||!/^[-a-z0-9_]+$/.test(item.id||'')||ids.has(item.id)||typeof item.name!=='string'||!item.name.trim())throw new Error('Air goals require unique safe IDs and names');ids.add(item.id);
+    if(!entityId(item.entity,'input_number')||!entityId(item.automatic_entity,'input_boolean'))throw new Error('Air goal requires numeric intention and automatic helpers');
+    for(const key of ['status_entity','availability_entity'])if(item[key]!==undefined&&!entityId(item[key]))throw new Error('Invalid air goal source');
+    dynamicAction(item.set_action);dynamicAction(item.automatic_action);
+    if(item.boost!==undefined){const boost=item.boost;if(!boost||!entityId(boost.active_entity,'input_boolean')||!entityId(boost.deadline_entity,'input_datetime'))throw new Error('Air boost requires active and absolute deadline helpers');
+      if(boost.availability_entity!==undefined&&!entityId(boost.availability_entity))throw new Error('Invalid air boost availability source');
+      dynamicAction(boost.start_action);validateAction(boost.cancel_action);
+      if(!Array.isArray(boost.durations)||!boost.durations.length||boost.durations.some(value=>!Number.isSafeInteger(value)||value<=0)||new Set(boost.durations).size!==boost.durations.length||!boost.durations.includes(boost.default_duration))throw new Error('Air boost durations must be unique positive minutes and include the default');
+    }
+  }
+  if(config.health_alerts!==undefined&&!Array.isArray(config.health_alerts))throw new Error('health_alerts must be an array');
+  const alertIds=new Set();for(const item of config.health_alerts||[]){if(!item||typeof item.id!=='string'||!item.id||alertIds.has(item.id)||typeof item.name!=='string'||!item.name.trim()||!entityId(item.status_entity)||item.message_entity!==undefined&&!entityId(item.message_entity)||item.acknowledgement_entity!==undefined&&!entityId(item.acknowledgement_entity,'binary_sensor'))throw new Error('Health alerts require unique IDs, names and state sources');alertIds.add(item.id);if(item.acknowledge_action)validateAction(item.acknowledge_action);}
+}
 export function validateConfig(config,kind='panel'){
   if(!config||typeof config!=='object'||(config.config_version??1)!==1)throw new Error('Unsupported config_version');
   if(config.appearance?.seed_color&&!/^#[0-9a-f]{6}$/i.test(config.appearance.seed_color))throw new Error('seed_color must be #RRGGBB');
   if(config.appearance?.scheme&&!['dark','light','auto'].includes(config.appearance.scheme))throw new Error('Invalid scheme');
   if(config.appearance?.motion&&!['expressive','reduced'].includes(config.appearance.motion))throw new Error('Invalid motion');
   if(kind==='climate'){
+    validateAirGoals(config);
     for(const k of ['room_temperature','target_temperature','enabled'])if(typeof config.entities?.[k]!=='string')throw new Error(`Missing entities.${k}`);
     if(!config.entities.target_temperature.startsWith('input_number.'))throw new Error('Target must be input_number');
     if(!config.entities.enabled.startsWith('input_boolean.'))throw new Error('Enabled control must be input_boolean');

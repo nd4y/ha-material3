@@ -8,4 +8,5 @@ release/
 build-meta.json
 build/
 __pycache__/
+controller-test-report.json
 

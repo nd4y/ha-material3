@@ -12,6 +12,7 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
+      - run: python3 -m pip install -r tests/controller/requirements.txt
       - run: npm run check
       - name: Verify committed distribution is reproducible
         run: git diff --exit-code -- dist themes
@@ -21,3 +22,7 @@ jobs:
         with:
           name: ha-material3
           path: release/*.zip
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: controller-test-report
+          path: controller-test-report.json

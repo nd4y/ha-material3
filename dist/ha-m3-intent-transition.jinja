@@ -1,0 +1,146 @@
+{# Pure, portable reducer. All side effects are applied by one queued HA adapter.
+   Invalid events are rejected before any state is changed. Household bindings,
+   permissions, temperatures and device commands are deliberately outside it. #}
+{% macro intent_transition(state, event, policy) -%}
+  {%- set modes = ['auto', 'full', 'off', 'quiet', 'standard', 'maximum'] -%}
+  {%- set axes = ['fresh', 'clean'] -%}
+  {%- set n = namespace(error='', result=state, changed=false) -%}
+  {%- if state is not mapping or event is not mapping or policy is not mapping -%}
+    {%- set n.error = 'invalid_input' -%}
+  {%- else -%}
+    {%- if state.get('mode') not in modes or state.get('master') is not boolean -%}
+      {%- set n.error = 'invalid_state' -%}
+    {%- endif -%}
+    {%- for axis in axes -%}
+      {%- set channel = state.get(axis) -%}
+      {%- if channel is not mapping -%}
+        {%- set n.error = 'invalid_state' -%}
+      {%- else -%}
+        {%- if channel.get('automatic') is not boolean or channel.get('active') is not boolean -%}
+          {%- set n.error = 'invalid_state' -%}
+        {%- endif -%}
+        {%- set value = channel.get('value') -%}
+        {%- if value is not number or value is boolean -%}
+          {%- set n.error = 'invalid_state' -%}
+        {%- elif not (0 <= value <= 100) -%}
+          {%- set n.error = 'invalid_state' -%}
+        {%- endif -%}
+        {%- set deadline = channel.get('deadline') -%}
+        {%- if deadline is not number or deadline is boolean -%}
+          {%- set n.error = 'invalid_state' -%}
+        {%- elif not (0 <= deadline <= 1000000000000) -%}
+          {%- set n.error = 'invalid_state' -%}
+        {%- endif -%}
+      {%- endif -%}
+    {%- endfor -%}
+    {%- if policy.get('maximum_return') not in modes or policy.get('maximum_return') == 'maximum' or policy.get('profiles') is not mapping -%}
+      {%- set n.error = 'invalid_policy' -%}
+    {%- endif -%}
+    {%- set kind = event.get('type') -%}
+    {%- if kind not in ['goal_set', 'goal_auto', 'boost_start', 'boost_cancel', 'tick', 'master', 'profile'] -%}
+      {%- set n.error = 'unsupported_event' -%}
+    {%- endif -%}
+    {%- if kind in ['goal_set', 'goal_auto', 'boost_start', 'boost_cancel'] and event.get('axis') not in axes -%}
+      {%- set n.error = 'invalid_axis' -%}
+    {%- endif -%}
+    {%- if kind == 'goal_set' -%}
+      {%- set value = event.get('value') -%}
+      {%- if value is not number or value is boolean -%}
+        {%- set n.error = 'invalid_value' -%}
+      {%- elif not (0 <= value <= 100) or value % 5 != 0 -%}
+        {%- set n.error = 'invalid_value' -%}
+      {%- endif -%}
+    {%- elif kind == 'goal_auto' and event.get('automatic') is not boolean -%}
+      {%- set n.error = 'invalid_automatic' -%}
+    {%- elif kind == 'master' and event.get('enabled') is not boolean -%}
+      {%- set n.error = 'invalid_master' -%}
+    {%- endif -%}
+    {%- if kind in ['boost_start', 'tick', 'profile'] -%}
+      {%- set now = event.get('now') -%}
+      {%- if now is not number or now is boolean -%}
+        {%- set n.error = 'invalid_now' -%}
+      {%- elif not (0 <= now <= 999999999100) -%}
+        {%- set n.error = 'invalid_now' -%}
+      {%- endif -%}
+    {%- endif -%}
+    {%- if kind == 'boost_start' -%}
+      {%- if event.get('duration') is not number or event.get('duration') is boolean or event.get('duration') not in [10, 15] -%}
+        {%- set n.error = 'invalid_duration' -%}
+      {%- elif event.get('eligible') is not boolean -%}
+        {%- set n.error = 'invalid_eligibility' -%}
+      {%- endif -%}
+    {%- elif kind == 'profile' -%}
+      {%- if event.get('mode') not in modes -%}
+        {%- set n.error = 'invalid_mode' -%}
+      {%- elif event.get('mode') != 'maximum' and policy.get('profiles') is mapping -%}
+        {%- set profile = policy.profiles.get(event.mode) -%}
+        {%- if profile is not mapping -%}
+          {%- set n.error = 'invalid_profile' -%}
+        {%- else -%}
+          {%- for axis in axes -%}
+            {%- set baseline = profile.get(axis) -%}
+            {%- if baseline is not mapping -%}
+              {%- set n.error = 'invalid_profile' -%}
+            {%- else -%}
+              {%- set value = baseline.get('value') -%}
+              {%- if baseline.get('automatic') is not boolean or value is not number or value is boolean -%}
+                {%- set n.error = 'invalid_profile' -%}
+              {%- elif not (0 <= value <= 100) -%}
+                {%- set n.error = 'invalid_profile' -%}
+              {%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endif -%}
+    {%- endif -%}
+    {# Every shape and numeric bound is checked before transition semantics. #}
+    {%- if n.error == '' and kind == 'boost_start' -%}
+      {%- if not state.master -%}
+        {%- set n.error = 'master_disabled' -%}
+      {%- elif state.mode == 'maximum' -%}
+        {%- set n.error = 'maximum_active' -%}
+      {%- elif not event.eligible -%}
+        {%- set n.error = 'ineligible' -%}
+      {%- elif state[event.axis].active and state[event.axis].deadline > event.now -%}
+        {%- set n.error = 'boost_already_active' -%}
+      {%- endif -%}
+    {%- endif -%}
+    {%- if n.error == '' -%}
+      {%- set n.result = dict(state) -%}
+      {%- if kind == 'goal_set' -%}
+        {%- set channel = dict(state[event.axis], automatic=false, value=event.value, active=false, deadline=0) -%}
+        {%- set n.result = dict(n.result, **{event.axis: channel}) -%}
+        {%- if state.mode == 'maximum' -%}{%- set n.result = dict(n.result, mode=policy.maximum_return) -%}{%- endif -%}
+      {%- elif kind == 'goal_auto' -%}
+        {%- set n.result = dict(n.result, **{event.axis: dict(state[event.axis], automatic=event.automatic)}) -%}
+        {%- if state.mode == 'maximum' -%}{%- set n.result = dict(n.result, mode=policy.maximum_return) -%}{%- endif -%}
+      {%- elif kind == 'boost_start' -%}
+        {%- set n.result = dict(n.result, **{event.axis: dict(state[event.axis], active=true, deadline=event.now + event.duration * 60)}) -%}
+      {%- elif kind == 'boost_cancel' -%}
+        {%- set n.result = dict(n.result, **{event.axis: dict(state[event.axis], active=false, deadline=0)}) -%}
+      {%- elif kind == 'tick' -%}
+        {%- for axis in axes -%}
+          {%- if not state[axis].active or state[axis].deadline <= event.now or not state.master -%}
+            {%- set n.result = dict(n.result, **{axis: dict(state[axis], active=false, deadline=0)}) -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- elif kind == 'master' -%}
+        {%- set n.result = dict(n.result, master=event.enabled) -%}
+        {%- if not event.enabled -%}
+          {%- for axis in axes -%}
+            {%- set n.result = dict(n.result, **{axis: dict(state[axis], active=false, deadline=0)}) -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- elif kind == 'profile' -%}
+        {%- set n.result = dict(n.result, mode=event.mode) -%}
+        {%- for axis in axes -%}
+          {%- set baseline = {} if event.mode == 'maximum' else {'automatic': policy.profiles[event.mode][axis].automatic, 'value': policy.profiles[event.mode][axis].value} -%}
+          {%- set channel = dict(state[axis], **baseline) -%}
+          {%- set n.result = dict(n.result, **{axis: dict(channel, active=false, deadline=0)}) -%}
+        {%- endfor -%}
+      {%- endif -%}
+      {%- set n.changed = n.result != state -%}
+    {%- endif -%}
+  {%- endif -%}
+  {{- {'valid': n.error == '', 'error': n.error, 'state': n.result, 'changed': n.changed} | to_json -}}
+{%- endmacro %}
