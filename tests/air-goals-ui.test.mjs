@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {airGoalModel,airGoalValue,airBoostModel,airBoostAction,airCountdown,airHealthAlerts,airHealthAcknowledgementAvailable,commitAirGoal,commitAirAutomatic,syncAirGoalDrafts,clearAirGoalTimers,renderAirGoals,renderHealthAlerts} from '../src/air-goals.js';
+import {airGoalModel,airGoalPresentation,airGoalValue,airBoostModel,airBoostAction,airCountdown,airHealthAlerts,airHealthAcknowledgementAvailable,commitAirGoal,commitAirAutomatic,syncAirGoalDrafts,clearAirGoalTimers,renderAirGoals,renderHealthAlerts} from '../src/air-goals.js';
 import {validateConfig} from '../src/ha.js';
 
 const state=(value,attributes={})=>({state:String(value),attributes});
@@ -23,8 +23,35 @@ test('air intention source matrix fails closed for numeric, automatic and availa
 test('manual intentions preserve bounds and steps without translating to motor percentage',()=>{
   const hass=fixture(),item=goal();hass.states[item.entity].attributes.step=5;const model=airGoalModel(hass,item);
   for(const value of [0,5,50,100])assert.equal(airGoalValue(model,value),value);
-  for(const value of [-1,3,101,NaN,Infinity,'',null,undefined])assert.throws(()=>airGoalValue(model,value));
+  for(const value of [-1,3,101,NaN,Infinity,'','  ',false,true,[],{},'0x10',null,undefined])assert.throws(()=>airGoalValue(model,value));
   assert.throws(()=>airGoalValue({...model,available:false},50));
+});
+
+test('computed automatic intention display matrix stays separate from stored manual wish',()=>{
+  let cases=0;
+  for(const automatic of ['on','off'])for(const suggested of [0,35.5,100,-1,101,'unknown','unavailable','bad','',null]){
+    const hass=fixture(),item={...goal(),automatic_value_entity:'sensor.air_suggestion'};hass.states[item.automatic_entity].state=automatic;hass.states[item.automatic_value_entity]=state(suggested);const model=airGoalModel(hass,item),valid=[0,35.5,100].includes(suggested);
+    assert.equal(model.available,true);assert.equal(model.value,40);assert.equal(model.automatic_value,valid?suggested:null);assert.equal(model.display_value,automatic==='on'?(valid?suggested:null):40);assert.equal(model.display_available,automatic!=='on'||valid);assert.deepEqual(airGoalPresentation(model),{automatic:automatic==='on',value:model.display_value,available:model.display_available,slider_value:model.display_value??40});cases++;
+  }
+  assert.equal(cases,20);
+  const hass=fixture(),item={...goal(),automatic_value_entity:'sensor.air_suggestion'},model=airGoalModel(hass,item);assert.equal(model.available,true);assert.equal(model.display_available,false);assert.equal(model.display_value,null);assert.equal(airGoalPresentation(model).slider_value,40);
+  assert.equal(airGoalModel(hass,goal()).display_value,40);assert.deepEqual(airGoalPresentation(model,{automatic:false,value:65,editing:true}),{automatic:false,value:65,available:true,slider_value:65});
+});
+
+test('decimal automatic-source matrix rejects malformed coercions while preserving real zero and optional-source compatibility',()=>{
+  const sources=[['0',0],['0.0',0],[-0,0],['-0',0],['35.5',35.5],[' 50 ',50],['1e2',100],['.5',.5],['+5',5],['100',100],['',null],['  ',null],['\t\n',null],['0x10',null],['0b10',null],['1_0',null],['5,5',null],['NaN',null],['Infinity',null],[Infinity,null],[NaN,null],[true,null],[false,null],[[],null],[{},null],[null,null],[undefined,null],['unknown',null],['unavailable',null],['-1',null],['101',null]];
+  let cases=0;for(const automatic of ['on','off'])for(const [raw,expected]of sources){
+    const hass=fixture(),item={...goal(),automatic_value_entity:'input_number.computed_wish'};hass.states[item.automatic_entity].state=automatic;hass.states[item.automatic_value_entity]={state:raw,attributes:{min:0,max:100,step:1}};const model=airGoalModel(hass,item);assert.equal(model.automatic_value,expected);assert.equal(model.value,40);assert.equal(model.display_value,automatic==='on'?expected:40);assert.equal(model.available,true);assert.equal(airGoalPresentation(model).slider_value,automatic==='on'&&expected!==null?expected:40);cases++;
+  }
+  assert.equal(cases,62);
+  const hass=fixture(),item=goal();hass.states[item.entity].state='  ';assert.equal(airGoalModel(hass,item).available,false);assert.equal(airGoalModel(hass,item).value,null);
+});
+
+test('unknown automatic suggestion leaves manual editor and typed Auto actions usable',async()=>{
+  const {card,item}=cardFixture();item.automatic_value_entity='sensor.air_suggestion';card.hass.states[item.automatic_value_entity]=state('unknown');
+  assert.equal(airGoalPresentation(airGoalModel(card.hass,item)).value,null);assert.equal(renderAirGoals(card).length,1);
+  await commitAirGoal(card,item,60);assert.deepEqual(card.calls[0].action.data,{value:60});assert.deepEqual(card._airDrafts[item.id],{value:60,automatic:false});clearAirGoalTimers(card);
+  card.calls=[];await commitAirAutomatic(card,item,false);assert.deepEqual(card.calls[0].action.data,{automatic:false});clearAirGoalTimers(card);
 });
 
 test('boost helper matrix uses absolute server time and never assumes unknown is inactive',()=>{
@@ -60,9 +87,17 @@ test('active boost can still be cancelled while intention, deadline, channel or 
   for(const active of ['off','unknown','unavailable']){const hass=fixture(),item=goal();hass.states[item.boost.active_entity].state=active;assert.equal(airBoostModel(hass,item,now).can_cancel,false);}
 });
 
+test('configured start-only boost permission blocks start without blocking active cancellation',()=>{
+  for(const permission of ['on','off','unknown','unavailable','bad'])for(const active of ['on','off']){
+    const hass=fixture(),item=goal();item.boost.availability_entity='binary_sensor.start_allowed';hass.states[item.boost.availability_entity]=state(permission);hass.states[item.boost.active_entity].state=active;const model=airBoostModel(hass,item,now);assert.equal(model.available,permission==='on');assert.equal(model.can_cancel,active==='on');
+    if(permission==='on'&&active==='off')assert.deepEqual(airBoostAction(hass,item,10,now).data,{duration:10});else assert.throws(()=>airBoostAction(hass,item,10,now));
+  }
+  const hass=fixture(),item=goal();item.boost.availability_entity='binary_sensor.start_allowed';hass.states[item.boost.active_entity].state='on';assert.equal(airBoostModel(hass,item,now).available,false);assert.equal(airBoostModel(hass,item,now).can_cancel,true);
+});
+
 test('config validation rejects ambiguous schema and keeps household wiring out of rendering policy',()=>{
   assert.deepEqual(validateConfig(climate(),'climate'),climate());
-  const corruptions=[c=>c.air_goals={},c=>c.air_goals.push(goal()),c=>c.air_goals[0].id='unsafe id',c=>c.air_goals[0].name='',c=>c.air_goals[0].entity='fan.motor',c=>c.air_goals[0].automatic_entity='sensor.auto',c=>delete c.air_goals[0].set_action,c=>c.air_goals[0].set_action.value_field='nested.value',c=>c.air_goals[0].automatic_action.action='toggle',c=>c.air_goals[0].status_entity='not-entity',c=>c.air_goals[0].boost.deadline_entity='timer.timer',c=>c.air_goals[0].boost.active_entity='sensor.active',c=>c.air_goals[0].boost.durations=[],c=>c.air_goals[0].boost.durations=[10,10],c=>c.air_goals[0].boost.durations=[10,1.5],c=>c.air_goals[0].boost.durations=[10,0],c=>c.air_goals[0].boost.default_duration=12,c=>c.air_goals[0].boost.cancel_action=null,c=>c.air_goals[0].boost.availability_entity='bad'];
+  const corruptions=[c=>c.air_goals={},c=>c.air_goals.push(goal()),c=>c.air_goals[0].id='unsafe id',c=>c.air_goals[0].name='',c=>c.air_goals[0].entity='fan.motor',c=>c.air_goals[0].automatic_entity='sensor.auto',c=>c.air_goals[0].automatic_value_entity='not-an-entity',c=>delete c.air_goals[0].set_action,c=>c.air_goals[0].set_action.value_field='nested.value',c=>c.air_goals[0].automatic_action.action='toggle',c=>c.air_goals[0].status_entity='not-entity',c=>c.air_goals[0].boost.deadline_entity='timer.timer',c=>c.air_goals[0].boost.active_entity='sensor.active',c=>c.air_goals[0].boost.durations=[],c=>c.air_goals[0].boost.durations=[10,10],c=>c.air_goals[0].boost.durations=[10,1.5],c=>c.air_goals[0].boost.durations=[10,0],c=>c.air_goals[0].boost.default_duration=12,c=>c.air_goals[0].boost.cancel_action=null,c=>c.air_goals[0].boost.availability_entity='bad',c=>c.air_goals[0].boost.availability_entity='sensor.not_boolean'];
   for(const corrupt of corruptions){const c=climate();corrupt(c);assert.throws(()=>validateConfig(c,'climate'));}
   const c=climate();delete c.air_goals;assert.doesNotThrow(()=>validateConfig(c,'climate'));
 });

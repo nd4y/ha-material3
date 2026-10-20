@@ -64,10 +64,10 @@ export function validateAirGoals(config){
   const ids=new Set();for(const item of config.air_goals||[]){
     if(!item||!/^[-a-z0-9_]+$/.test(item.id||'')||ids.has(item.id)||typeof item.name!=='string'||!item.name.trim())throw new Error('Air goals require unique safe IDs and names');ids.add(item.id);
     if(!entityId(item.entity,'input_number')||!entityId(item.automatic_entity,'input_boolean'))throw new Error('Air goal requires numeric intention and automatic helpers');
-    for(const key of ['status_entity','availability_entity'])if(item[key]!==undefined&&!entityId(item[key]))throw new Error('Invalid air goal source');
+    for(const key of ['status_entity','availability_entity','automatic_value_entity'])if(item[key]!==undefined&&!entityId(item[key]))throw new Error('Invalid air goal source');
     dynamicAction(item.set_action);dynamicAction(item.automatic_action);
     if(item.boost!==undefined){const boost=item.boost;if(!boost||!entityId(boost.active_entity,'input_boolean')||!entityId(boost.deadline_entity,'input_datetime'))throw new Error('Air boost requires active and absolute deadline helpers');
-      if(boost.availability_entity!==undefined&&!entityId(boost.availability_entity))throw new Error('Invalid air boost availability source');
+      if(boost.availability_entity!==undefined&&!entityId(boost.availability_entity,'binary_sensor'))throw new Error('Air boost availability must be binary_sensor');
       dynamicAction(boost.start_action);validateAction(boost.cancel_action);
       if(!Array.isArray(boost.durations)||!boost.durations.length||boost.durations.some(value=>!Number.isSafeInteger(value)||value<=0)||new Set(boost.durations).size!==boost.durations.length||!boost.durations.includes(boost.default_duration))throw new Error('Air boost durations must be unique positive minutes and include the default');
     }

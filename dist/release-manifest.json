@@ -1,6 +1,6 @@
 {
   "name": "ha-material3",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "files": [
     {
       "path": "ha-material3-theme.yaml",
@@ -9,8 +9,8 @@
     },
     {
       "path": "ha-material3.js",
-      "bytes": 354483,
-      "sha256": "be87684a1d452bf553f8178c1d8395f255af7355c96e02bd4e8d78adf3241d63"
+      "bytes": 355164,
+      "sha256": "8db2b46792e0e8355585c800c0bd7e5facd1cc0777be331623f70b8bb4e6d926"
     },
     {
       "path": "LICENSE",
@@ -90,8 +90,8 @@
     "controller/device-health.jinja": "3775f6f201079c2d1c14bd909de1e18cd4e17d183708d1025661066afd4affce",
     "controller/intent-transition.jinja": "7e099608ae77316d25c16542d3f8d7a6934b3417aeb1c722cddf382ee903a688",
     "controller/legacy-policy.jinja": "ed8532fa2855d58d18dd1ade70807acc3e2412adf3b5a418588b9cef7b10ef07",
-    "package-lock.json": "d2c7433a35b30f4e06faef00348be058c6a849fef8d1178421902fdf26437e27",
-    "package.json": "8c06c3fe1dde18d75d46bd4c5c03436e2d4fb3e8e1163de27822d63dcf498d3f",
+    "package-lock.json": "569b83163eb071f79445e6c9ce8030d4b28e6eb0f77a3cdd5455d75f03da7735",
+    "package.json": "eaeef1895ffe41e41f136c10020082f39dc934d05d63133044c0760b1e1690cf",
     "scripts/audit-release.mjs": "ca5fbff89ef1c15a3844746208aaad340f13219dda338bf8b537b52ffb649118",
     "scripts/build.mjs": "ba715c54ed44408e583a14ffcc8d77b046d943b894691137019f9f3722ffd29f",
     "scripts/dev-server.mjs": "9a708517056f40cf7fdd778b0c8a8627137c48ebe59ad47a81b518a459900bb2",
@@ -104,7 +104,7 @@
     "scripts/test-controller.mjs": "4e6817fe666e14d0d914cc210913986be5ebbf36be35f890147eb343e921813d",
     "scripts/test-controller.py": "63ddf326f25f2261a8e3abc100122337af1954642a82082f964b0c1461068789",
     "scripts/theme.mjs": "5b420fdb40cd38a5412666d32fa5332f07328e72aac0c8b86ef5caf6eafa33b5",
-    "src/air-goals.js": "958b3fdfa3b76f6dd2124935e9e7659ddb82b0099bda8bdea439af4f85ee8455",
+    "src/air-goals.js": "6bb9b0b439e382ffc523725235adc9823af1428de4c20c04b1d323dcfbc61a36",
     "src/asset-url.js": "033c8020367ab43ce04061bb2196f2b866ca0b891fae019cd612a3223a256c9b",
     "src/calm-room.js": "9a3e63814b14462c7b48bf55584d014a5c3d3dffa62f835beda8040ce4763cf2",
     "src/cards.js": "6eda221ce6bfeea15f06de3ecfa94528fe1a3c8802ac840a0ab570f1ec0fb404",
@@ -113,7 +113,7 @@
     "src/design-system.js": "b064de96f2262dde8e6fcf2ab63ea624160088570bdd4edb2402cb61b79f1a3a",
     "src/editor.js": "cf816ccf91354e88d0933bc1abd323845d54b637d924d2cd9f50fc8ae4881f7b",
     "src/fields.js": "20cfb3e84784c21380a79298253c3643f23358b5eff13f968242cd311b04f1a0",
-    "src/ha.js": "edcaab82f77a5e16036a1886f7bf115f490f399aaaf9472953593d08b559ae58",
+    "src/ha.js": "e5e3901b54906eec5821d3338fdfac489e8385b58cfd36b616399a3b63b15ed4",
     "src/index.js": "6fa64787b5489503bff1dca9902af5472e3795f06c9f5643d0a379491b629594",
     "src/journal-card.js": "e96f8055832de9188e012e2a7976c7ba5c61a7a1a7b52c47d7c7ce18ae84aba0",
     "src/journal-model.js": "c7c645f0fa586475cb1af1066ca3914986b842c2c22401f4b117219708f73759",

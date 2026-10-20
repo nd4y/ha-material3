@@ -41,6 +41,7 @@ air_goals:
     name: Fresh air
     entity: input_number.example_fresh_air_intention
     automatic_entity: input_boolean.example_fresh_air_automatic
+    automatic_value_entity: sensor.example_fresh_air_suggestion
     set_action:
       action: perform-action
       perform_action: script.example_air_intention
@@ -57,6 +58,7 @@ air_goals:
       action_name: Refresh
       active_entity: input_boolean.example_fresh_air_boost
       deadline_entity: input_datetime.example_fresh_air_boost_deadline
+      availability_entity: binary_sensor.example_fresh_air_boost_start_allowed
       start_action:
         action: perform-action
         perform_action: script.example_air_boost
@@ -86,12 +88,13 @@ Add a second air goal with a distinct ID and its own helpers/actions for air cle
 
 - `entity`: an `input_number` with attributes `min: 0`, `max: 100` and a positive `step`. The current state must be within that range.
 - `automatic_entity`: `input_boolean`, `on` means HA chooses the base intention.
+- `automatic_value_entity`: optional numeric source, including `sensor` or `input_number`, for the computed HA intention (0-100). While HA Auto is on, the readout and slider show this value; `entity` remains the stored manual wish. In manual mode the card shows `entity`. If omitted, the previous display behavior is preserved. Finite decimal values, including zero and scientific notation, are accepted; whitespace-only values, booleans, objects and alternate-radix strings are rejected. A missing, unknown, unavailable, malformed or out-of-range computed value shows No data rather than a fabricated zero. The manual editor stays usable, starting from the valid stored manual wish, so a manual change can safely leave Auto. Display-source failure does not change the stored wish or revoke manual editing.
 - `set_action`: receives the requested **Number** in `value_field`. The backend must atomically save it, turn off this goal's automatic selection and cancel only this channel's boost. It must not change the other channel, room temperature or device manual permissions.
-- `automatic_action`: receives a real **Boolean**, `true` to delegate base intention selection to HA and `false` to retain the current base intention. It does not mean Device Auto and must not change unrelated permissions.
+- `automatic_action`: receives a real **Boolean**, `true` to delegate base intention selection to HA and `false` to select the stored manual wish without changing it. It does not mean Device Auto and must not change unrelated permissions.
 - `status_entity`: optional backend explanation of the effective result or its limit, shown directly on this goal.
 - `availability_entity`: optional source, only exact `on` enables editing. A missing, unknown or unavailable helper disables the control.
 - Each boost has independent active and deadline helpers. `deadline_entity` must expose a positive Unix epoch seconds `timestamp` attribute. Localized date strings are deliberately not parsed by the browser.
-- `boost.start_action`: receives minutes as a **Number**. The backend persists the absolute deadline and enforces its allowed durations. The optional `boost.availability_entity` also requires exact `on`.
+- `boost.start_action`: receives minutes as a **Number**. The backend persists the absolute deadline and enforces its allowed durations. The optional `boost.availability_entity` must be a `binary_sensor` and requires exact `on` to start. Bind it to the backend's current start eligibility (for example channel ready and no conflicting global mode). It only gates starting: an already-active boost can still be opened and cancelled if this permission becomes off, missing or unavailable.
 - `boost.cancel_action`: reconciles this channel against the latest base intention and sensor values. A boost increases demand within configured bounds; it does not necessarily select maximum actuator output.
 
 The main boost button starts the configured default duration. The arrow opens the configured duration choices. Once active, either button opens the active controls and Finish action. Repeated taps do **not** silently extend the deadline. The card derives the countdown from server state, renders expiry as Finishing and never sends an expiry action from the browser. Unknown boost helpers disable starting instead of assuming the boost is inactive. Cancelling an explicitly active boost remains possible if the intention, deadline or device is unavailable; cancellation does not depend on the ability to send actuator commands.
