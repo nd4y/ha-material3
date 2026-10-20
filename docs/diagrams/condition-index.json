@@ -1,0 +1,2204 @@
+{
+  "module_version": "0.10.0",
+  "conditional_operators": 250,
+  "predicate_expressions": 623,
+  "source_tags": 243,
+  "sources": {
+    "air-goals.jinja": "a5831175dbe77160f76fa6ca3686c62d859c12cf683a8e569891ddf8bf27d8c0",
+    "comfort-preferences.jinja": "18b6f9ee0eaf84d59224330c636de719550fd335d3f9cd843c9c6fefdab1116d",
+    "command-guards.jinja": "382037ad6ba5efc11e96a2fda5e2df3523fb6590197bbba6b472e349257fc7e7",
+    "control-dynamics.jinja": "3e481ca559925cee3a85cb741e8de32d4c70ab3ee1b93a5dab2d82b9871acf81",
+    "device-health.jinja": "3775f6f201079c2d1c14bd909de1e18cd4e17d183708d1025661066afd4affce",
+    "intent-transition.jinja": "7e099608ae77316d25c16542d3f8d7a6934b3417aeb1c722cddf382ee903a688",
+    "legacy-policy.jinja": "ed8532fa2855d58d18dd1ade70807acc3e2412adf3b5a418588b9cef7b10ef07"
+  },
+  "entries": [
+    {
+      "file": "air-goals.jinja",
+      "line": 4,
+      "macro": "air_goal",
+      "tag": "{% macro air_goal(p) -%}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "air-goals.jinja",
+      "line": 8,
+      "macro": "air_goal",
+      "tag": "{%- set steps = ['default_request', 'sensor_request', 'hardware_max',\n                  'hard_cap', 'noise_cap', 'boost_increment', 'boost_ceiling'] -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 0
+    },
+    {
+      "file": "air-goals.jinja",
+      "line": 11,
+      "macro": "air_goal",
+      "tag": "{%- for key in flags -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "air-goals.jinja",
+      "line": 15,
+      "macro": "air_goal",
+      "tag": "{%- set value = p.get(key) -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "air-goals.jinja",
+      "line": 17,
+      "macro": "air_goal",
+      "tag": "{%- set n.valid = false -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "air-goals.jinja",
+      "line": 23,
+      "macro": "air_goal",
+      "tag": "{%- set value = p.get(key) -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "air-goals.jinja",
+      "line": 25,
+      "macro": "air_goal",
+      "tag": "{%- set n.valid = false -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "air-goals.jinja",
+      "line": 29,
+      "macro": "air_goal",
+      "tag": "{%- endfor -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 3
+    },
+    {
+      "file": "air-goals.jinja",
+      "line": 32,
+      "macro": "air_goal",
+      "tag": "{%- endif -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "air-goals.jinja",
+      "line": 36,
+      "macro": "air_goal",
+      "tag": "{%- endif -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "air-goals.jinja",
+      "line": 52,
+      "macro": "air_goal",
+      "tag": "{%- set ceiling = [maximum - 1, [0, p.boost_ceiling]|max]|min -%}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "air-goals.jinja",
+      "line": 53,
+      "macro": "air_goal",
+      "tag": "{%- set boost = p.boost_deadline > p.now and p.boost_deadline > 0\n                    and not p.global_maximum and p.enabled -%}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 4
+    },
+    {
+      "file": "air-goals.jinja",
+      "line": 55,
+      "macro": "air_goal",
+      "tag": "{%- set requested = default if p.automatic else\n          ((desired * maximum / 100)|round(0, 'ceil')|int) -%}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 0
+    },
+    {
+      "file": "air-goals.jinja",
+      "line": 57,
+      "macro": "air_goal",
+      "tag": "{%- set mode = 'automatic' if p.automatic else 'manual' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "air-goals.jinja",
+      "line": 63,
+      "macro": "air_goal",
+      "tag": "{%- endif -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "air-goals.jinja",
+      "line": 66,
+      "macro": "air_goal",
+      "tag": "{%- set mode = 'maximum' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 0
+    },
+    {
+      "file": "air-goals.jinja",
+      "line": 71,
+      "macro": "air_goal",
+      "tag": "{%- set target = [requested, hard, noise]|min -%}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "air-goals.jinja",
+      "line": 72,
+      "macro": "air_goal",
+      "tag": "{%- set limited = target < requested -%}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 2
+    },
+    {
+      "file": "air-goals.jinja",
+      "line": 73,
+      "macro": "air_goal",
+      "tag": "{%- set reason = 'noise_cap' if noise < requested and noise <= hard\n                     else 'hard_cap' if hard < requested else mode -%}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 4
+    },
+    {
+      "file": "air-goals.jinja",
+      "line": 75,
+      "macro": "air_goal",
+      "tag": "{%- set speed = target > 0 and p.speed_allowed\n                    and (p.current_power == 'on' or p.power_allowed) -%}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "air-goals.jinja",
+      "line": 77,
+      "macro": "air_goal",
+      "tag": "{%- set power = p.power_allowed and\n                    ((target == 0) or (target > 0 and p.speed_allowed)) -%}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 5
+    },
+    {
+      "file": "air-goals.jinja",
+      "line": 79,
+      "macro": "air_goal",
+      "tag": "{%- set can_command = speed or power -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 3
+    },
+    {
+      "file": "air-goals.jinja",
+      "line": 81,
+      "macro": "air_goal",
+      "tag": "{%- set reason = 'speed_locked' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 5
+    },
+    {
+      "file": "air-goals.jinja",
+      "line": 84,
+      "macro": "air_goal",
+      "tag": "{%- endif -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "air-goals.jinja",
+      "line": 87,
+      "macro": "air_goal",
+      "tag": "{%- set boost = false -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 0
+    },
+    {
+      "file": "air-goals.jinja",
+      "line": 90,
+      "macro": "air_goal",
+      "tag": "{%- set reason = 'fault' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "air-goals.jinja",
+      "line": 95,
+      "macro": "air_goal",
+      "tag": "{{- {'requested': requested, 'target': target, 'boost_active': boost,\n         'can_command': can_command, 'can_set_speed': speed, 'can_set_power': power,\n         'reason': reason, 'limited': limited, 'mode': mode,\n         'requires_shutdown': p.fault and p.available and p.current_power != 'off',\n         'notify': p.fault}|tojson -}}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 3
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 4,
+      "macro": "comfort_preferences",
+      "tag": "{% macro comfort_preferences(p) -%}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 5,
+      "macro": "comfort_preferences",
+      "tag": "{%- set n = namespace(valid=p is mapping, requests={}, caps={}, reasons={}) -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 0
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 8,
+      "macro": "comfort_preferences",
+      "tag": "{%- set value = p.get(key) -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 10,
+      "macro": "comfort_preferences",
+      "tag": "{%- set n.valid = false -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 17,
+      "macro": "comfort_preferences",
+      "tag": "{%- set value = p.get(axis ~ '_' ~ suffix) -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 19,
+      "macro": "comfort_preferences",
+      "tag": "{%- set n.valid = false -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 21,
+      "macro": "comfort_preferences",
+      "tag": "{%- set n.valid = false -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 3
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 29,
+      "macro": "comfort_preferences",
+      "tag": "{%- set value = p.get(axis ~ '_' ~ suffix) -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 31,
+      "macro": "comfort_preferences",
+      "tag": "{%- set n.valid = false -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 33,
+      "macro": "comfort_preferences",
+      "tag": "{%- set n.valid = false -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 3
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 38,
+      "macro": "comfort_preferences",
+      "tag": "{%- endfor -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 0
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 40,
+      "macro": "comfort_preferences",
+      "tag": "{%- for axis in ['fresh', 'clean', 'ac_fan'] -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 45,
+      "macro": "comfort_preferences",
+      "tag": "{%- for axis in ['fresh', 'clean'] -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 51,
+      "macro": "comfort_preferences",
+      "tag": "{%- endif -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 64,
+      "macro": "comfort_preferences",
+      "tag": "{%- set floor = 1 if p[axis ~ '_base'] > 0 or p[axis ~ '_need'] > 0 else 0 -%}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 3
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 66,
+      "macro": "comfort_preferences",
+      "tag": "{%- set requested = [p[axis ~ '_max'], [preferred, p[axis ~ '_need']] | max] | min | int -%}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 1
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 67,
+      "macro": "comfort_preferences",
+      "tag": "{%- set reason = 'sensor_need' if p[axis ~ '_need'] > preferred else\n                       'prefer_more' if adjustment > 0 else\n                       'prefer_less' if adjustment < 0 else 'neutral' -%}",
+      "if": 0,
+      "inline_if": 2,
+      "predicates": 2
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 75,
+      "macro": "comfort_preferences",
+      "tag": "{%- set reduction = (p.quiet / 100 * p[axis ~ '_quiet_reduction_steps']) | round(0) | int -%}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 1
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 79,
+      "macro": "comfort_preferences",
+      "tag": "{{- {'valid': true, 'error': '', 'fresh_request': n.requests.fresh,\n         'clean_request': n.requests.clean, 'ac_fan_request': p.ac_fan_base | int,\n         'fresh_noise_cap': n.caps.fresh, 'clean_noise_cap': n.caps.clean,\n         'ac_fan_cap': n.caps.ac_fan,\n         'reasons': dict(n.reasons, quiet='prefer_quiet' if p.quiet > 0 else 'neutral')} | tojson -}}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 1
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 90,
+      "macro": "comfort_transition",
+      "tag": "{%- set n = namespace(error='', result=state) -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 5
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 95,
+      "macro": "comfort_transition",
+      "tag": "{%- set value = state.get(axis) -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 97,
+      "macro": "comfort_transition",
+      "tag": "{%- set n.error = 'invalid_state' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 101,
+      "macro": "comfort_transition",
+      "tag": "{%- endfor -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 103,
+      "macro": "comfort_transition",
+      "tag": "{%- set n.error = 'unsupported_event' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 104,
+      "macro": "comfort_transition",
+      "tag": "{%- elif event.type == 'set' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 108,
+      "macro": "comfort_transition",
+      "tag": "{%- set value = event.get('value') -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 110,
+      "macro": "comfort_transition",
+      "tag": "{%- set n.error = 'invalid_value' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 114,
+      "macro": "comfort_transition",
+      "tag": "{%- endif -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 115,
+      "macro": "comfort_transition",
+      "tag": "{%- if n.error == '' -%}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 0
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 116,
+      "macro": "comfort_transition",
+      "tag": "{%- set n.result = dict(state, fresh=50, clean=50, quiet=0) if event.type == 'reset'\n                         else dict(state, **{event.axis: event.value}) -%}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 119,
+      "macro": "comfort_transition",
+      "tag": "{%- endif -%}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "comfort-preferences.jinja",
+      "line": 120,
+      "macro": "comfort_transition",
+      "tag": "{{- {'valid': n.error == '', 'error': n.error, 'state': n.result,\n       'changed': n.error == '' and n.result != state} | tojson -}}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 3
+    },
+    {
+      "file": "command-guards.jinja",
+      "line": 2,
+      "macro": "command_guard",
+      "tag": "{% macro command_guard(p) -%}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "command-guards.jinja",
+      "line": 3,
+      "macro": "command_guard",
+      "tag": "{%- set n = namespace(valid=p is mapping, allowed=false, reason='invalid_input', safety=false) -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 0
+    },
+    {
+      "file": "command-guards.jinja",
+      "line": 5,
+      "macro": "command_guard",
+      "tag": "{%- for key in ['automatic', 'available', 'eligible', 'fault_shutdown', 'explicit_error', 'latched', 'stopping', 'master_enabled'] -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "command-guards.jinja",
+      "line": 8,
+      "macro": "command_guard",
+      "tag": "{%- for key in ['power_lock', 'saved_power', 'current_power'] -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "command-guards.jinja",
+      "line": 10,
+      "macro": "command_guard",
+      "tag": "{%- endfor -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "command-guards.jinja",
+      "line": 12,
+      "macro": "command_guard",
+      "tag": "{%- endif -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 0
+    },
+    {
+      "file": "command-guards.jinja",
+      "line": 13,
+      "macro": "command_guard",
+      "tag": "{%- if n.valid -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "command-guards.jinja",
+      "line": 15,
+      "macro": "command_guard",
+      "tag": "{%- set n.reason = 'invalid_fault_shutdown' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "command-guards.jinja",
+      "line": 17,
+      "macro": "command_guard",
+      "tag": "{%- set n.reason = 'unavailable' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 0
+    },
+    {
+      "file": "command-guards.jinja",
+      "line": 18,
+      "macro": "command_guard",
+      "tag": "{%- elif p.fault_shutdown -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "command-guards.jinja",
+      "line": 24,
+      "macro": "command_guard",
+      "tag": "{%- endif -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "command-guards.jinja",
+      "line": 26,
+      "macro": "command_guard",
+      "tag": "{%- set n.reason = 'manual_stop' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "command-guards.jinja",
+      "line": 28,
+      "macro": "command_guard",
+      "tag": "{%- set n.reason = 'ineligible' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "command-guards.jinja",
+      "line": 30,
+      "macro": "command_guard",
+      "tag": "{%- set n.reason = 'manual' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "command-guards.jinja",
+      "line": 32,
+      "macro": "command_guard",
+      "tag": "{%- set n.reason = 'master_disabled' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 10
+    },
+    {
+      "file": "command-guards.jinja",
+      "line": 34,
+      "macro": "command_guard",
+      "tag": "{%- set n.reason = 'power_locked' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "control-dynamics.jinja",
+      "line": 3,
+      "macro": "critical_hysteresis",
+      "tag": "{% macro critical_hysteresis(p) -%}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "control-dynamics.jinja",
+      "line": 4,
+      "macro": "critical_hysteresis",
+      "tag": "{%- set n=namespace(valid=p is mapping) -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 0
+    },
+    {
+      "file": "control-dynamics.jinja",
+      "line": 6,
+      "macro": "critical_hysteresis",
+      "tag": "{%- for key in ['above','valid','clear'] -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "control-dynamics.jinja",
+      "line": 9,
+      "macro": "critical_hysteresis",
+      "tag": "{%- for key in ['pending','active','clear_pending'] -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "control-dynamics.jinja",
+      "line": 13,
+      "macro": "critical_hysteresis",
+      "tag": "{%- set value=p.get(key) -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "control-dynamics.jinja",
+      "line": 15,
+      "macro": "critical_hysteresis",
+      "tag": "{%- set n.valid=false -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "control-dynamics.jinja",
+      "line": 19,
+      "macro": "critical_hysteresis",
+      "tag": "{%- endfor -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "control-dynamics.jinja",
+      "line": 23,
+      "macro": "critical_hysteresis",
+      "tag": "{%- endif -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "control-dynamics.jinja",
+      "line": 28,
+      "macro": "critical_hysteresis",
+      "tag": "{{- {'valid':true,\n         'start_pending':p.above and p.pending!='on',\n         'cancel_pending':not p.above and p.pending!='off',\n         'activate':p.above and p.pending=='on' and p.elapsed>=p.dwell and p.active!='on',\n         'start_clear':p.valid and p['clear'] and p.clear_pending!='on',\n         'cancel_clear':not p['clear'] and p.clear_pending!='off',\n         'release':(not p.valid or (p['clear'] and p.clear_pending=='on' and p.clear_elapsed>=p.release_dwell)) and p.active!='off'}|tojson -}}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 25
+    },
+    {
+      "file": "control-dynamics.jinja",
+      "line": 38,
+      "macro": "supply_pi",
+      "tag": "{% macro supply_pi(p) -%}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "control-dynamics.jinja",
+      "line": 39,
+      "macro": "supply_pi",
+      "tag": "{%- set n=namespace(valid=p is mapping) -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 0
+    },
+    {
+      "file": "control-dynamics.jinja",
+      "line": 41,
+      "macro": "supply_pi",
+      "tag": "{%- for key in ['force','reset'] -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "control-dynamics.jinja",
+      "line": 45,
+      "macro": "supply_pi",
+      "tag": "{%- set value=p.get(key) -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "control-dynamics.jinja",
+      "line": 47,
+      "macro": "supply_pi",
+      "tag": "{%- set n.valid=false -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "control-dynamics.jinja",
+      "line": 52,
+      "macro": "supply_pi",
+      "tag": "{%- endif -%}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 1
+    },
+    {
+      "file": "control-dynamics.jinja",
+      "line": 57,
+      "macro": "supply_pi",
+      "tag": "{%- set cfg=namespace(values={}) -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "control-dynamics.jinja",
+      "line": 62,
+      "macro": "supply_pi",
+      "tag": "{%- set value=tuning.get(key,fallback) -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "control-dynamics.jinja",
+      "line": 64,
+      "macro": "supply_pi",
+      "tag": "{%- set n.valid=false -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "control-dynamics.jinja",
+      "line": 69,
+      "macro": "supply_pi",
+      "tag": "{%- endfor -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "control-dynamics.jinja",
+      "line": 70,
+      "macro": "supply_pi",
+      "tag": "{%- if n.valid and (cfg.values.supply_min>=cfg.values.supply_max\n          or cfg.values.integral_min>cfg.values.integral_max\n          or cfg.values.kp<0 or cfg.values.ki<0 or cfg.values.deadband<0\n          or cfg.values.max_dt_minutes<0 or cfg.values.max_step<0\n          or cfg.values.supply_min!=cfg.values.supply_min|int\n          or cfg.values.supply_max!=cfg.values.supply_max|int\n          or cfg.values.max_step!=cfg.values.max_step|int\n          or p.current!=p.current|int\n          or not cfg.values.supply_min<=p.current<=cfg.values.supply_max) -%}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 23
+    },
+    {
+      "file": "control-dynamics.jinja",
+      "line": 81,
+      "macro": "supply_pi",
+      "tag": "{%- endif -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "control-dynamics.jinja",
+      "line": 85,
+      "macro": "supply_pi",
+      "tag": "{%- set desired=p.desired -%}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 0
+    },
+    {
+      "file": "control-dynamics.jinja",
+      "line": 87,
+      "macro": "supply_pi",
+      "tag": "{%- set elapsed=[0,p.elapsed]|max -%}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 0
+    },
+    {
+      "file": "control-dynamics.jinja",
+      "line": 89,
+      "macro": "supply_pi",
+      "tag": "{%- set error=desired-measured -%}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 1
+    },
+    {
+      "file": "control-dynamics.jinja",
+      "line": 91,
+      "macro": "supply_pi",
+      "tag": "{%- set candidate_raw=desired+cfg.values.kp*error+candidate_i -%}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 7
+    },
+    {
+      "file": "control-dynamics.jinja",
+      "line": 95,
+      "macro": "supply_pi",
+      "tag": "{%- set current=p.current -%}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 0
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 2,
+      "macro": "_boolean",
+      "tag": "{% macro _boolean(value) -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 3
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 4,
+      "macro": "_boolean",
+      "tag": "{{- value | to_json -}}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 3
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 5,
+      "macro": "_boolean",
+      "tag": "{%- elif value is string and value | lower | trim in ['true', 'on', '1', 'false', 'off', '0'] -%}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 6,
+      "macro": "_boolean",
+      "tag": "{{- (value | lower | trim in ['true', 'on', '1']) | to_json -}}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 3
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 7,
+      "macro": "_boolean",
+      "tag": "{%- elif value is number and value in [0, 1] -%}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 12,
+      "macro": "_availability",
+      "tag": "{% macro _availability(value) -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 3
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 16,
+      "macro": "_availability",
+      "tag": "{%- set boolean = _boolean(value) | from_json -%}",
+      "if": 0,
+      "inline_if": 2,
+      "predicates": 2
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 22,
+      "macro": "_power",
+      "tag": "{%- set boolean = _boolean(value) | from_json -%}",
+      "if": 0,
+      "inline_if": 2,
+      "predicates": 2
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 26,
+      "macro": "device_health",
+      "tag": "{% macro device_health(p) -%}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 1
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 33,
+      "macro": "device_health",
+      "tag": "{%- set power = _power(p.get('observed_power')) | from_json -%}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 9
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 34,
+      "macro": "device_health",
+      "tag": "{%- set state_valid = latched is not none and attempted is not none and not (attempted and not latched) -%}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 3
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 35,
+      "macro": "device_health",
+      "tag": "{%- set explicit_error = known is sameas true and active is sameas true -%}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 3
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 36,
+      "macro": "device_health",
+      "tag": "{%- set known_clear = known is sameas true and active is sameas false -%}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 37,
+      "macro": "device_health",
+      "tag": "{%- set available = availability == 'available' -%}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 38,
+      "macro": "device_health",
+      "tag": "{%- set healthy = available and known_clear and state_valid and latched is sameas false -%}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 6
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 39,
+      "macro": "device_health",
+      "tag": "{%- set shutdown = explicit_error and available and state_valid and attempted is sameas false and power != 'off' -%}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 40,
+      "macro": "device_health",
+      "tag": "{%- set fault = explicit_error or latched is sameas true -%}",
+      "if": 0,
+      "inline_if": 4,
+      "predicates": 6
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 41,
+      "macro": "device_health",
+      "tag": "{%- set condition = 'error' if explicit_error else 'unavailable' if availability == 'unavailable' else 'health_unknown' if not available or not known_clear or not state_valid else 'recovery_required' if latched else 'healthy' -%}",
+      "if": 0,
+      "inline_if": 3,
+      "predicates": 4
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 42,
+      "macro": "device_health",
+      "tag": "{%- set confirmation = 'not_required' if not fault else 'confirmed' if available and power == 'off' else 'not_confirmed' if attempted is sameas true else 'not_requested' -%}",
+      "if": 0,
+      "inline_if": 3,
+      "predicates": 2
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 44,
+      "macro": "device_health",
+      "tag": "{{- {\n    'availability': availability,\n    'condition': condition,\n    'eligible': healthy,\n    'error_known': known is sameas true and active is not none,\n    'explicit_error': explicit_error,\n    'latched': latched,\n    'state_valid': state_valid,\n    'stop_attempted': attempted,\n    'observed_power': power,\n    'shutdown_required': shutdown,\n    'shutdown_confirmation': confirmation,\n    'override_manual_power': shutdown,\n    'acknowledgement_allowed': available and known_clear and state_valid and latched is sameas true,\n    'notification': {\n      'required': not healthy,\n      'persistent': not healthy,\n      'kind': notice,\n      'severity': 'error' if fault else 'warning' if not healthy else 'none',\n      'reason': condition,\n      'shutdown_confirmation': confirmation\n    }\n  } | to_json -}}",
+      "if": 0,
+      "inline_if": 2,
+      "predicates": 11
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 69,
+      "macro": "health_transition",
+      "tag": "{% macro health_transition(s, event) -%}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 1
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 70,
+      "macro": "health_transition",
+      "tag": "{%- set s = s if s is mapping else {} -%}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 1
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 73,
+      "macro": "health_transition",
+      "tag": "{%- set kind = event.get('type', 'observe') -%}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 75,
+      "macro": "health_transition",
+      "tag": "{%- set ns = namespace(state=dict(s), acknowledge='not_requested', shutdown=false) -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 78,
+      "macro": "health_transition",
+      "tag": "{%- if kind == 'observe' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 79,
+      "macro": "health_transition",
+      "tag": "{%- set ns.state = dict(ns.state, availability=event.get('availability'), error_known=event.get('error_known'), error_active=event.get('error_active'), observed_power=event.get('observed_power')) -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 81,
+      "macro": "health_transition",
+      "tag": "{%- for key in ['availability', 'error_known', 'error_active', 'observed_power'] -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 85,
+      "macro": "health_transition",
+      "tag": "{%- set current = device_health(ns.state) | from_json -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 89,
+      "macro": "health_transition",
+      "tag": "{%- set current = device_health(ns.state) | from_json -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 90,
+      "macro": "health_transition",
+      "tag": "{%- if kind == 'acknowledge' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 0
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 98,
+      "macro": "health_transition",
+      "tag": "{%- set current = device_health(ns.state) | from_json -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 105,
+      "macro": "health_transition",
+      "tag": "{%- set after = device_health(ns.state) | from_json -%}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "device-health.jinja",
+      "line": 107,
+      "macro": "health_transition",
+      "tag": "{{- {\n    'state': ns.state,\n    'health': after,\n    'effects': {\n      'shutdown': ns.shutdown,\n      'override_manual_power': ns.shutdown,\n      'notify': supported and kind != 'restart' and changed and after.notification.required,\n      'clear_notification': supported and kind != 'restart' and before.notification.required and not after.notification.required,\n      'acknowledgement': ns.acknowledge,\n      'unsupported_event': not supported\n    }\n  } | to_json -}}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 10
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 7,
+      "macro": "intent_transition",
+      "tag": "{%- set n = namespace(error='', result=state, changed=false) -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 8
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 10,
+      "macro": "intent_transition",
+      "tag": "{%- else -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 15,
+      "macro": "intent_transition",
+      "tag": "{%- set channel = state.get(axis) -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 18,
+      "macro": "intent_transition",
+      "tag": "{%- else -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 5
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 22,
+      "macro": "intent_transition",
+      "tag": "{%- set value = channel.get('value') -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 24,
+      "macro": "intent_transition",
+      "tag": "{%- set n.error = 'invalid_state' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 28,
+      "macro": "intent_transition",
+      "tag": "{%- set deadline = channel.get('deadline') -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 30,
+      "macro": "intent_transition",
+      "tag": "{%- set n.error = 'invalid_state' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 35,
+      "macro": "intent_transition",
+      "tag": "{%- endfor -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 6
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 39,
+      "macro": "intent_transition",
+      "tag": "{%- set kind = event.get('type') -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 42,
+      "macro": "intent_transition",
+      "tag": "{%- endif -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 3
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 45,
+      "macro": "intent_transition",
+      "tag": "{%- endif -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 47,
+      "macro": "intent_transition",
+      "tag": "{%- set value = event.get('value') -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 49,
+      "macro": "intent_transition",
+      "tag": "{%- set n.error = 'invalid_value' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 52,
+      "macro": "intent_transition",
+      "tag": "{%- endif -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 54,
+      "macro": "intent_transition",
+      "tag": "{%- set n.error = 'invalid_automatic' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 57,
+      "macro": "intent_transition",
+      "tag": "{%- endif -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 59,
+      "macro": "intent_transition",
+      "tag": "{%- set now = event.get('now') -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 61,
+      "macro": "intent_transition",
+      "tag": "{%- set n.error = 'invalid_now' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 65,
+      "macro": "intent_transition",
+      "tag": "{%- endif -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 66,
+      "macro": "intent_transition",
+      "tag": "{%- if kind == 'boost_start' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 6
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 68,
+      "macro": "intent_transition",
+      "tag": "{%- set n.error = 'invalid_duration' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 71,
+      "macro": "intent_transition",
+      "tag": "{%- endif -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 72,
+      "macro": "intent_transition",
+      "tag": "{%- elif kind == 'profile' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 74,
+      "macro": "intent_transition",
+      "tag": "{%- set n.error = 'invalid_mode' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 3
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 76,
+      "macro": "intent_transition",
+      "tag": "{%- set profile = policy.profiles.get(event.mode) -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 81,
+      "macro": "intent_transition",
+      "tag": "{%- set baseline = profile.get(axis) -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 85,
+      "macro": "intent_transition",
+      "tag": "{%- set value = baseline.get('value') -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 7
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 87,
+      "macro": "intent_transition",
+      "tag": "{%- set n.error = 'invalid_profile' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 97,
+      "macro": "intent_transition",
+      "tag": "{%- if n.error == '' and kind == 'boost_start' -%}",
+      "if": 2,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 99,
+      "macro": "intent_transition",
+      "tag": "{%- set n.error = 'master_disabled' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 101,
+      "macro": "intent_transition",
+      "tag": "{%- set n.error = 'maximum_active' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 103,
+      "macro": "intent_transition",
+      "tag": "{%- set n.error = 'ineligible' -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 107,
+      "macro": "intent_transition",
+      "tag": "{%- endif -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 109,
+      "macro": "intent_transition",
+      "tag": "{%- set n.result = dict(state) -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 112,
+      "macro": "intent_transition",
+      "tag": "{%- set n.result = dict(n.result, **{event.axis: channel}) -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 113,
+      "macro": "intent_transition",
+      "tag": "{%- endif -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 115,
+      "macro": "intent_transition",
+      "tag": "{%- set n.result = dict(n.result, **{event.axis: dict(state[event.axis], automatic=event.automatic)}) -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 116,
+      "macro": "intent_transition",
+      "tag": "{%- endif -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 118,
+      "macro": "intent_transition",
+      "tag": "{%- set n.result = dict(n.result, **{event.axis: dict(state[event.axis], active=true, deadline=event.now + event.duration * 60)}) -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 120,
+      "macro": "intent_transition",
+      "tag": "{%- set n.result = dict(n.result, **{event.axis: dict(state[event.axis], active=false, deadline=0)}) -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 122,
+      "macro": "intent_transition",
+      "tag": "{%- for axis in axes -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 5
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 126,
+      "macro": "intent_transition",
+      "tag": "{%- endfor -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 128,
+      "macro": "intent_transition",
+      "tag": "{%- set n.result = dict(n.result, master=event.enabled) -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 133,
+      "macro": "intent_transition",
+      "tag": "{%- endif -%}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 136,
+      "macro": "intent_transition",
+      "tag": "{%- for axis in axes -%}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 1
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 141,
+      "macro": "intent_transition",
+      "tag": "{%- endif -%}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "intent-transition.jinja",
+      "line": 144,
+      "macro": "intent_transition",
+      "tag": "{%- endif -%}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 7,
+      "macro": "legacy_context",
+      "tag": "{% set ttl=p['values']['context_' ~ ('sleep' if key in ['sleep','confidence'] else 'presence' if key=='presence' else 'active') ~ '_ttl'] | int(300) %}",
+      "if": 0,
+      "inline_if": 2,
+      "predicates": 2
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 8,
+      "macro": "legacy_context",
+      "tag": "{% set valid=item.available and 0 <= item.age and (key=='worn' or item.age <= ttl) %}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 6
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 9,
+      "macro": "legacy_context",
+      "tag": "{% set src_ns.items=dict(src_ns.items,**{key:{'valid':valid,'value':item.value | string | lower if valid else 'unknown','age':item.age | int,'changed':item.changed}}) %}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 0
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 15,
+      "macro": "legacy_context",
+      "tag": "{% set watch_usable=watch.valid and (not p.worn_configured or (worn.valid and worn.value=='on')) %}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 5
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 16,
+      "macro": "legacy_context",
+      "tag": "{% set active=phone.valid and phone.value=='on' %}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 17,
+      "macro": "legacy_context",
+      "tag": "{% set asleep=(watch_usable and watch.value in ['on','asleep','sleeping']) or (confidence.valid and is_number(confidence.value) and 0 <= confidence.value | float <= 100 and confidence.value | float >= p['values']['sleep_confidence_threshold'] | float(85)) %}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 9
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 18,
+      "macro": "legacy_context",
+      "tag": "{% set awake=active or (watch_usable and watch.value in ['off','awake','passive','exercise']) %}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 3
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 19,
+      "macro": "legacy_context",
+      "tag": "{% set sleep='conflict' if asleep and awake else 'asleep' if asleep else 'awake' if awake else 'unknown' %}",
+      "if": 0,
+      "inline_if": 3,
+      "predicates": 1
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 20,
+      "macro": "legacy_context",
+      "tag": "{% set present=presence.valid and presence.value in ['on','present','occupied'] %}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 21,
+      "macro": "legacy_context",
+      "tag": "{% set absent=presence.valid and presence.value in ['off','absent','clear'] and presence.changed >= p['values']['absence_dwell'] | int(900) %}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 23,
+      "macro": "legacy_context",
+      "tag": "{% set night=(p.hour>=start or p.hour<end) if start>=end else (start<=p.hour<end) %}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 5
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 24,
+      "macro": "legacy_context",
+      "tag": "{% set profile='absent' if absent else 'sleep' if sleep in ['asleep','conflict'] else 'awake' if sleep=='awake' else 'night_unknown' if night else 'unknown' %}",
+      "if": 0,
+      "inline_if": 4,
+      "predicates": 2
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 25,
+      "macro": "legacy_context",
+      "tag": "{% set pc=p['values']['purifier_max'] if profile=='absent' else p['values']['sleep_purifier_cap'] | int(1) if profile in ['sleep','night_unknown'] else p['values']['awake_purifier_cap'] | int(4) if profile=='awake' else p['values']['purifier_quiet_limit'] | int(3) %}",
+      "if": 0,
+      "inline_if": 3,
+      "predicates": 3
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 26,
+      "macro": "legacy_context",
+      "tag": "{% set bc=p['values']['breather_max'] if profile=='absent' else p['values']['sleep_breather_cap'] | int(1) if profile in ['sleep','night_unknown'] else p['values']['awake_breather_cap'] | int(4) if profile=='awake' else p['values']['unknown_breather_cap'] | int(3) %}",
+      "if": 0,
+      "inline_if": 3,
+      "predicates": 3
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 27,
+      "macro": "legacy_context",
+      "tag": "{% set result={'profile':profile,'sleep':sleep,'presence':'present' if present else 'absent' if absent else 'unknown','night':night,'purifier_cap':pc,'breather_cap':bc,'ac_fan_cap':'high' if profile=='absent' else 'medium' if profile=='awake' else 'low','confidence_available':confidence.valid,'phone_active_available':phone.valid,'watch_available':watch_usable,'watch_worn_available':worn.valid,'watch_worn':worn.value if worn.valid else 'unknown'} %}",
+      "if": 0,
+      "inline_if": 5,
+      "predicates": 2
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 34,
+      "macro": "legacy_air",
+      "tag": "{% set full=selected=='Полностью автоматически' %}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 37,
+      "macro": "legacy_air",
+      "tag": "{% set co2valid=co2item.available and is_number(co2item.value) and 250 <= co2item.value | float <= 10000 and 0 <= co2item.age <= ttl %}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 6
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 38,
+      "macro": "legacy_air",
+      "tag": "{% set pmvalid=pmitem.available and is_number(pmitem.value) and 0 <= pmitem.value | float <= 2000 and (p.trust_availability or (0 <= pmitem.age <= ttl)) %}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 7
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 40,
+      "macro": "legacy_air",
+      "tag": "{% set b=2 if co2<800 else 3 if co2<1000 else 4 if co2<1400 else 5 if co2<1800 else 7 %}",
+      "if": 0,
+      "inline_if": 4,
+      "predicates": 4
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 41,
+      "macro": "legacy_air",
+      "tag": "{% set particle_request=1 if pm<=8 else 3 if pm<=15 else 4 if pm<=35 else 7 if pm<=75 else 11 %}",
+      "if": 0,
+      "inline_if": 4,
+      "predicates": 4
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 43,
+      "macro": "legacy_air",
+      "tag": "{% set critical_pm=full and pmvalid and p.pm_critical %}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 44,
+      "macro": "legacy_air",
+      "tag": "{% set critical_co2=full and co2valid and p.co2_critical %}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 45,
+      "macro": "legacy_air",
+      "tag": "{% set psoft=[context.purifier_cap,p['values']['critical_purifier_cap'] | int(7)] | max if critical_pm else context.purifier_cap %}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 0
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 46,
+      "macro": "legacy_air",
+      "tag": "{% set bsoft=[context.breather_cap,p['values']['critical_breather_cap'] | int(5)] | max if critical_co2 else context.breather_cap %}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 0
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 47,
+      "macro": "legacy_air",
+      "tag": "{% set profile=psoft if full else p['values']['purifier_quiet_limit'] | int(3) if selected=='Тихий' else p['values']['purifier_standard_limit'] | int(4) if selected=='Стандартный' else p['values']['purifier_auto_limit'] | int(6) if selected=='Автоматически' else 11 %}",
+      "if": 0,
+      "inline_if": 4,
+      "predicates": 3
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 49,
+      "macro": "legacy_air",
+      "tag": "{% set learned=p['values']['purifier_noise_cap'] | int(3) if noise.valid and not(full and (context.profile=='absent' or critical_pm)) else 11 %}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 5
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 51,
+      "macro": "legacy_air",
+      "tag": "{% set floor=11 if selected=='Максимум' else 2 if selected=='Стандартный' else 1 %}",
+      "if": 0,
+      "inline_if": 2,
+      "predicates": 2
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 52,
+      "macro": "legacy_air",
+      "tag": "{% set demand=[floor,particle_request if pmvalid else p['values']['invalid_pm_fallback'] | int(3)] | max %}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 0
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 53,
+      "macro": "legacy_air",
+      "tag": "{% set bdemand=(b if co2valid else 3) if automatic else 3 if selected=='Тихий' else 4 if selected=='Стандартный' else 7 if selected=='Максимум' else 0 %}",
+      "if": 0,
+      "inline_if": 5,
+      "predicates": 3
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 54,
+      "macro": "legacy_air",
+      "tag": "{% set bcap=[1,[7,bsoft,p['values']['breather_speed_limit'] | int(7)] | min] | max if full else p['values']['breather_speed_limit'] | int(7) %}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 0
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 55,
+      "macro": "legacy_air",
+      "tag": "{% set fan=('high' if error>=1.5 else 'medium' if error>=0.7 else 'low') if automatic else 'high' if selected=='Максимум' else 'medium' if selected=='Стандартный' else 'low' %}",
+      "if": 0,
+      "inline_if": 5,
+      "predicates": 4
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 56,
+      "macro": "legacy_air",
+      "tag": "{% set ranks={'low':1,'medium':2,'high':3} %}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 0
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 57,
+      "macro": "legacy_air",
+      "tag": "{% set result={'mode':selected,'breather':[bdemand,bcap] | min,'breather_requested':bdemand,'breather_sensor_requested':b if co2valid else 3,'breather_cap':bcap,'purifier':([demand,cap] | min) if selected!='Отключено' else 'off','purifier_requested':demand,'purifier_cap':cap,'purifier_limited':demand>cap,'ac_fan':fan if ranks[fan]<=ranks[fcap] else fcap,'co2_valid':co2valid,'pm_valid':pmvalid,'co2':co2 if co2valid else 'unknown','pm':pm if pmvalid else 'unknown','critical_pm':critical_pm,'critical_co2':critical_co2,'context':context.profile if full else 'fixed','noise_valid':noise.valid,'noise_configured':noise.configured} %}",
+      "if": 0,
+      "inline_if": 6,
+      "predicates": 3
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 81,
+      "macro": "legacy_thermal",
+      "tag": "{% if ac_mode in ['unknown','unavailable'] %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 83,
+      "macro": "legacy_thermal",
+      "tag": "{% elif not auto_enabled or not room_ok or device_fault %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 84,
+      "macro": "legacy_thermal",
+      "tag": "{% set ns.action='stop' if owned and ac_mode in ['cool','heat'] else 'release' %}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 2
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 85,
+      "macro": "legacy_thermal",
+      "tag": "{% set ns.reason='Климат-контроль выключен' if not auto_enabled else ('Нет достоверной температуры комнаты' if not room_ok else 'Ошибка кондиционера') %}",
+      "if": 0,
+      "inline_if": 2,
+      "predicates": 2
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 86,
+      "macro": "legacy_thermal",
+      "tag": "{% elif supply_conflict and measured > desired + 0.1 %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 87,
+      "macro": "legacy_thermal",
+      "tag": "{% set ns.action='stop' if owned and ac_mode == 'cool' else 'release' %}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 2
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 88,
+      "macro": "legacy_thermal",
+      "tag": "{% elif ac_mode not in ['off','cool','heat'] and not (ac_mode == 'fan_only' and maximum_fan_only) %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 5
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 90,
+      "macro": "legacy_thermal",
+      "tag": "{% elif owned and ac_mode not in ['cool','heat'] %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 92,
+      "macro": "legacy_thermal",
+      "tag": "{% elif ac_mode in ['cool','heat'] %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 94,
+      "macro": "legacy_thermal",
+      "tag": "{% if (ac_mode == 'cool' and measured <= desired - 0.5) or (ac_mode == 'heat' and measured >= desired + 0.5) %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 7
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 95,
+      "macro": "legacy_thermal",
+      "tag": "{% set ns.action='stop' if owned else 'adopt' %}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 0
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 96,
+      "macro": "legacy_thermal",
+      "tag": "{% elif owned and since_change >= 300 and ((ac_mode == 'cool' and measured <= desired + 0.1) or (ac_mode == 'heat' and measured >= desired - 0.1)) %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 10
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 99,
+      "macro": "legacy_thermal",
+      "tag": "{% set ns.action='maintain' if owned else 'adopt' %}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 0
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 100,
+      "macro": "legacy_thermal",
+      "tag": "{% set ns.reason='Охлаждение' if ac_mode == 'cool' else 'Обогрев' %}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 1
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 102,
+      "macro": "legacy_thermal",
+      "tag": "{% elif measured >= desired + 0.7 %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 103,
+      "macro": "legacy_thermal",
+      "tag": "{% set ns.mode='cool' %}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 1
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 104,
+      "macro": "legacy_thermal",
+      "tag": "{% set ns.reason='Охлаждение' if since_change >= 300 else 'Пауза перед пуском' %}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 1
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 105,
+      "macro": "legacy_thermal",
+      "tag": "{% elif measured <= desired - 0.7 and breather_at_limit %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 107,
+      "macro": "legacy_thermal",
+      "tag": "{% set ns.action='start' if since_change >= 300 and heating_ready else 'wait' %}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 2
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 108,
+      "macro": "legacy_thermal",
+      "tag": "{% set ns.reason='Помощь бризеру: обогрев' if ns.action == 'start' else 'Ожидание: бризер / защитная пауза' %}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 1
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 110,
+      "macro": "legacy_thermal",
+      "tag": "{% set offset = [[native_room - measured,-3] | max,3] | min if native_room_ok else 0 %}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 0
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 114,
+      "macro": "legacy_thermal",
+      "tag": "{% if plan.action in ['start','adopt'] %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 115,
+      "macro": "legacy_thermal",
+      "tag": "{% set ns.value=plan.target %}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 116,
+      "macro": "legacy_thermal",
+      "tag": "{% elif plan.action == 'maintain' and target_changed %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 117,
+      "macro": "legacy_thermal",
+      "tag": "{% set ns.value=plan.target %}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 118,
+      "macro": "legacy_thermal",
+      "tag": "{% elif plan.action == 'maintain' and since_target >= 600 %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 3
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 119,
+      "macro": "legacy_thermal",
+      "tag": "{% if plan.mode == 'cool' and measured >= desired + 0.5 and plan.target < cycle_target %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 5
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 121,
+      "macro": "legacy_thermal",
+      "tag": "{% elif plan.mode == 'heat' and measured <= desired - 0.5 and plan.target > cycle_target %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 5
+    }
+  ]
+}

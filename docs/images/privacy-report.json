@@ -1,0 +1,80 @@
+{
+  "module_version": "0.10.0",
+  "synthetic_data_only": true,
+  "live_ha_connection": false,
+  "camera_media": false,
+  "external_requests": [],
+  "page_errors": [],
+  "screenshots": [
+    {
+      "file": "docs/images/desktop.png",
+      "sha256": "53e2862782117e2621ecffeae8427942e7586b54505d5d1d094dfcbcfee647ba",
+      "metadata_text_chunks": false,
+      "width": 1560,
+      "height": 1216
+    },
+    {
+      "file": "docs/images/maximum-menu.png",
+      "sha256": "24f924b4477c8d5b2758b2c9bffda629203488641e02b54d4c51de9cb1e27369",
+      "metadata_text_chunks": false,
+      "width": 1560,
+      "height": 1216
+    },
+    {
+      "file": "docs/images/device-error.png",
+      "sha256": "2e9359b2ae6a516f3e20283cdcb7358aef9eafb197d106482a00bfa8714a525b",
+      "metadata_text_chunks": false,
+      "width": 1392,
+      "height": 476
+    },
+    {
+      "file": "docs/images/mobile.png",
+      "sha256": "8a64d3d6a47a41fbd21211bb95c2d080957f30f8755bc1864aae73dab9b23b4e",
+      "metadata_text_chunks": false,
+      "width": 366,
+      "height": 1111
+    },
+    {
+      "file": "docs/diagrams/01-overview.png",
+      "sha256": "323d1946697684cdd93dc9ffe11016ce5f7b9e758be174d25085c444278b4773",
+      "metadata_text_chunks": false,
+      "width": 1261,
+      "height": 2460
+    }
+  ],
+  "diagrams": [
+    {
+      "file": "01-overview.mmd",
+      "rendered": true
+    },
+    {
+      "file": "02-wishes-and-timers.mmd",
+      "rendered": true
+    },
+    {
+      "file": "03-context.mmd",
+      "rendered": true
+    },
+    {
+      "file": "04-air-and-preferences.mmd",
+      "rendered": true
+    },
+    {
+      "file": "05-device-health.mmd",
+      "rendered": true
+    },
+    {
+      "file": "06-temperature.mmd",
+      "rendered": true
+    },
+    {
+      "file": "07-command-guard.mmd",
+      "rendered": true
+    },
+    {
+      "file": "08-dynamics.mmd",
+      "rendered": true
+    }
+  ],
+  "passed": true
+}

@@ -6,6 +6,12 @@ Configurable Material 3 Expressive cards and theme for Home Assistant. Use nativ
 
 User comfort preferences are independent inputs, not device-speed readings. Optional preference semantics keep their values stable while HA continuously chooses permitted device settings. See [comfort preference policy](docs/comfort-preferences.md) and [compact preset controls](docs/compact-presets.md).
 
+## Automation flow and screenshots
+
+[Controller flowcharts and complete condition index](docs/automation-flow.md) explain the current policies. [Screenshots](docs/screenshots.md) use synthetic data only, without a real home, camera or personal labels.
+
+![Public demonstration](docs/images/desktop.png)
+
 ## Included
 
 - Native HA views, room subviews and Sections layout: [recommended setup](docs/native-dashboard.md), no nested application or second navigation bar.
