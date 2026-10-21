@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.12.0 - 2026-10-22
+- Add configurable, theme-aware sensor mini-tiles grouped by room with native more-info and per-metric report details.
+- Distinguish leak, dry, unavailable, unknown, partial data and low battery; avoid inferring connectivity from an old sensor report.
+- Preserve native HA views and HACS updates; keep weather providers and household entity bindings in dashboard configuration.
+- Add sensor-state regression and desktop/mobile browser checks.
+
 ## 0.10.1 - 2026-10-20
 - Make automation actions readable without expanding records: show before/after values, decision basis and explicit HA result.
 - Fold command stages only by an explicit server correlation ID; preserve uncertainty, legacy compatibility and open detail state during updates.
