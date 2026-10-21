@@ -1,4 +1,5 @@
 import {html,css,nothing} from 'lit';
+import {renderHistory} from './history.js';
 import {available,finite,stateOf,actionAvailable} from './ha.js';
 import {valueAction} from './quick-controls.js';
 import {openPopover} from './popover.js';
@@ -16,7 +17,7 @@ function intentionNumber(value){
   const number=Number(value);return Number.isFinite(number)?number===0?0:number:null;
 }
 export function airGoalModel(hass,item){
-  const state=stateOf(hass,item.entity),automatic=stateOf(hass,item.automatic_entity),value=intentionNumber(state?.state),attrs=state?.attributes||{},min=finite(attrs.min),max=finite(attrs.max),step=finite(attrs.step),availability=stateOf(hass,item.availability_entity);
+  const state=stateOf(hass,item.entity),automatic=stateOf(hass,item.automatic_entity),rawValue=intentionNumber(state?.state),value=rawValue!==null&&item.invert?100-rawValue:rawValue,attrs=state?.attributes||{},min=finite(attrs.min),max=finite(attrs.max),step=finite(attrs.step),availability=stateOf(hass,item.availability_entity);
   const numericReady=available(state)&&value!==null&&value>=0&&value<=100&&min===0&&max===100&&step!==null&&step>0&&step<=100;
   if(item.semantics==='preference')return {available:numericReady,value,preference:true,automatic:false,automatic_value:null,display_value:value,display_available:numericReady,min:0,max:100,step:step??1};
   const ready=numericReady&&booleanState(automatic)&&(!item.availability_entity||availability?.state==='on');
@@ -55,7 +56,7 @@ export function syncAirGoalDrafts(card){
 export function clearAirGoalTimers(card){for(const timer of Object.values(card._airGoalTimers||{}))clearTimeout(timer);card._airDrafts={};}
 export async function commitAirGoal(card,item,position){
   if(card._busy){clearDraft(card,item.id);return;}
-  try{const model=airGoalModel(card.hass,item),value=airGoalValue(model,position);replaceDraft(card,item.id,model.preference?{value}:{value,automatic:false});await submitAirGoal(card,item,valueAction(item.set_action,value));}catch{clearDraft(card,item.id);card._error=true;}
+  try{const model=airGoalModel(card.hass,item),value=airGoalValue(model,position);replaceDraft(card,item.id,model.preference?{value}:{value,automatic:false});await submitAirGoal(card,item,valueAction(item.set_action,item.invert?100-value:value));}catch{clearDraft(card,item.id);card._error=true;}
 }
 export async function commitAirAutomatic(card,item,automatic){
   if(card._busy)return;
@@ -81,6 +82,7 @@ export function renderAirGoals(card){return (card._config.air_goals||[]).map(ite
     <div class="air-goal-value"><span>${preference?item.preference_note||card.t('yourWish'):automatic?card.t('goalAutomatic'):card.t('yourWish')}</span><output>${shown.available?preference?qualitative:card.n(value):card.t('noData')}</output></div>
     <ha-m3-slider .label=${`${item.name}: ${card.t('yourWish')}`} .valueText=${preference?qualitative:undefined} .value=${Number(shown.slider_value??0)} .min=${0} .max=${100} .step=${model.step} .disabled=${disabled} motion=${card.motion} @m3-input=${event=>{if(!disabled)replaceDraft(card,item.id,preference?{value:event.detail.value,editing:true}:{value:event.detail.value,automatic:false,editing:true});}} @m3-change=${event=>commitAirGoal(card,item,event.detail.value)}></ha-m3-slider>
     <div class="air-scale"><span>${preference?lowLabel:card.t('less')}</span><span>${preference?highLabel:card.t('moreIntense')}</span></div>
+    ${renderHistory(card,[{entity:item.entity,name:item.name,unit:"%",kind:"setting",invert:!!item.invert}])}
     ${item.boost?html`<div class="air-boost"><ha-m3-button kind=${boost.active?'tonal':'text'} .disabled=${boostDisabled} @click=${event=>boost.active?open(event):start(item.boost.default_duration)}>${boost.active?html`<span class="air-boost-clock">${card.t('airBoostActive')} · ${boost.expired?card.t('finishing'):airCountdown(boost.remaining)||card.t('noData')}</span>`:html`${item.boost.action_name||card.t('airBoost')} · ${item.boost.default_duration} ${card.t('minutes')}`}</ha-m3-button><ha-m3-button kind="text" icon="expand_more" .label=${`${item.name}: ${card.t('airBoostSettings')}`} .disabled=${boostDisabled} @click=${open}></ha-m3-button></div>`:nothing}
     <p class="air-goal-note" role=${failure?'alert':'status'}>${failure?card.t('goalNotConfirmed'):!model.available?card.t('unavailable'):!shown.available?card.t('noData'):available(status)?status.state:preference?nothing:card.t('wishScale')}</p>
     ${item.boost?html`<div id=${menuId} popover role="dialog" aria-label=${`${item.name}: ${card.t('airBoostSettings')}`}><h3>${item.name}</h3><p>${boost.active?card.t('airBoostRunning'):card.t('airBoostHint')}</p>${boost.active?html`<p class="air-boost-clock">${card.t('remaining')}: ${boost.expired?card.t('finishing'):airCountdown(boost.remaining)||card.t('noData')}</p><div class="popover-actions"><ha-m3-button kind="text" @click=${()=>card.renderRoot.getElementById(menuId).hidePopover()}>${card.t('close')}</ha-m3-button><ha-m3-button kind="filled" .disabled=${!boost.can_cancel||busy} @click=${async()=>{await card.run(item.boost.cancel_action,'air-boost-cancel:'+item.id);if(!card._error)card.renderRoot.getElementById(menuId).hidePopover();}}>${card.t('finish')}</ha-m3-button></div>`:html`<div class="air-boost-choices">${item.boost.durations.map(duration=>html`<ha-m3-button kind="tonal" .disabled=${!boost.available||busy} @click=${()=>start(duration)}>${duration} ${card.t('minutes')}</ha-m3-button>`)}</div>`}</div>`:nothing}

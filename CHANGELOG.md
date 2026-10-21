@@ -71,3 +71,9 @@
 - Add a server-backed decision journal card and a bounded, restorable HA template example. Commands and HA-reported confirmations remain distinct.
 - Keep device IDs, policy thresholds, sleep/presence sources and control logic in private HA configuration. Existing layouts and HACS upgrades remain compatible.
 
+# 0.11.0
+
+- Add optional Recorder-backed smooth mini histories for room metrics, preferences and device settings, with cached batched reads, gaps and cross-series hover details.
+- Add configurable inverted preferences for a noise allowance slider without changing existing quietness backend semantics.
+- Support secondary PM1 in expanded air-quality history while keeping PM2.5 primary on the dashboard.
+

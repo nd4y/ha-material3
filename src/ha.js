@@ -1,3 +1,4 @@
+import {validateHistory,validateHistorySources} from './history-model.js';
 import {isBundledIcon} from './icons.js';
 export const available=(state)=>!!state&&!['unknown','unavailable'].includes(state.state);
 export const finite=(value)=>value!==null&&value!==undefined&&value!==''&&Number.isFinite(Number(value))?Number(value):null;
@@ -64,6 +65,7 @@ export function validateAirGoals(config){
   if(config.air_goals!==undefined&&!Array.isArray(config.air_goals))throw new Error('air_goals must be an array');
   const ids=new Set();for(const item of config.air_goals||[]){
     if(!item||!/^[-a-z0-9_]+$/.test(item.id||'')||ids.has(item.id)||typeof item.name!=='string'||!item.name.trim())throw new Error('Air goals require unique safe IDs and names');ids.add(item.id);
+    if(item.invert!==undefined&&(typeof item.invert!=='boolean'||item.semantics!=='preference'))throw new Error('invert is only supported for preferences');
     if(item.semantics!==undefined&&item.semantics!=='preference')throw new Error('Unsupported air goal semantics');
     if(!entityId(item.entity,'input_number'))throw new Error('Air goal requires a numeric intention helper');
     if(item.semantics==='preference'){
@@ -88,6 +90,9 @@ export function validateAirGoals(config){
   const alertIds=new Set();for(const item of config.health_alerts||[]){if(!item||typeof item.id!=='string'||!item.id||alertIds.has(item.id)||typeof item.name!=='string'||!item.name.trim()||!entityId(item.status_entity)||item.message_entity!==undefined&&!entityId(item.message_entity)||item.acknowledgement_entity!==undefined&&!entityId(item.acknowledgement_entity,'binary_sensor'))throw new Error('Health alerts require unique IDs, names and state sources');alertIds.add(item.id);if(item.acknowledge_action)validateAction(item.acknowledge_action);}
 }
 export function validateConfig(config,kind='panel'){
+  validateHistory(config?.history);
+  for(const item of config?.context_sensors||[])if(item.details!==undefined){if(!Array.isArray(item.details))throw new Error('Sensor details must be an array');validateHistorySources([{entity:item.entity,name:item.name},...item.details]);}
+  for(const item of config?.quick_controls||[])if(item.history_sources!==undefined)validateHistorySources(item.history_sources);
   if(!config||typeof config!=='object'||(config.config_version??1)!==1)throw new Error('Unsupported config_version');
   if(config.appearance?.seed_color&&!/^#[0-9a-f]{6}$/i.test(config.appearance.seed_color))throw new Error('seed_color must be #RRGGBB');
   if(config.appearance?.scheme&&!['dark','light','auto'].includes(config.appearance.scheme))throw new Error('Invalid scheme');
