@@ -3,7 +3,7 @@
 Optional [smooth history and noise preferences](docs/history-and-noise.md) include
 Recorder-backed mini graphs and secondary PM1 in expanded air-quality details.
 
-Configurable Material 3 Expressive cards and theme for Home Assistant. Use native HA navigation and Sections layout with independent cards. Dark appearance is the fallback; the active companion theme is inherited by default. Version **0.10.0**, Apache-2.0. Independent project, not an official Google or Home Assistant product.
+Configurable Material 3 Expressive cards and theme for Home Assistant. Use native HA navigation and Sections layout with independent cards. Dark appearance is the fallback; the active companion theme is inherited by default. Version **0.11.0**, Apache-2.0. Independent project, not an official Google or Home Assistant product.
 
 [Releases](https://github.com/nd4y/ha-material3/releases) · [Changelog](CHANGELOG.md) · [Issues](https://github.com/nd4y/ha-material3/issues)
 
