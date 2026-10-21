@@ -1,6 +1,6 @@
 {
   "name": "ha-material3",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "files": [
     {
       "path": "ha-material3-theme.yaml",
@@ -9,8 +9,8 @@
     },
     {
       "path": "ha-material3.js",
-      "bytes": 396234,
-      "sha256": "3718e47c3dd05b896b0c9e23366ad17d86c35483c92f4f98106d8481605aea68"
+      "bytes": 396257,
+      "sha256": "2f1619fb9ff18dffd24d295573895b3fe40be348fdfb58ca8ceb95c138b06d81"
     },
     {
       "path": "LICENSE",
@@ -96,8 +96,8 @@
     "controller/device-health.jinja": "3775f6f201079c2d1c14bd909de1e18cd4e17d183708d1025661066afd4affce",
     "controller/intent-transition.jinja": "7e099608ae77316d25c16542d3f8d7a6934b3417aeb1c722cddf382ee903a688",
     "controller/legacy-policy.jinja": "ed8532fa2855d58d18dd1ade70807acc3e2412adf3b5a418588b9cef7b10ef07",
-    "package-lock.json": "2bf823ab81f7a7913429771e9c61dbb773a6ec1f8a9b71f920825d60135c95dd",
-    "package.json": "d7ca6bae394070f0d5545d8742c7f1634fb53d6cf13d3524ea46eef0a3e7056a",
+    "package-lock.json": "676765340ca38d072aac37eb2be6028387b21d2aa326d121826afac56a6fdafc",
+    "package.json": "a131e08f63b62c8b392a858c92a7f91ceb424617283453f6372c36cc1c92e51c",
     "scripts/audit-release.mjs": "ca5fbff89ef1c15a3844746208aaad340f13219dda338bf8b537b52ffb649118",
     "scripts/build.mjs": "ba715c54ed44408e583a14ffcc8d77b046d943b894691137019f9f3722ffd29f",
     "scripts/dev-server.mjs": "9a708517056f40cf7fdd778b0c8a8627137c48ebe59ad47a81b518a459900bb2",
@@ -111,11 +111,11 @@
     "scripts/test-controller.py": "63ddf326f25f2261a8e3abc100122337af1954642a82082f964b0c1461068789",
     "scripts/test-history-browser.mjs": "3a295153d53579d69bc0b5e593f09a35be192937c816230e494b95b1a825ca1d",
     "scripts/test-journal-browser.mjs": "c0d7e328926bbf3f2ad4cf08f688c67c60394f90edcb3a903543d71ffd821a82",
-    "scripts/test-sensors-browser.mjs": "b989f6a4f1ec6105751ec53521b770c49a113fdc25339c93a00ec17588f77eb5",
+    "scripts/test-sensors-browser.mjs": "a03af641e71bd6696af314a64bce7b85dc8590fa58c742fa958942fdb9d77375",
     "scripts/theme.mjs": "5b420fdb40cd38a5412666d32fa5332f07328e72aac0c8b86ef5caf6eafa33b5",
     "src/air-goals.js": "46341076309afefcdd04c686415828cee5bffc27b6f2cd2c32da6a9fdeb9d495",
     "src/asset-url.js": "033c8020367ab43ce04061bb2196f2b866ca0b891fae019cd612a3223a256c9b",
-    "src/calm-room.js": "45f63802e5794236292c8cf1abe2291dcfb333f02fa2483bb10a4ae24ea3e697",
+    "src/calm-room.js": "af42c6d8388891d4d73eebab58987a0080ab6136b2a9928dc14cd842a99fb237",
     "src/cards.js": "6eda221ce6bfeea15f06de3ecfa94528fe1a3c8802ac840a0ab570f1ec0fb404",
     "src/color-scheme.js": "16b6d291d27ad9bcd3e0b747a5c94cd3dedeb2bd740bcf409c0b570b30c0c0f9",
     "src/components.js": "0363c7cc2bba1492d237204118e355ecb5fd2bb3538686cbd89a805d29ee88f2",
