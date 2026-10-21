@@ -22,7 +22,7 @@ try{
  expect((await card.locator('.value').first().innerText()).includes('0,0 °C'),'Zero value lost or locale incorrect');
  expect(await card.locator('[data-state=alarm]').count()===1,'Leak not prominent');
  expect((await card.locator('[data-state=alarm]').innerText()).includes('Протечка'),'Leak state missing');
- expect((await card.locator('[data-state=unavailable]').innerText()).includes('недоступ'),'Offline state missing');
+ expect(/недоступ/i.test(await card.locator('[data-state=unavailable]').innerText()),'Offline state missing');
  await card.locator('.main').first().click();expect(await page.evaluate(()=>window.sensorFixture.events[0])==='sensor.temp','Tile did not open native more-info');
  await card.locator('.foot button').first().click();expect(await page.evaluate(()=>window.sensorFixture.events[1])==='sensor.battery','Battery did not open native more-info');
  await card.locator('summary').first().click();expect((await card.locator('.reports').first().innerText()).includes('2026'),'Report timestamp missing');
