@@ -8,6 +8,9 @@ try{
  browser=await chromium.launch({headless:true,args:['--disable-dev-shm-usage']});
  const page=await browser.newPage({viewport:{width:1280,height:1000},locale:'ru-RU',reducedMotion:'reduce'});page.on('pageerror',e=>errors.push(e.message));
  await page.goto(base+'/public-preview.html');await page.waitForFunction(()=>!!window.publicPreview);
+ await page.evaluate(async()=>{const c=window.publicPreview.summary,config=structuredClone(c._config);config.context_sensors=[{entity:'sensor.pm',name:'Room environmental sensor humidity'},{entity:'sensor.pm',name:'Outside (north) - temperature and humidity'}];c.setConfig(config);await c.updateComplete;});
+ for(const width of [320,390,480]){await page.setViewportSize({width,height:1000});expect(await page.locator('ha-m3-climate-card .context-metric>span').evaluateAll(elements=>elements.every(el=>el.getBoundingClientRect().right<=innerWidth)),'Long climate sensor label overflow at '+width);}
+ await page.setViewportSize({width:1280,height:1000});
  await page.evaluate(()=>{
    const c=document.createElement('ha-m3-sensor-card');window.sensorFixture={c,events:[],writes:[]};
    c.setConfig({title:'Sensors',groups:[{name:'Room',tiles:[{name:'Air',entity:'sensor.temp',battery:'sensor.battery',metrics:[{entity:'sensor.temp',decimals:1},{entity:'sensor.humidity',decimals:0}]},{name:'Offline',entity:'sensor.offline'}]},{name:'Kitchen',tiles:[{name:'Leak',entity:'binary_sensor.leak',kind:'moisture',battery:'sensor.low_battery'}]}]});
