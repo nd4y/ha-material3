@@ -11,7 +11,7 @@ export class M3History extends LitElement{
     @media(pointer:coarse){.expand,.close,.periods button{min-height:44px;min-width:44px}}@media(prefers-reduced-motion:reduce){*{transition:none!important}}
   `;
   constructor(){super();this.sources=[];this.details=[];this.hours=24;this._series=[];this._width=200;this._expanded=false;this._hover=null;this._generation=0;}
-  connectedCallback(){super.connectedCallback();this._clock=setInterval(()=>this.load(),120000);this._escape=event=>{if(event.key==='Escape'){this._hover=null;this._pinned=false;}};window.addEventListener('keydown',this._escape);}
+  connectedCallback(){super.connectedCallback();this._key=undefined;this._resize?.observe(this);this._clock=setInterval(()=>this.load(),120000);this._escape=event=>{if(event.key==='Escape'){this._hover=null;this._pinned=false;}};window.addEventListener('keydown',this._escape);}
   disconnectedCallback(){super.disconnectedCallback();clearInterval(this._clock);cancelAnimationFrame(this._raf);window.removeEventListener('keydown',this._escape);this._resize?.disconnect();this._generation++;}
   firstUpdated(){this._resize=new ResizeObserver(entries=>{const width=Math.round(entries[0].contentRect.width);if(width>0&&width!==this._width)this._width=width;});this._resize.observe(this);}
   updated(changed){const key=JSON.stringify([this.sources,this._expanded?this.details:[],this.hours]);if(this.hass&&this.isConnected&&key!==this._key){this._key=key;this.load();}}

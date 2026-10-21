@@ -91,7 +91,7 @@ export function validateAirGoals(config){
 }
 export function validateConfig(config,kind='panel'){
   validateHistory(config?.history);
-  for(const item of config?.context_sensors||[])if(item.details!==undefined)validateHistorySources(item.details);
+  for(const item of config?.context_sensors||[])if(item.details!==undefined){if(!Array.isArray(item.details))throw new Error('Sensor details must be an array');validateHistorySources([{entity:item.entity,name:item.name},...item.details]);}
   for(const item of config?.quick_controls||[])if(item.history_sources!==undefined)validateHistorySources(item.history_sources);
   if(!config||typeof config!=='object'||(config.config_version??1)!==1)throw new Error('Unsupported config_version');
   if(config.appearance?.seed_color&&!/^#[0-9a-f]{6}$/i.test(config.appearance.seed_color))throw new Error('seed_color must be #RRGGBB');
