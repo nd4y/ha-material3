@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {historyNumber,historyPoints,smoothValue,sampleAt,smoothPath,segments,validateHistory,validateHistorySources} from '../src/history-model.js';
+import {historyNumber,historyPoints,smoothValue,sampleAt,smoothPath,segments,displayPoints,validateHistory,validateHistorySources} from '../src/history-model.js';
 import {loadHistory} from '../src/history-data.js';
 const point=(t,v)=>({t,v}),record=(t,state,attributes={})=>({entity_id:'sensor.generic',last_updated:new Date(t).toISOString(),state,attributes});
 
@@ -38,10 +38,15 @@ test('configuration bounds reject malformed sources and excessive history window
   validateHistorySources([{entity:'sensor.any_name',name:'PM1',unit:'μg/m³'}]);
   for(const s of [[],[{entity:'bad',name:'x'}],[{entity:'sensor.a',name:''}],[{entity:'sensor.a',name:'x',invert:'yes'}],[{entity:'sensor.a',name:'x',value_map:{bad:NaN}}]])assert.throws(()=>validateHistorySources(s));
 });
+test('long histories bound display work, preserve peaks and gaps, and leave raw records untouched',()=>{
+  const raw=Array.from({length:10000},(_,i)=>point(i,i===3500?900:i===5000?null:i%10)),before=structuredClone(raw),shown=displayPoints(raw);
+  assert.ok(shown.length<=728);assert.ok(shown.some(p=>p.v===900));assert.equal(segments(shown).length,2);assert.deepEqual(raw,before);
+  assert.deepEqual(displayPoints([]),[]);assert.deepEqual(displayPoints([point(0,3)]),[point(0,3)]);
+});
 test('history requests batch by window, cache across HA snapshots and never query on sample/hover',async()=>{
   let calls=[];const connection={},hass={connection,callApi:async(method,path)=>{calls.push({method,path});return [[record(0,'2')]];}};
   const [a,b]=await Promise.all([loadHistory(hass,['sensor.generic'],24,3600000),loadHistory(hass,['sensor.other'],24,3600000)]);
-  assert.equal(calls.length,1);assert.match(calls[0].path,/sensor.generic%2Csensor.other/);assert.equal(a[0].records.length,1);assert.deepEqual(b[0].records,[]);
+  assert.equal(calls.length,1);assert.match(calls[0].path,/sensor.generic%2Csensor.other/);assert.match(calls[0].path,/significant_changes_only=0/);assert.equal(a[0].records.length,1);assert.deepEqual(b[0].records,[]);
   await loadHistory({...hass},['sensor.generic'],24,3601000);assert.equal(calls.length,1);
   await loadHistory(hass,['sensor.generic'],6,3601000);assert.equal(calls.length,2);
   await loadHistory(hass,['sensor.generic'],24,3800000);assert.equal(calls.length,3);

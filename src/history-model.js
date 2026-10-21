@@ -14,6 +14,15 @@ export function historyPoints(records,source,start,end){
   return points;
 }
 export function segments(points){const result=[];let part=[];for(const point of points){if(point.v===null){if(part.length)result.push(part);part=[];}else part.push(point);}if(part.length)result.push(part);return result;}
+// Bound SVG work for long Recorder windows while retaining gaps and bucket extrema.
+export function displayPoints(points,budget=720){
+  const parts=segments(points),total=parts.reduce((sum,p)=>sum+p.length,0),result=[];
+  for(const part of parts){if(result.length)result.push({t:part[0].t-1,v:null});const limit=Math.max(4,Math.floor(budget*part.length/Math.max(1,total)));if(part.length<=limit){result.push(...part);continue;}
+    result.push(part[0]);const size=Math.max(1,Math.ceil((part.length-2)/Math.max(1,Math.floor((limit-2)/2))));
+    for(let i=1;i<part.length-1;i+=size){const bucket=part.slice(i,Math.min(part.length-1,i+size)),min=bucket.reduce((a,b)=>a.v<=b.v?a:b),max=bucket.reduce((a,b)=>a.v>=b.v?a:b);if(min.t===max.t)result.push(min);else result.push(...[min,max].sort((a,b)=>a.t-b.t));}
+    result.push(part.at(-1));
+  }return result;
+}
 export function slopes(points){const d=points.slice(1).map((p,i)=>(p.v-points[i].v)/(p.t-points[i].t));return points.map((_,i)=>i===0?d[0]||0:i===points.length-1?d.at(-1)||0:d[i-1]*d[i]<=0?0:Math.min(Math.abs(d[i-1]),Math.abs(d[i]))*Math.sign(d[i]));}
 export function smoothValue(part,t){if(part.length===1)return part[0].v;let i=part.findIndex(p=>p.t>=t)-1;i=Math.max(0,i<0?part.length-2:i);if(t===part[0].t)i=0;const a=part[i],b=part[i+1],u=Math.max(0,Math.min(1,(t-a.t)/(b.t-a.t))),m=slopes(part),dx=b.t-a.t;return (2*u**3-3*u*u+1)*a.v+(u**3-2*u*u+u)*dx*m[i]+(-2*u**3+3*u*u)*b.v+(u**3-u*u)*dx*m[i+1];}
 export function sampleAt(points,t){const part=segments(points).find(p=>t>=p[0].t&&t<=p.at(-1).t);if(!part)return null;const recorded=part.findLast(p=>p.t<=t)?.v;return {smooth:smoothValue(part,t),recorded};}
