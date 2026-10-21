@@ -1,4 +1,5 @@
 import {html,css,nothing} from 'lit';
+import {renderHistory} from './history.js';
 import {popoverStyles,openPopover} from './popover.js';
 import {M3DeviceCard} from './cards.js';
 import {common,icon} from './components.js';
@@ -42,7 +43,7 @@ export class M3QuickDeviceCard extends M3DeviceCard{
   }
   field(item){
     const m=controlModel(this.hass,item),draft=this._drafts[item.id],position=draft??m.position,option=m.options?.[position],value=draft!==undefined?(m.options?option?.label:this.n(position)):m.auto?this.t('automatic'):m.options?m.label:m.value===null?this.t('noData'):this.n(m.value),disabled=!m.available||this._busy;
-    return html`<div class="quick-field"><div class="field-heading"><label>${item.name}</label><output aria-live="off">${value}${!m.options&&m.unit?html`<span> ${m.unit}</span>`:nothing}</output></div><ha-m3-slider .label=${item.name} .value=${Number(position)} .min=${m.min??0} .max=${m.max??1} .step=${m.step??1} .disabled=${disabled} motion=${this.motion} @m3-input=${event=>{this._drafts={...this._drafts,[item.id]:event.detail.value};}} @m3-change=${event=>this.commit(item,event.detail.value)}></ha-m3-slider><div class="field-actions">${this.permission(item,item.name)}</div><small class="saved-hint">${!m.available?this.t('unavailable'):m.locked&&this.entityState()?.state==='off'?this.t('savedUntilOn'):nothing}</small></div>`;
+    return html`<div class="quick-field"><div class="field-heading"><label>${item.name}</label><output aria-live="off">${value}${!m.options&&m.unit?html`<span> ${m.unit}</span>`:nothing}</output></div><ha-m3-slider .label=${item.name} .value=${Number(position)} .min=${m.min??0} .max=${m.max??1} .step=${m.step??1} .disabled=${disabled} motion=${this.motion} @m3-input=${event=>{this._drafts={...this._drafts,[item.id]:event.detail.value};}} @m3-change=${event=>this.commit(item,event.detail.value)}></ha-m3-slider><div class="field-actions">${this.permission(item,item.name)}</div><small class="saved-hint">${!m.available?this.t('unavailable'):m.locked&&this.entityState()?.state==='off'?this.t('savedUntilOn'):nothing}</small>${renderHistory(this,item.history_sources||[{entity:item.entity,attribute:item.attribute,name:item.name,unit:m.unit||"",kind:"setting",...(m.options?{value_map:Object.fromEntries(m.options.map((o,i)=>[o.value,i+1]))}:{})}])}</div>`;
   }
   render(){
     const c=this._config,s=this.entityState(),ok=available(s),p=c.power,power=p?.on_when?matches(this.hass,p.on_when):ok&&!['off','idle'].includes(s.state);

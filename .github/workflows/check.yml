@@ -38,7 +38,12 @@ jobs:
       - run: npm ci
       - run: npm install --prefix /tmp/m3-browser-tools --no-save --no-package-lock playwright-core@1.64.0
       - run: node scripts/test-journal-browser.mjs "$GITHUB_WORKSPACE" /tmp/m3-browser-tools
+      - run: node scripts/test-history-browser.mjs "$GITHUB_WORKSPACE" /tmp/m3-browser-tools
       - uses: actions/upload-artifact@v7.0.2
         with:
           name: journal-browser-report
           path: journal-browser-report.json
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: history-browser-report
+          path: history-browser-report.json
