@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.12.1 - 2026-10-22
+- Wrap long climate context sensor labels instead of overflowing narrow screens. Add 320/390/480px browser regressions with long configured labels.
+
 ## 0.12.0 - 2026-10-22
 - Add configurable, theme-aware sensor mini-tiles grouped by room with native more-info and per-metric report details.
 - Distinguish leak, dry, unavailable, unknown, partial data and low battery; avoid inferring connectivity from an old sensor report.
