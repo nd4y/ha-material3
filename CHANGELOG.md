@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.12.2 - 2026-10-22
+- Allow a delegated thermal controller to leave fan-only mode after a power-only manual action. Temperature/mode permission remains separate from power permission; existing adapters retain their previous behavior unless they explicitly opt in.
+- Add a 384-case fan-only handoff regression matrix covering master/data/fault guards, heating assistance and restart delay, plus manual-mode and malformed-permission checks.
+
 ## 0.12.1 - 2026-10-22
 - Wrap long climate context sensor labels instead of overflowing narrow screens. Add 320/390/480px browser regressions with long configured labels.
 
