@@ -1,6 +1,6 @@
 {
   "name": "ha-material3",
-  "version": "0.12.2",
+  "version": "0.13.0",
   "files": [
     {
       "path": "ha-material3-theme.yaml",
@@ -10,7 +10,7 @@
     {
       "path": "ha-material3.js",
       "bytes": 396257,
-      "sha256": "d2f88d5e4d10b488797d2098a85fd0f390d36d85fc2aab3c6bfb9517e15e5250"
+      "sha256": "ddcbc9d460017bb4ab441872548a371e41cb18da9c8045b637151376e87b451d"
     },
     {
       "path": "LICENSE",
@@ -84,8 +84,13 @@
     },
     {
       "path": "ha-m3-legacy-policy.jinja",
-      "bytes": 11868,
-      "sha256": "8862fd2cca68d779c0c36e505326c28d621963d64f5cbad7f1b121843afd7dc8"
+      "bytes": 12048,
+      "sha256": "1feab06538ecb6957333455028b093ed683d5be7c19d314195b50a2d5fe4ea22"
+    },
+    {
+      "path": "ha-m3-thermal-environment.jinja",
+      "bytes": 5060,
+      "sha256": "b61a4cdb313a4b5d8705e5877efb4828f065dc7b9270cd7dad01a1f89fa2c887"
     }
   ],
   "sources": {
@@ -95,9 +100,10 @@
     "controller/control-dynamics.jinja": "3e481ca559925cee3a85cb741e8de32d4c70ab3ee1b93a5dab2d82b9871acf81",
     "controller/device-health.jinja": "3775f6f201079c2d1c14bd909de1e18cd4e17d183708d1025661066afd4affce",
     "controller/intent-transition.jinja": "7e099608ae77316d25c16542d3f8d7a6934b3417aeb1c722cddf382ee903a688",
-    "controller/legacy-policy.jinja": "8862fd2cca68d779c0c36e505326c28d621963d64f5cbad7f1b121843afd7dc8",
-    "package-lock.json": "c1851425abbf59a62af03dbafcf03a28397c6013922ef5f13f4b8e26330c3582",
-    "package.json": "a32d0f8a21a687655bc41c65032eec7b55b5e1e39a2e0ebb317b95bff89acd0c",
+    "controller/legacy-policy.jinja": "1feab06538ecb6957333455028b093ed683d5be7c19d314195b50a2d5fe4ea22",
+    "controller/thermal-environment.jinja": "b61a4cdb313a4b5d8705e5877efb4828f065dc7b9270cd7dad01a1f89fa2c887",
+    "package-lock.json": "d675a0edd7da546e5c17c2cb85c10fad57fe6c6cd4ef72aa741fc06ab2552d4e",
+    "package.json": "4b21360357616f98c60d09f753aca077cb135b612a6eee66a1c15f4e5adb5c47",
     "scripts/audit-release.mjs": "ca5fbff89ef1c15a3844746208aaad340f13219dda338bf8b537b52ffb649118",
     "scripts/build.mjs": "ba715c54ed44408e583a14ffcc8d77b046d943b894691137019f9f3722ffd29f",
     "scripts/dev-server.mjs": "9a708517056f40cf7fdd778b0c8a8627137c48ebe59ad47a81b518a459900bb2",

@@ -1,0 +1,74 @@
+{# Pure source qualification; all entity bindings and measurement clocks belong
+   to the adapter. A last_reported heartbeat is not a measurement timestamp. #}
+{% macro thermal_environment(p) -%}
+{% set n=namespace(valid=p is mapping, sources={}, config={}) %}
+{% set defaults={'room_min':5,'room_max':40,'outdoor_min':-50,'outdoor_max':60,
+ 'disagreement':2,'deadband':0.2,'cooling_gap':1.5,'target_gap':0.3} %}
+{% set tuning=p.get('tuning',{}) if n.valid else {} %}
+{% if tuning is not mapping %}{% set n.valid=false %}{% else %}
+{% for key,fallback in defaults.items() %}
+ {% set value=tuning.get(key,fallback) %}
+ {% if value is not number or value is boolean %}{% set n.valid=false %}
+ {% elif not -1000000<=value<=1000000 %}{% set n.valid=false %}{% endif %}
+ {% set n.config=dict(n.config,**{key:value}) %}
+{% endfor %}{% endif %}
+{% if n.valid %}
+ {% if n.config.room_min>=n.config.room_max or n.config.outdoor_min>=n.config.outdoor_max or n.config.disagreement<=0 or n.config.deadband<0 or n.config.cooling_gap<=0 or n.config.target_gap<0 %}{% set n.valid=false %}{% endif %}
+ {% for key in ['fallback_enabled','airflow_confirmed'] %}{% if p.get(key) is not boolean %}{% set n.valid=false %}{% endif %}{% endfor %}
+ {% if p.get('desired') is not number or p.get('desired') is boolean %}{% set n.valid=false %}
+ {% elif not 16<=p.desired<=30 %}{% set n.valid=false %}{% endif %}
+{% endif %}
+{% if n.valid %}
+ {% for key in ['primary','secondary','outdoor'] %}
+  {% set s=p.get(key) %}{% set q=namespace(ok=s is mapping) %}
+  {% if q.ok %}
+   {% for flag in ['available','confirmed'] %}{% if s.get(flag) is not boolean %}{% set n.valid=false %}{% endif %}{% endfor %}
+   {% if not s.get('available',false) or not s.get('confirmed',false) %}{% set q.ok=false %}{% endif %}
+   {% set value=s.get('value') %}{% set age=s.get('age') %}{% set ttl=s.get('ttl') %}
+   {% if value is not number or value is boolean or age is not number or age is boolean or ttl is not number or ttl is boolean %}{% set q.ok=false %}
+   {% elif not 0<=age<=ttl or not 0<ttl<=86400 %}{% set q.ok=false %}
+   {% elif key=='outdoor' and not n.config.outdoor_min<=value<=n.config.outdoor_max %}{% set q.ok=false %}
+   {% elif key!='outdoor' and not n.config.room_min<=value<=n.config.room_max %}{% set q.ok=false %}{% endif %}
+  {% endif %}
+  {% set n.sources=dict(n.sources,**{key:{'ok':q.ok,'value':s.get('value') if q.ok else none}}) %}
+ {% endfor %}
+{% endif %}
+{% if not n.valid %}
+ {{ {'valid':false,'room_ok':false,'room':none,'source':'none','primary_ok':false,'secondary_ok':false,'disagreement':false,'difference':none,'outdoor_ok':false,'outdoor_qualified':false,'outdoor':none,'passive_cooling':false,'heater_unhelpful':false,'intent':'unknown','reason':'invalid_configuration'}|tojson }}
+{% else %}
+ {% set a=n.sources.primary %}{% set b=n.sources.secondary %}{% set o=n.sources.outdoor %}
+ {% set source='primary' if a.ok else 'secondary' if p.fallback_enabled and b.ok else 'none' %}
+ {% set room=a.value if source=='primary' else b.value if source=='secondary' else none %}
+ {% set difference=(a.value-b.value)|abs if a.ok and b.ok else none %}
+ {% set qualified=o.ok and p.airflow_confirmed %}
+ {% set intent='unknown' if room is none else 'heat' if room<p.desired-n.config.deadband else 'cool' if room>p.desired+n.config.deadband else 'hold' %}
+ {{ {'valid':true,'room_ok':room is not none,'room':room,'source':source,
+ 'primary_ok':a.ok,'secondary_ok':b.ok,'difference':difference,
+ 'disagreement':difference is not none and difference>=n.config.disagreement,
+ 'outdoor_ok':o.ok,'outdoor_qualified':qualified,'outdoor':o.value,
+ 'passive_cooling':room is not none and qualified and intent=='cool' and o.value<=room-n.config.cooling_gap and o.value<=p.desired-n.config.target_gap,
+ 'heater_unhelpful':room is not none and qualified and o.value>=p.desired,
+ 'intent':intent,'reason':'primary_measurement' if source=='primary' else 'explicit_secondary_fallback' if source=='secondary' else 'no_qualified_room_measurement'}|tojson }}
+{% endif %}
+{%- endmacro %}
+
+{% macro passive_window(p) -%}
+{% set n=namespace(valid=p is mapping) %}
+{% if n.valid %}
+ {% for key in ['eligible','severe','reset'] %}{% if p.get(key) is not boolean %}{% set n.valid=false %}{% endif %}{% endfor %}
+ {% if p.get('pending') not in ['on','off','unknown'] %}{% set n.valid=false %}{% endif %}
+ {% for key in ['elapsed','timeout'] %}
+  {% if p.get(key) is not number or p.get(key) is boolean %}{% set n.valid=false %}
+  {% elif not 0<=p[key]<=86400 %}{% set n.valid=false %}{% endif %}
+ {% endfor %}
+ {% if n.valid and p.timeout<=0 %}{% set n.valid=false %}{% endif %}
+{% endif %}
+{% if not n.valid %}
+ {{ {'valid':false,'start_pending':false,'cancel_pending':true,'wait':false}|tojson }}
+{% else %}
+ {% set eligible=p.eligible and not p.severe %}
+ {{ {'valid':true,'start_pending':eligible and (p.pending!='on' or p.reset),
+ 'cancel_pending':not eligible and p.pending!='off',
+ 'wait':eligible and (p.pending!='on' or p.reset or p.elapsed<p.timeout)}|tojson }}
+{% endif %}
+{%- endmacro %}
