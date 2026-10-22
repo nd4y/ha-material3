@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.13.0 - 2026-10-22
+- Add qualified primary/secondary/outdoor thermal inputs, explicit fallback, discrepancy diagnostics and bounded passive-cooling decisions. Keep source bindings and measurement clocks in the HA adapter.
+- Test all 4,116 declared source partitions, 96 passive-window transitions and composed thermal safety guards in every build; preserve existing control and HACS behavior.
+
 ## 0.12.2 - 2026-10-22
 - Allow a delegated thermal controller to leave fan-only mode after a power-only manual action. Temperature/mode permission remains separate from power permission; existing adapters retain their previous behavior unless they explicitly opt in.
 - Add a 384-case fan-only handoff regression matrix covering master/data/fault guards, heating assistance and restart delay, plus manual-mode and malformed-permission checks.

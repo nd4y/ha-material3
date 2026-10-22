@@ -103,8 +103,9 @@
         {% set ns.reason='Охлаждение' if ac_mode == 'cool' else 'Обогрев' %}
       {% endif %}
     {% elif measured >= desired + 0.7 %}
-      {% set ns.mode='cool' %}{% set ns.action='start' if since_change >= 300 else 'wait' %}
-      {% set ns.reason='Охлаждение' if since_change >= 300 else 'Пауза перед пуском' %}
+      {% set ns.mode='cool' %}{% set passive=p.get('passive_cooling_wait',false) is sameas true %}
+      {% set ns.action='start' if since_change >= 300 and not passive else 'wait' %}
+      {% set ns.reason='Пауза перед пуском' if since_change < 300 else 'Проверка охлаждения наружным воздухом' if passive else 'Охлаждение' %}
     {% elif measured <= desired - 0.7 and breather_at_limit %}
       {% set ns.mode='heat' %}
       {% set ns.action='start' if since_change >= 300 and heating_ready else 'wait' %}
