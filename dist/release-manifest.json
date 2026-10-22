@@ -1,6 +1,6 @@
 {
   "name": "ha-material3",
-  "version": "0.13.0",
+  "version": "0.13.1",
   "files": [
     {
       "path": "ha-material3-theme.yaml",
@@ -10,7 +10,7 @@
     {
       "path": "ha-material3.js",
       "bytes": 396257,
-      "sha256": "ddcbc9d460017bb4ab441872548a371e41cb18da9c8045b637151376e87b451d"
+      "sha256": "98378f63f38ab2add287d6b59a2e04519aa9baf4ace3998ef5b49516272a9134"
     },
     {
       "path": "LICENSE",
@@ -84,13 +84,13 @@
     },
     {
       "path": "ha-m3-legacy-policy.jinja",
-      "bytes": 12048,
-      "sha256": "1feab06538ecb6957333455028b093ed683d5be7c19d314195b50a2d5fe4ea22"
+      "bytes": 12247,
+      "sha256": "9ed7b5a0a403eb02762054f587dcea4cb01ee88c0c8e7e0f9aad8066e46912a1"
     },
     {
       "path": "ha-m3-thermal-environment.jinja",
-      "bytes": 5060,
-      "sha256": "b61a4cdb313a4b5d8705e5877efb4828f065dc7b9270cd7dad01a1f89fa2c887"
+      "bytes": 5278,
+      "sha256": "6d6c7c5cc077e6595033d164ec346bf2f653a5fa61da27a70edc52453b8c2493"
     }
   ],
   "sources": {
@@ -100,10 +100,10 @@
     "controller/control-dynamics.jinja": "3e481ca559925cee3a85cb741e8de32d4c70ab3ee1b93a5dab2d82b9871acf81",
     "controller/device-health.jinja": "3775f6f201079c2d1c14bd909de1e18cd4e17d183708d1025661066afd4affce",
     "controller/intent-transition.jinja": "7e099608ae77316d25c16542d3f8d7a6934b3417aeb1c722cddf382ee903a688",
-    "controller/legacy-policy.jinja": "1feab06538ecb6957333455028b093ed683d5be7c19d314195b50a2d5fe4ea22",
-    "controller/thermal-environment.jinja": "b61a4cdb313a4b5d8705e5877efb4828f065dc7b9270cd7dad01a1f89fa2c887",
-    "package-lock.json": "d675a0edd7da546e5c17c2cb85c10fad57fe6c6cd4ef72aa741fc06ab2552d4e",
-    "package.json": "4b21360357616f98c60d09f753aca077cb135b612a6eee66a1c15f4e5adb5c47",
+    "controller/legacy-policy.jinja": "9ed7b5a0a403eb02762054f587dcea4cb01ee88c0c8e7e0f9aad8066e46912a1",
+    "controller/thermal-environment.jinja": "6d6c7c5cc077e6595033d164ec346bf2f653a5fa61da27a70edc52453b8c2493",
+    "package-lock.json": "fb8d748c30968e87eecf65cc9e9e2f45296eb5d17d23fbe8a03bbaa0f580f7fb",
+    "package.json": "6c4ea2bde2eeaafc783fd6f3657fc011ec5d1115d35e6a26f28497683c6b6fde",
     "scripts/audit-release.mjs": "ca5fbff89ef1c15a3844746208aaad340f13219dda338bf8b537b52ffb649118",
     "scripts/build.mjs": "ba715c54ed44408e583a14ffcc8d77b046d943b894691137019f9f3722ffd29f",
     "scripts/dev-server.mjs": "9a708517056f40cf7fdd778b0c8a8627137c48ebe59ad47a81b518a459900bb2",

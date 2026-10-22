@@ -32,6 +32,10 @@ outdoor air is a ventilation load, not a reason to increase ventilation for heat
 The room PI continues to temper the requested flow; the AC provides heat
 assistance if the breather is insufficient. A disabled/unavailable breather
 must not require a fictitious warm-up dwell.
+With a configurable large room deficit and a qualified colder intake,
+`strong_heating_demand` permits requesting assistance before the slowly ramped
+heater reaches its maximum. It never bypasses the AC restart delay or manual
+permissions. Smaller deficits retain the ordinary breather-first policy.
 
 Useful outdoor cooling requires cooler-than-room and below-target margins.
 `passive_window(p)` bounds a trial on existing permitted airflow: no new airflow

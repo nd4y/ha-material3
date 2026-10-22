@@ -3,7 +3,7 @@
 {% macro thermal_environment(p) -%}
 {% set n=namespace(valid=p is mapping, sources={}, config={}) %}
 {% set defaults={'room_min':5,'room_max':40,'outdoor_min':-50,'outdoor_max':60,
- 'disagreement':2,'deadband':0.2,'cooling_gap':1.5,'target_gap':0.3} %}
+ 'disagreement':2,'deadband':0.2,'cooling_gap':1.5,'target_gap':0.3,'heat_assist_gap':1.5} %}
 {% set tuning=p.get('tuning',{}) if n.valid else {} %}
 {% if tuning is not mapping %}{% set n.valid=false %}{% else %}
 {% for key,fallback in defaults.items() %}
@@ -13,7 +13,7 @@
  {% set n.config=dict(n.config,**{key:value}) %}
 {% endfor %}{% endif %}
 {% if n.valid %}
- {% if n.config.room_min>=n.config.room_max or n.config.outdoor_min>=n.config.outdoor_max or n.config.disagreement<=0 or n.config.deadband<0 or n.config.cooling_gap<=0 or n.config.target_gap<0 %}{% set n.valid=false %}{% endif %}
+ {% if n.config.room_min>=n.config.room_max or n.config.outdoor_min>=n.config.outdoor_max or n.config.disagreement<=0 or n.config.deadband<0 or n.config.cooling_gap<=0 or n.config.target_gap<0 or n.config.heat_assist_gap<=n.config.deadband %}{% set n.valid=false %}{% endif %}
  {% for key in ['fallback_enabled','airflow_confirmed'] %}{% if p.get(key) is not boolean %}{% set n.valid=false %}{% endif %}{% endfor %}
  {% if p.get('desired') is not number or p.get('desired') is boolean %}{% set n.valid=false %}
  {% elif not 16<=p.desired<=30 %}{% set n.valid=false %}{% endif %}
@@ -34,7 +34,7 @@
  {% endfor %}
 {% endif %}
 {% if not n.valid %}
- {{ {'valid':false,'room_ok':false,'room':none,'source':'none','primary_ok':false,'secondary_ok':false,'disagreement':false,'difference':none,'outdoor_ok':false,'outdoor_qualified':false,'outdoor':none,'passive_cooling':false,'heater_unhelpful':false,'intent':'unknown','reason':'invalid_configuration'}|tojson }}
+ {{ {'valid':false,'room_ok':false,'room':none,'source':'none','primary_ok':false,'secondary_ok':false,'disagreement':false,'difference':none,'outdoor_ok':false,'outdoor_qualified':false,'outdoor':none,'passive_cooling':false,'heater_unhelpful':false,'strong_heating_demand':false,'intent':'unknown','reason':'invalid_configuration'}|tojson }}
 {% else %}
  {% set a=n.sources.primary %}{% set b=n.sources.secondary %}{% set o=n.sources.outdoor %}
  {% set source='primary' if a.ok else 'secondary' if p.fallback_enabled and b.ok else 'none' %}
@@ -48,6 +48,7 @@
  'outdoor_ok':o.ok,'outdoor_qualified':qualified,'outdoor':o.value,
  'passive_cooling':room is not none and qualified and intent=='cool' and o.value<=room-n.config.cooling_gap and o.value<=p.desired-n.config.target_gap,
  'heater_unhelpful':room is not none and qualified and o.value>=p.desired,
+ 'strong_heating_demand':room is not none and qualified and room<=p.desired-n.config.heat_assist_gap and o.value<room,
  'intent':intent,'reason':'primary_measurement' if source=='primary' else 'explicit_secondary_fallback' if source=='secondary' else 'no_qualified_room_measurement'}|tojson }}
 {% endif %}
 {%- endmacro %}
