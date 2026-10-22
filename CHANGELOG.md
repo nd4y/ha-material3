@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.13.1 - 2026-10-22
+- Expose strong heating demand when a qualified cold intake and a large room deficit require AC assistance before the supply target has finished ramping. Preserve compressor and manual protections.
+- Explain breather-first heating waits instead of reporting an out-of-deadband room as within tolerance; add demand-boundary and restart-delay tests.
+
 ## 0.13.0 - 2026-10-22
 - Add qualified primary/secondary/outdoor thermal inputs, explicit fallback, discrepancy diagnostics and bounded passive-cooling decisions. Keep source bindings and measurement clocks in the HA adapter.
 - Test all 4,116 declared source partitions, 96 passive-window transitions and composed thermal safety guards in every build; preserve existing control and HACS behavior.

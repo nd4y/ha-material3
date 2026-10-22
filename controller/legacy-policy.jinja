@@ -110,6 +110,8 @@
       {% set ns.mode='heat' %}
       {% set ns.action='start' if since_change >= 300 and heating_ready else 'wait' %}
       {% set ns.reason='Помощь бризеру: обогрев' if ns.action == 'start' else 'Ожидание: бризер / защитная пауза' %}
+    {% elif measured <= desired - 0.7 %}
+      {% set ns.reason='Бризер повышает нагрев притока; помощь кондиционера пока не требуется' %}
     {% endif %}
     {% set offset = [[native_room - measured,-3] | max,3] | min if native_room_ok else 0 %}
     {% set requested = [[(desired + offset) | round(0),16] | max,32] | min | int %}

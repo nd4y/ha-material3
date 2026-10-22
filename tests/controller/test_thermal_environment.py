@@ -49,6 +49,7 @@ class ThermalEnvironmentTests(unittest.TestCase):
             self.assertEqual(out['room_ok'],value is not None)
             self.assertEqual(out['outdoor_qualified'],ov and flow)
             self.assertEqual(out['heater_unhelpful'],value is not None and ov and flow and o['value']>=target)
+            self.assertEqual(out['strong_heating_demand'],value is not None and ov and flow and value<=target-1.5 and o['value']<value)
             self.assertEqual(out['passive_cooling'],value is not None and ov and flow and value>target+.2 and o['value']<=value-1.5 and o['value']<=target-.3)
             self.assertEqual(out['disagreement'],av and bv and abs(a['value']-b['value'])>=2)
             count+=1
@@ -86,9 +87,20 @@ class ThermalEnvironmentTests(unittest.TestCase):
 
     def test_generic_tuning_and_invalid_configuration(self):
         self.assertTrue(evaluate(primary=source(22),secondary=source(23),tuning={'disagreement':1})['disagreement'])
-        for tuning in [None,[],{'room_min':40},{'room_max':5},{'deadband':-1},{'disagreement':0},{'cooling_gap':0},{'target_gap':-1},{'outdoor_min':60},{'deadband':float('nan')}]:
+        for tuning in [None,[],{'room_min':40},{'room_max':5},{'deadband':-1},{'disagreement':0},{'cooling_gap':0},{'target_gap':-1},{'outdoor_min':60},{'deadband':float('nan')},{'heat_assist_gap':0}]:
             out=evaluate(tuning=tuning)
             self.assertFalse(out['valid']);self.assertIsNone(out['room'])
+
+    def test_strong_heat_cold_intake_boundaries_and_compressor_protection(self):
+        for measured in [23.4,23.5,23.6]:
+            for outside,flow,delay in itertools.product([0,23.5,30],[False,True],[299,300]):
+                env=evaluate(primary=source(measured),outdoor=source(outside),airflow_confirmed=flow)
+                strong=measured<=23.5 and flow and outside<measured
+                self.assertEqual(env['strong_heating_demand'],strong)
+                out=thermal(ac_mode='fan_only',thermal_authorized=True,measured=measured,desired=25,
+                    breather_at_limit=strong,heating_ready=strong,since_change=delay)
+                self.assertEqual(out['plan']['action']=='start',strong and delay>=300)
+        self.assertIn('Бризер',thermal(measured=23,breather_at_limit=False)['plan']['reason'])
 
     def test_passive_cooling_never_overrides_existing_guards_or_heating(self):
         for enabled,valid,fault,owned,mode,error,delay,passive in itertools.product(
