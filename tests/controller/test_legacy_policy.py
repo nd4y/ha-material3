@@ -229,6 +229,44 @@ class LegacyAirTests(unittest.TestCase):
 
 
 class LegacyThermalTests(unittest.TestCase):
+    def test_delegated_fan_only_thermal_handoff_matrix(self):
+        """Power-on in ventilation must not silently claim delegated mode.
+
+        Explicit temperature/mode permission is separate from power ownership.
+        All combinations retain fault/data/master and compressor-delay guards.
+        """
+        count = 0
+        for delegated, enabled, valid, fault, ready, limit, delay, error in itertools.product(
+            [False, True], [False, True], [False, True], [False, True],
+            [False, True], [False, True], [299, 300], [-1, 0, 1]
+        ):
+            out = thermal(ac_mode="fan_only", thermal_authorized=delegated,
+                          auto_enabled=enabled, room_ok=valid, device_fault=fault,
+                          heating_ready=ready, breather_at_limit=limit,
+                          since_change=delay, measured=24+error)
+            plan = out["plan"]
+            allowed = delegated and enabled and valid and not fault
+            expected_start = allowed and delay >= 300 and (error == 1 or error == -1 and ready and limit)
+            self.assertEqual(plan["action"] == "start", expected_start)
+            if expected_start:
+                self.assertEqual(plan["mode"], "cool" if error > 0 else "heat")
+            if not allowed:
+                self.assertEqual(plan["action"], "release")
+                self.assertFalse(out["adjustment"]["send"])
+            if error == 0 and allowed:
+                self.assertEqual(plan["action"], "idle")
+            count += 1
+        self.assertEqual(count, 384)
+
+    def test_delegation_does_not_take_over_other_manual_modes(self):
+        for mode in ["auto", "dry", "unknown", "unavailable"]:
+            for measured in [23, 25]:
+                out = thermal(ac_mode=mode, measured=measured, thermal_authorized=True)
+                self.assertNotIn(out["plan"]["action"], ["start", "adopt", "maintain"])
+        for invalid in [None, "true", "on", 1, {}, []]:
+            self.assertEqual(thermal(ac_mode="fan_only", measured=23,
+                                     thermal_authorized=invalid)["plan"]["action"], "release")
+
     def test_plan_branch_witnesses(self):
         cases = [
             ({}, "idle", ""),

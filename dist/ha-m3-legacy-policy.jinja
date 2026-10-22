@@ -67,6 +67,9 @@
 {% set owned=p["owned"] %}
 {% set device_fault=p["device_fault"] %}
 {% set maximum_fan_only=p["maximum_fan_only"] %}
+{# Explicit adapter permission: a power-only manual action may leave the unit
+   in fan_only without claiming its separately delegated temperature/mode. #}
+{% set thermal_authorized=p.get('thermal_authorized',false) is sameas true %}
 {% set native_room_ok=p["native_room_ok"] %}
 {% set native_room=p["native_room"] %}
 {% set since_change=p["since_change"] %}
@@ -85,7 +88,7 @@
       {% set ns.reason='Климат-контроль выключен' if not auto_enabled else ('Нет достоверной температуры комнаты' if not room_ok else 'Ошибка кондиционера') %}
     {% elif supply_conflict and measured > desired + 0.1 %}
       {% set ns.action='stop' if owned and ac_mode == 'cool' else 'release' %}{% set ns.reason='Охлаждение приостановлено: закреплён нагрев притока' %}
-    {% elif ac_mode not in ['off','cool','heat'] and not (ac_mode == 'fan_only' and maximum_fan_only) %}
+    {% elif ac_mode not in ['off','cool','heat'] and not (ac_mode == 'fan_only' and (maximum_fan_only or thermal_authorized)) %}
       {% set ns.action='release' %}{% set ns.reason='Ручной режим: ' ~ ac_mode %}
     {% elif owned and ac_mode not in ['cool','heat'] %}
       {% set ns.action='reconcile' %}{% set ns.reason='Пауза после остановки кондиционера' %}
