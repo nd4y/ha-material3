@@ -144,3 +144,7 @@ Changes go through a branch and pull request. Run `npm version patch --no-git-ta
 ## Quick sliders and persistent locks
 
 See [quick control configuration](docs/QUICK_CONTROLS.md) for device metadata, native Auto modes and server-enforced manual locks. Available since v0.6.0.
+
+## Development standard
+
+This repository adopts version 0.4.0 of the shared development standard. Read the [English guide](docs/en/development-standard.md) or [Russian guide](docs/ru/development-standard.md). The local toolkit checks staged secrets, changed-file formatting and bilingual documentation before merge. Existing product CI remains in place. Adoption is in progress; product acceptance and legacy-document translation are recorded separately in .repo-policy.json.
