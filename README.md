@@ -49,7 +49,7 @@ HACS checks published GitHub releases for updates. Install the offered update in
 
 When migrating from manual installation, remove the old `/local/ha-material3/ha-material3.js?...` resource after HACS has downloaded the module. Preserve the old files until the HACS path works. Do not load both resource paths. The default branch is hidden from HACS's version selector so unversioned development changes are not offered as releases.
 
-GitHub releases include the raw JS, fonts/licenses and manifest as flat assets, as well as manual/source ZIPs. HACS 2.0.5 downloads release assets directly; ZIP files alone are not an installable Dashboard release. Do not upload only a bare JS without its fonts. `zip_release` is deliberately absent: HACS supports it for integrations, not Dashboard plugins. Inclusion in the default HACS catalog is a separate review process; custom-repository installation is supported here.
+From v0.15.1, HACS installs the complete compiled `dist` tree at the release tag. Stable releases intentionally have no attached assets: this avoids GitHub asset-redirect headers that HACS 2.0.5 cannot parse. Verified manual/source packages and checksums remain CI artifacts. The runtime includes local JS, fonts, licenses, theme and controller templates. `zip_release` remains absent for Dashboard plugins. Inclusion in the default HACS catalog is a separate review; custom-repository installation and updates are supported.
 
 ## One design for the HA shell and the module
 
