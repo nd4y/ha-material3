@@ -12,11 +12,13 @@ try{
  const climate=page.locator('ha-m3-climate-card');
  await climate.getByRole('button',{name:'Автоматика',exact:true}).click();
  const settings=climate.locator('#automation-menu');
+ await page.waitForFunction(()=>Math.abs(window.publicPreview.summary.renderRoot.querySelector('#automation-menu').getBoundingClientRect().bottom-innerHeight)<2);
  const sheet=await settings.boundingBox();expect(Math.abs(sheet.y+sheet.height-844)<2,'Settings not at bottom');
  expect(sheet.height<=844*.8+2,'Settings exceed mobile height limit');
  await settings.getByRole('button',{name:'Закрыть',exact:true}).click();
  expect(await settings.evaluate(el=>!el.matches(':popover-open')),'Settings close unavailable');
  await page.evaluate(async()=>{const d=document.createElement('ha-m3-dialog');d.heading='Параметры';d.lang='ru';d.motion='reduced';d.textContent='Пример';document.body.append(d);await d.show();});
+ await page.waitForFunction(()=>Math.abs(document.querySelector('ha-m3-dialog').renderRoot.querySelector('dialog').getBoundingClientRect().bottom-innerHeight)<2);
  const generic=page.locator('ha-m3-dialog'),gb=await generic.locator('dialog').boundingBox();
  expect(Math.abs(gb.y+gb.height-844)<2,'Generic dialog not at bottom');
  await generic.getByRole('button',{name:'Закрыть',exact:true}).click();
