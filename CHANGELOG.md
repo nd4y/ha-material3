@@ -1,3 +1,10 @@
+## 0.14.0
+
+- Direct per-parameter HA Auto, Manual and Device Auto buttons replace ownership popups.
+- Configurable quick-access card with mobile dock and explicit action confirmation.
+- Compact mobile intentions and expandable histories preserve all controls.
+- Bounded last-temperature display stays distinct from qualified control input.
+- Exactly 100 named climate acceptance scenarios and new mobile browser checks run in CI.
 # Changelog
 
 ## 0.13.1 - 2026-10-22
