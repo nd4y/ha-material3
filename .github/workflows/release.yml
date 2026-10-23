@@ -54,4 +54,8 @@ jobs:
           REPOSITORY: ${{ github.repository }}
           TAG: ${{ github.ref_name }}
           COMMIT: ${{ github.sha }}
-        run: gh release create "$TAG" --repo "$REPOSITORY" --target "$COMMIT" --verify-tag --title "Material 3 Expressive $TAG" --generate-notes release/*
+        # HACS 2.0.5 tries every attached release asset first. GitHub's asset
+        # redirect CSP can exceed its HTTP header parser limit. An asset-free
+        # stable release makes HACS use the versioned, committed dist tree via
+        # raw.githubusercontent.com. Verified packages remain CI artifacts.
+        run: gh release create "$TAG" --repo "$REPOSITORY" --target "$COMMIT" --verify-tag --title "Material 3 Expressive $TAG" --generate-notes

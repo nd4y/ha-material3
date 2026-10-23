@@ -1,4 +1,4 @@
-"""Stage raw HACS assets plus manual archives and checksums for GitHub Release."""
+"""Stage verified runtime, manual archives and checksums as CI artifacts."""
 import pathlib,json,hashlib,shutil
 root=pathlib.Path(__file__).resolve().parents[1]
 manifest=json.loads((root/'dist/release-manifest.json').read_text())

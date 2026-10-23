@@ -38,3 +38,14 @@ globally restyled or intercepted.
 The gesture is accidental-activation protection, not authorization. Keep
 authentication and server-side action validation. A restart, lost connection
 or error never queues an unlock for later.
+
+## Release delivery
+
+From v0.15.1 stable releases have no attached assets. HACS reads the compiled
+`dist` directory at the immutable release tag, including local fonts, theme
+and controller templates. This avoids GitHub release-asset redirects whose
+CSP header exceeds the HTTP parser limit in HACS 2.0.5. HACS installation,
+version tracking and future updates remain native; no HACS patch or proxy is
+required. Reproducible packages and checksum manifests remain available as
+the release workflow's `verified-release` artifact. Source archives are
+available from the Git tag as usual.
