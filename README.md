@@ -150,3 +150,5 @@ See [responsive controls](docs/quick-access.md) for direct HA/manual/device
 ownership, configurable mobile quick actions and bounded temperature display.
 The [100 named climate scenarios](docs/climate-100-scenarios.md) run in CI in
 addition to the existing exhaustive policy matrices.
+
+See [hold actions and reachable sheets](docs/hold-actions.md) for release-to-confirm controls and mobile popup ergonomics.
