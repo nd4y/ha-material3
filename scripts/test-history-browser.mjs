@@ -41,6 +41,8 @@ try{
  await pm.getByRole('button',{name:'6 ч',exact:true}).click();await page.waitForFunction(()=>window.observation.requests.length===3);
  expect(await pm.getByRole('button',{name:'6 ч',exact:true}).getAttribute('aria-pressed')==='true','Period selection lost');
  await page.setViewportSize({width:320,height:1000});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Mobile overflow');
+ const sheet=await pm.locator('.detail').boundingBox();expect(Math.abs(sheet.y+sheet.height-1000)<2,'History is not at bottom on mobile');
+ expect(sheet.height<=850+2,'History exceeds mobile sheet height');
  await pm.getByRole('button',{name:'Закрыть',exact:true}).click();
  expect(await page.evaluate(()=>window.observation.writes.length===1),'History interactions wrote device settings');
  await page.evaluate(async()=>{const el=window.observation.c.renderRoot.querySelector('#pm-history');el.hass={...el.hass,connection:{},callApi:async()=>{throw Error('unavailable');}};await el.load();});

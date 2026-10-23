@@ -9,6 +9,18 @@ try{
  const page=await browser.newPage({viewport:{width:390,height:844},locale:'ru-RU',hasTouch:true});
  page.on('pageerror',e=>errors.push(e.message));
  await page.goto(base+'/public-preview.html');await page.waitForFunction(()=>!!window.publicPreview);
+ const climate=page.locator('ha-m3-climate-card');
+ await climate.getByRole('button',{name:'Автоматика',exact:true}).click();
+ const settings=climate.locator('#automation-menu');
+ const sheet=await settings.boundingBox();expect(Math.abs(sheet.y+sheet.height-844)<2,'Settings not at bottom');
+ expect(sheet.height<=844*.8+2,'Settings exceed mobile height limit');
+ await settings.getByRole('button',{name:'Закрыть',exact:true}).click();
+ expect(await settings.evaluate(el=>!el.matches(':popover-open')),'Settings close unavailable');
+ await page.evaluate(async()=>{const d=document.createElement('ha-m3-dialog');d.heading='Параметры';d.motion='reduced';d.textContent='Пример';document.body.append(d);await d.show();});
+ const generic=page.locator('ha-m3-dialog'),gb=await generic.locator('dialog').boundingBox();
+ expect(Math.abs(gb.y+gb.height-844)<2,'Generic dialog not at bottom');
+ await generic.getByRole('button',{name:'Close',exact:true}).click();
+ await generic.locator('dialog').waitFor({state:'hidden'});
  await page.evaluate(()=>{
   document.body.replaceChildren();window.writes=[];
   window.config={language:'ru',mobile_floating:false,actions:[{name:'Открыть дверь',icon:'meeting_room',activation:'hold',hold_duration:800,confirmation:'Открыть входную дверь?',action:{action:'perform-action',perform_action:'script.demo_open'}}]};
