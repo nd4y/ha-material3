@@ -1,0 +1,1224 @@
+[
+  {
+    "id": "thermal_deadband",
+    "suite": "thermal",
+    "input": {},
+    "expected": {
+      "plan.action": "idle",
+      "plan.mode": ""
+    }
+  },
+  {
+    "id": "thermal_unknown_mode",
+    "suite": "thermal",
+    "input": {
+      "ac_mode": "unknown"
+    },
+    "expected": {
+      "plan.action": "unavailable",
+      "plan.mode": ""
+    }
+  },
+  {
+    "id": "thermal_offline_mode",
+    "suite": "thermal",
+    "input": {
+      "ac_mode": "unavailable"
+    },
+    "expected": {
+      "plan.action": "unavailable",
+      "plan.mode": ""
+    }
+  },
+  {
+    "id": "thermal_disabled",
+    "suite": "thermal",
+    "input": {
+      "auto_enabled": false
+    },
+    "expected": {
+      "plan.action": "release",
+      "plan.mode": ""
+    }
+  },
+  {
+    "id": "thermal_disabled_owned",
+    "suite": "thermal",
+    "input": {
+      "auto_enabled": false,
+      "owned": true,
+      "ac_mode": "cool"
+    },
+    "expected": {
+      "plan.action": "stop",
+      "plan.mode": ""
+    }
+  },
+  {
+    "id": "thermal_room_missing",
+    "suite": "thermal",
+    "input": {
+      "room_ok": false
+    },
+    "expected": {
+      "plan.action": "release",
+      "plan.mode": ""
+    }
+  },
+  {
+    "id": "thermal_room_missing_owned",
+    "suite": "thermal",
+    "input": {
+      "room_ok": false,
+      "owned": true,
+      "ac_mode": "heat"
+    },
+    "expected": {
+      "plan.action": "stop",
+      "plan.mode": ""
+    }
+  },
+  {
+    "id": "thermal_fault",
+    "suite": "thermal",
+    "input": {
+      "device_fault": true
+    },
+    "expected": {
+      "plan.action": "release",
+      "plan.mode": ""
+    }
+  },
+  {
+    "id": "thermal_fault_owned",
+    "suite": "thermal",
+    "input": {
+      "device_fault": true,
+      "owned": true,
+      "ac_mode": "cool"
+    },
+    "expected": {
+      "plan.action": "stop",
+      "plan.mode": ""
+    }
+  },
+  {
+    "id": "thermal_supply_conflict",
+    "suite": "thermal",
+    "input": {
+      "supply_conflict": true,
+      "measured": 25
+    },
+    "expected": {
+      "plan.action": "release",
+      "plan.mode": ""
+    }
+  },
+  {
+    "id": "thermal_supply_conflict_owned",
+    "suite": "thermal",
+    "input": {
+      "supply_conflict": true,
+      "measured": 25,
+      "owned": true,
+      "ac_mode": "cool"
+    },
+    "expected": {
+      "plan.action": "stop",
+      "plan.mode": ""
+    }
+  },
+  {
+    "id": "thermal_dry_manual",
+    "suite": "thermal",
+    "input": {
+      "ac_mode": "dry"
+    },
+    "expected": {
+      "plan.action": "release",
+      "plan.mode": ""
+    }
+  },
+  {
+    "id": "thermal_fan_manual",
+    "suite": "thermal",
+    "input": {
+      "ac_mode": "fan_only"
+    },
+    "expected": {
+      "plan.action": "release",
+      "plan.mode": ""
+    }
+  },
+  {
+    "id": "thermal_maximum_fan",
+    "suite": "thermal",
+    "input": {
+      "ac_mode": "fan_only",
+      "maximum_fan_only": true
+    },
+    "expected": {
+      "plan.action": "idle",
+      "plan.mode": ""
+    }
+  },
+  {
+    "id": "thermal_ownership_reconcile",
+    "suite": "thermal",
+    "input": {
+      "owned": true
+    },
+    "expected": {
+      "plan.action": "reconcile",
+      "plan.mode": ""
+    }
+  },
+  {
+    "id": "thermal_adopt_cool",
+    "suite": "thermal",
+    "input": {
+      "ac_mode": "cool",
+      "measured": 23.5
+    },
+    "expected": {
+      "plan.action": "adopt",
+      "plan.mode": "cool"
+    }
+  },
+  {
+    "id": "thermal_stop_cool",
+    "suite": "thermal",
+    "input": {
+      "ac_mode": "cool",
+      "measured": 23.5,
+      "owned": true
+    },
+    "expected": {
+      "plan.action": "stop",
+      "plan.mode": "cool"
+    }
+  },
+  {
+    "id": "thermal_adopt_heat",
+    "suite": "thermal",
+    "input": {
+      "ac_mode": "heat",
+      "measured": 24.5
+    },
+    "expected": {
+      "plan.action": "adopt",
+      "plan.mode": "heat"
+    }
+  },
+  {
+    "id": "thermal_stop_heat",
+    "suite": "thermal",
+    "input": {
+      "ac_mode": "heat",
+      "measured": 24.5,
+      "owned": true
+    },
+    "expected": {
+      "plan.action": "stop",
+      "plan.mode": "heat"
+    }
+  },
+  {
+    "id": "thermal_cool_target_reached",
+    "suite": "thermal",
+    "input": {
+      "ac_mode": "cool",
+      "measured": 24.1,
+      "owned": true
+    },
+    "expected": {
+      "plan.action": "stop",
+      "plan.mode": "cool"
+    }
+  },
+  {
+    "id": "thermal_heat_target_reached",
+    "suite": "thermal",
+    "input": {
+      "ac_mode": "heat",
+      "measured": 23.9,
+      "owned": true
+    },
+    "expected": {
+      "plan.action": "stop",
+      "plan.mode": "heat"
+    }
+  },
+  {
+    "id": "thermal_minimum_cool_runtime",
+    "suite": "thermal",
+    "input": {
+      "ac_mode": "cool",
+      "owned": true,
+      "since_change": 299
+    },
+    "expected": {
+      "plan.action": "maintain",
+      "plan.mode": "cool"
+    }
+  },
+  {
+    "id": "thermal_minimum_heat_runtime",
+    "suite": "thermal",
+    "input": {
+      "ac_mode": "heat",
+      "owned": true,
+      "since_change": 299
+    },
+    "expected": {
+      "plan.action": "maintain",
+      "plan.mode": "heat"
+    }
+  },
+  {
+    "id": "thermal_adopt_hot",
+    "suite": "thermal",
+    "input": {
+      "ac_mode": "cool",
+      "measured": 25
+    },
+    "expected": {
+      "plan.action": "adopt",
+      "plan.mode": "cool"
+    }
+  },
+  {
+    "id": "thermal_adopt_cold",
+    "suite": "thermal",
+    "input": {
+      "ac_mode": "heat",
+      "measured": 23
+    },
+    "expected": {
+      "plan.action": "adopt",
+      "plan.mode": "heat"
+    }
+  },
+  {
+    "id": "thermal_maintain_cool",
+    "suite": "thermal",
+    "input": {
+      "ac_mode": "cool",
+      "measured": 25,
+      "owned": true
+    },
+    "expected": {
+      "plan.action": "maintain",
+      "plan.mode": "cool"
+    }
+  },
+  {
+    "id": "thermal_maintain_heat",
+    "suite": "thermal",
+    "input": {
+      "ac_mode": "heat",
+      "measured": 23,
+      "owned": true
+    },
+    "expected": {
+      "plan.action": "maintain",
+      "plan.mode": "heat"
+    }
+  },
+  {
+    "id": "thermal_start_cool",
+    "suite": "thermal",
+    "input": {
+      "measured": 24.7
+    },
+    "expected": {
+      "plan.action": "start",
+      "plan.mode": "cool"
+    }
+  },
+  {
+    "id": "thermal_wait_cool",
+    "suite": "thermal",
+    "input": {
+      "measured": 24.7,
+      "since_change": 299
+    },
+    "expected": {
+      "plan.action": "wait",
+      "plan.mode": "cool"
+    }
+  },
+  {
+    "id": "thermal_start_heat",
+    "suite": "thermal",
+    "input": {
+      "measured": 23.3
+    },
+    "expected": {
+      "plan.action": "start",
+      "plan.mode": "heat"
+    }
+  },
+  {
+    "id": "thermal_wait_heat",
+    "suite": "thermal",
+    "input": {
+      "measured": 23.3,
+      "since_change": 299
+    },
+    "expected": {
+      "plan.action": "wait",
+      "plan.mode": "heat"
+    }
+  },
+  {
+    "id": "thermal_breather_assist_dwell",
+    "suite": "thermal",
+    "input": {
+      "measured": 23.3,
+      "heating_ready": false
+    },
+    "expected": {
+      "plan.action": "wait",
+      "plan.mode": "heat"
+    }
+  },
+  {
+    "id": "thermal_breather_has_capacity",
+    "suite": "thermal",
+    "input": {
+      "measured": 23.3,
+      "breather_at_limit": false
+    },
+    "expected": {
+      "plan.action": "idle",
+      "plan.mode": ""
+    }
+  },
+  {
+    "id": "thermal_fan_delegated_heat",
+    "suite": "thermal",
+    "input": {
+      "ac_mode": "fan_only",
+      "thermal_authorized": true,
+      "measured": 23
+    },
+    "expected": {
+      "plan.action": "start",
+      "plan.mode": "heat"
+    }
+  },
+  {
+    "id": "thermal_fan_delegated_cool",
+    "suite": "thermal",
+    "input": {
+      "ac_mode": "fan_only",
+      "thermal_authorized": true,
+      "measured": 25
+    },
+    "expected": {
+      "plan.action": "start",
+      "plan.mode": "cool"
+    }
+  },
+  {
+    "id": "thermal_fan_delegated_pause",
+    "suite": "thermal",
+    "input": {
+      "ac_mode": "fan_only",
+      "thermal_authorized": true,
+      "measured": 25,
+      "since_change": 299
+    },
+    "expected": {
+      "plan.action": "wait",
+      "plan.mode": "cool"
+    }
+  },
+  {
+    "id": "thermal_fan_delegated_fault",
+    "suite": "thermal",
+    "input": {
+      "ac_mode": "fan_only",
+      "thermal_authorized": true,
+      "device_fault": true
+    },
+    "expected": {
+      "plan.action": "release",
+      "plan.mode": ""
+    }
+  },
+  {
+    "id": "thermal_fan_delegated_missing",
+    "suite": "thermal",
+    "input": {
+      "ac_mode": "fan_only",
+      "thermal_authorized": true,
+      "room_ok": false
+    },
+    "expected": {
+      "plan.action": "release",
+      "plan.mode": ""
+    }
+  },
+  {
+    "id": "thermal_fan_delegated_disabled",
+    "suite": "thermal",
+    "input": {
+      "ac_mode": "fan_only",
+      "thermal_authorized": true,
+      "auto_enabled": false
+    },
+    "expected": {
+      "plan.action": "release",
+      "plan.mode": ""
+    }
+  },
+  {
+    "id": "thermal_dry_not_adopted",
+    "suite": "thermal",
+    "input": {
+      "ac_mode": "dry",
+      "thermal_authorized": true,
+      "measured": 23
+    },
+    "expected": {
+      "plan.action": "release",
+      "plan.mode": ""
+    }
+  },
+  {
+    "id": "air_baseline",
+    "suite": "air",
+    "input": {},
+    "expected": {
+      "target": 3,
+      "can_command": true
+    }
+  },
+  {
+    "id": "air_master_off",
+    "suite": "air",
+    "input": {
+      "enabled": false
+    },
+    "expected": {
+      "can_command": false,
+      "reason": "disabled"
+    }
+  },
+  {
+    "id": "air_profile_off",
+    "suite": "air",
+    "input": {
+      "global_off": true
+    },
+    "expected": {
+      "target": 0,
+      "mode": "off"
+    }
+  },
+  {
+    "id": "air_maximum",
+    "suite": "air",
+    "input": {
+      "global_maximum": true
+    },
+    "expected": {
+      "target": 14,
+      "mode": "maximum"
+    }
+  },
+  {
+    "id": "air_off_wins",
+    "suite": "air",
+    "input": {
+      "global_off": true,
+      "global_maximum": true
+    },
+    "expected": {
+      "target": 0,
+      "mode": "off"
+    }
+  },
+  {
+    "id": "air_manual_zero",
+    "suite": "air",
+    "input": {
+      "automatic": false,
+      "desired": 0,
+      "sensor_request": 14
+    },
+    "expected": {
+      "target": 0
+    }
+  },
+  {
+    "id": "air_manual_fraction",
+    "suite": "air",
+    "input": {
+      "automatic": false,
+      "desired": 1
+    },
+    "expected": {
+      "target": 1
+    }
+  },
+  {
+    "id": "air_manual_half",
+    "suite": "air",
+    "input": {
+      "automatic": false,
+      "desired": 50
+    },
+    "expected": {
+      "target": 7
+    }
+  },
+  {
+    "id": "air_manual_full",
+    "suite": "air",
+    "input": {
+      "automatic": false,
+      "desired": 100
+    },
+    "expected": {
+      "target": 14
+    }
+  },
+  {
+    "id": "air_sensor_raises",
+    "suite": "air",
+    "input": {
+      "automatic": false,
+      "desired": 1,
+      "sensor_request": 8
+    },
+    "expected": {
+      "target": 8
+    }
+  },
+  {
+    "id": "air_noise_cap",
+    "suite": "air",
+    "input": {
+      "sensor_request": 12,
+      "noise_cap": 4
+    },
+    "expected": {
+      "target": 4,
+      "reason": "noise_cap"
+    }
+  },
+  {
+    "id": "air_hard_cap",
+    "suite": "air",
+    "input": {
+      "sensor_request": 12,
+      "hard_cap": 2
+    },
+    "expected": {
+      "target": 2,
+      "reason": "hard_cap"
+    }
+  },
+  {
+    "id": "air_zero_cap",
+    "suite": "air",
+    "input": {
+      "hard_cap": 0
+    },
+    "expected": {
+      "target": 0
+    }
+  },
+  {
+    "id": "air_boost",
+    "suite": "air",
+    "input": {
+      "boost_deadline": 1001
+    },
+    "expected": {
+      "target": 5,
+      "boost_active": true
+    }
+  },
+  {
+    "id": "air_boost_expiry",
+    "suite": "air",
+    "input": {
+      "boost_deadline": 1000
+    },
+    "expected": {
+      "target": 3,
+      "boost_active": false
+    }
+  },
+  {
+    "id": "air_boost_expired",
+    "suite": "air",
+    "input": {
+      "boost_deadline": 999
+    },
+    "expected": {
+      "target": 3,
+      "boost_active": false
+    }
+  },
+  {
+    "id": "air_boost_ceiling",
+    "suite": "air",
+    "input": {
+      "default_request": 11,
+      "boost_deadline": 1001
+    },
+    "expected": {
+      "target": 12
+    }
+  },
+  {
+    "id": "air_boost_no_reduction",
+    "suite": "air",
+    "input": {
+      "default_request": 14,
+      "boost_deadline": 1001
+    },
+    "expected": {
+      "target": 14
+    }
+  },
+  {
+    "id": "air_boost_noise",
+    "suite": "air",
+    "input": {
+      "boost_deadline": 1001,
+      "noise_cap": 4
+    },
+    "expected": {
+      "target": 4
+    }
+  },
+  {
+    "id": "air_maximum_noise",
+    "suite": "air",
+    "input": {
+      "global_maximum": true,
+      "noise_cap": 4
+    },
+    "expected": {
+      "target": 4
+    }
+  },
+  {
+    "id": "air_speed_locked",
+    "suite": "air",
+    "input": {
+      "speed_allowed": false
+    },
+    "expected": {
+      "can_command": false,
+      "reason": "speed_locked"
+    }
+  },
+  {
+    "id": "air_locked_on_power",
+    "suite": "air",
+    "input": {
+      "power_allowed": false
+    },
+    "expected": {
+      "can_set_speed": true,
+      "can_set_power": false
+    }
+  },
+  {
+    "id": "air_locked_off_power",
+    "suite": "air",
+    "input": {
+      "power_allowed": false,
+      "current_power": "off"
+    },
+    "expected": {
+      "can_command": false,
+      "reason": "power_locked"
+    }
+  },
+  {
+    "id": "air_locked_unknown_power",
+    "suite": "air",
+    "input": {
+      "power_allowed": false,
+      "current_power": "unknown"
+    },
+    "expected": {
+      "can_command": false
+    }
+  },
+  {
+    "id": "air_unavailable",
+    "suite": "air",
+    "input": {
+      "available": false
+    },
+    "expected": {
+      "can_command": false,
+      "requires_shutdown": false
+    }
+  },
+  {
+    "id": "air_fault_on",
+    "suite": "air",
+    "input": {
+      "fault": true
+    },
+    "expected": {
+      "can_command": false,
+      "notify": true,
+      "requires_shutdown": true
+    }
+  },
+  {
+    "id": "air_fault_off",
+    "suite": "air",
+    "input": {
+      "fault": true,
+      "current_power": "off"
+    },
+    "expected": {
+      "notify": true,
+      "requires_shutdown": false
+    }
+  },
+  {
+    "id": "air_fault_unreachable",
+    "suite": "air",
+    "input": {
+      "fault": true,
+      "available": false
+    },
+    "expected": {
+      "notify": true,
+      "requires_shutdown": false
+    }
+  },
+  {
+    "id": "air_invalid_wish",
+    "suite": "air",
+    "input": {
+      "desired": "unknown"
+    },
+    "expected": {
+      "can_command": false,
+      "reason": "invalid_input"
+    }
+  },
+  {
+    "id": "air_single_step_boost",
+    "suite": "air",
+    "input": {
+      "hardware_max": 1,
+      "boost_deadline": 1001,
+      "default_request": 0
+    },
+    "expected": {
+      "target": 0
+    }
+  },
+  {
+    "id": "source_primary",
+    "suite": "environment",
+    "input": {},
+    "expected": {
+      "room": 23,
+      "source": "primary"
+    }
+  },
+  {
+    "id": "source_no_averaging",
+    "suite": "environment",
+    "input": {
+      "secondary": {
+        "value": 30
+      }
+    },
+    "expected": {
+      "room": 23,
+      "disagreement": true
+    }
+  },
+  {
+    "id": "source_primary_offline",
+    "suite": "environment",
+    "input": {
+      "primary": {
+        "available": false
+      }
+    },
+    "expected": {
+      "room_ok": false
+    }
+  },
+  {
+    "id": "source_primary_unconfirmed",
+    "suite": "environment",
+    "input": {
+      "primary": {
+        "confirmed": false
+      }
+    },
+    "expected": {
+      "room_ok": false
+    }
+  },
+  {
+    "id": "source_primary_expired",
+    "suite": "environment",
+    "input": {
+      "primary": {
+        "age": 901
+      }
+    },
+    "expected": {
+      "room_ok": false
+    }
+  },
+  {
+    "id": "source_exact_ttl",
+    "suite": "environment",
+    "input": {
+      "primary": {
+        "age": 900
+      }
+    },
+    "expected": {
+      "room_ok": true
+    }
+  },
+  {
+    "id": "source_negative_age",
+    "suite": "environment",
+    "input": {
+      "primary": {
+        "age": -1
+      }
+    },
+    "expected": {
+      "room_ok": false
+    }
+  },
+  {
+    "id": "source_fallback_opt_in",
+    "suite": "environment",
+    "input": {
+      "primary": {
+        "available": false
+      },
+      "fallback_enabled": true
+    },
+    "expected": {
+      "room": 24,
+      "source": "secondary"
+    }
+  },
+  {
+    "id": "source_fallback_stale",
+    "suite": "environment",
+    "input": {
+      "primary": {
+        "available": false
+      },
+      "secondary": {
+        "age": 901
+      },
+      "fallback_enabled": true
+    },
+    "expected": {
+      "room_ok": false
+    }
+  },
+  {
+    "id": "source_fallback_not_average",
+    "suite": "environment",
+    "input": {
+      "fallback_enabled": true
+    },
+    "expected": {
+      "room": 23,
+      "source": "primary"
+    }
+  },
+  {
+    "id": "source_invalid_room_low",
+    "suite": "environment",
+    "input": {
+      "primary": {
+        "value": 4.9
+      }
+    },
+    "expected": {
+      "room_ok": false
+    }
+  },
+  {
+    "id": "source_invalid_room_high",
+    "suite": "environment",
+    "input": {
+      "primary": {
+        "value": 40.1
+      }
+    },
+    "expected": {
+      "room_ok": false
+    }
+  },
+  {
+    "id": "source_target_min",
+    "suite": "environment",
+    "input": {
+      "desired": 16
+    },
+    "expected": {
+      "valid": true,
+      "intent": "cool"
+    }
+  },
+  {
+    "id": "source_target_max",
+    "suite": "environment",
+    "input": {
+      "desired": 30
+    },
+    "expected": {
+      "valid": true,
+      "intent": "heat"
+    }
+  },
+  {
+    "id": "source_target_invalid",
+    "suite": "environment",
+    "input": {
+      "desired": 30.1
+    },
+    "expected": {
+      "valid": false
+    }
+  },
+  {
+    "id": "source_outdoor_missing",
+    "suite": "environment",
+    "input": {
+      "outdoor": {
+        "available": false
+      }
+    },
+    "expected": {
+      "outdoor_ok": false,
+      "passive_cooling": false
+    }
+  },
+  {
+    "id": "source_outdoor_upstream_no_flow",
+    "suite": "environment",
+    "input": {
+      "airflow_confirmed": false
+    },
+    "expected": {
+      "outdoor_ok": true,
+      "outdoor_qualified": false
+    }
+  },
+  {
+    "id": "source_free_cooling",
+    "suite": "environment",
+    "input": {
+      "desired": 22
+    },
+    "expected": {
+      "passive_cooling": true
+    }
+  },
+  {
+    "id": "source_warm_outdoor",
+    "suite": "environment",
+    "input": {
+      "outdoor": {
+        "value": 29
+      }
+    },
+    "expected": {
+      "heater_unhelpful": true
+    }
+  },
+  {
+    "id": "source_stable_55_minutes",
+    "suite": "environment",
+    "input": {
+      "primary": {
+        "age": 3300,
+        "ttl": 5400
+      }
+    },
+    "expected": {
+      "room_ok": true,
+      "room": 23
+    }
+  },
+  {
+    "id": "passive_start",
+    "suite": "passive",
+    "input": {
+      "eligible": true,
+      "severe": false,
+      "reset": false,
+      "pending": "off",
+      "elapsed": 0,
+      "timeout": 300
+    },
+    "expected": {
+      "start_pending": true,
+      "wait": true
+    }
+  },
+  {
+    "id": "passive_pending",
+    "suite": "passive",
+    "input": {
+      "eligible": true,
+      "severe": false,
+      "reset": false,
+      "pending": "on",
+      "elapsed": 299,
+      "timeout": 300
+    },
+    "expected": {
+      "start_pending": false,
+      "wait": true
+    }
+  },
+  {
+    "id": "passive_expiry",
+    "suite": "passive",
+    "input": {
+      "eligible": true,
+      "severe": false,
+      "reset": false,
+      "pending": "on",
+      "elapsed": 300,
+      "timeout": 300
+    },
+    "expected": {
+      "wait": false
+    }
+  },
+  {
+    "id": "passive_expired",
+    "suite": "passive",
+    "input": {
+      "eligible": true,
+      "severe": false,
+      "reset": false,
+      "pending": "on",
+      "elapsed": 301,
+      "timeout": 300
+    },
+    "expected": {
+      "wait": false
+    }
+  },
+  {
+    "id": "passive_severe",
+    "suite": "passive",
+    "input": {
+      "eligible": true,
+      "severe": true,
+      "reset": false,
+      "pending": "on",
+      "elapsed": 0,
+      "timeout": 300
+    },
+    "expected": {
+      "wait": false,
+      "cancel_pending": true
+    }
+  },
+  {
+    "id": "passive_not_eligible",
+    "suite": "passive",
+    "input": {
+      "eligible": false,
+      "severe": false,
+      "reset": false,
+      "pending": "on",
+      "elapsed": 0,
+      "timeout": 300
+    },
+    "expected": {
+      "wait": false,
+      "cancel_pending": true
+    }
+  },
+  {
+    "id": "passive_reset",
+    "suite": "passive",
+    "input": {
+      "eligible": true,
+      "severe": false,
+      "reset": true,
+      "pending": "on",
+      "elapsed": 300,
+      "timeout": 300
+    },
+    "expected": {
+      "start_pending": true,
+      "wait": true
+    }
+  },
+  {
+    "id": "passive_unknown",
+    "suite": "passive",
+    "input": {
+      "eligible": true,
+      "severe": false,
+      "reset": false,
+      "pending": "unknown",
+      "elapsed": 0,
+      "timeout": 300
+    },
+    "expected": {
+      "start_pending": true,
+      "wait": true
+    }
+  },
+  {
+    "id": "passive_bad_timeout",
+    "suite": "passive",
+    "input": {
+      "eligible": true,
+      "severe": false,
+      "reset": false,
+      "pending": "off",
+      "elapsed": 0,
+      "timeout": 0
+    },
+    "expected": {
+      "valid": false,
+      "wait": false
+    }
+  },
+  {
+    "id": "passive_bad_elapsed",
+    "suite": "passive",
+    "input": {
+      "eligible": true,
+      "severe": false,
+      "reset": false,
+      "pending": "off",
+      "elapsed": -1,
+      "timeout": 300
+    },
+    "expected": {
+      "valid": false,
+      "wait": false
+    }
+  }
+]

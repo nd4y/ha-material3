@@ -144,3 +144,9 @@ Changes go through a branch and pull request. Run `npm version patch --no-git-ta
 ## Quick sliders and persistent locks
 
 See [quick control configuration](docs/QUICK_CONTROLS.md) for device metadata, native Auto modes and server-enforced manual locks. Available since v0.6.0.
+# Direct controls and quick access
+
+See [responsive controls](docs/quick-access.md) for direct HA/manual/device
+ownership, configurable mobile quick actions and bounded temperature display.
+The [100 named climate scenarios](docs/climate-100-scenarios.md) run in CI in
+addition to the existing exhaustive policy matrices.

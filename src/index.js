@@ -1,5 +1,6 @@
 import './components.js';
 import './fields.js';
+import {M3ActionBar} from './action-bar.js';
 import {M3ClimateCard,M3DeviceCard,M3CameraCard} from './cards.js';
 import {M3QuickDeviceCard} from './quick-card.js';
 import {M3JournalCard} from './journal-card.js';
@@ -8,7 +9,7 @@ import {M3Dashboard} from './panel.js';
 import './editor.js';
 import {loadFonts} from './theme.js';
 loadFonts();
-for(const Card of [M3ClimateCard,M3DeviceCard,M3QuickDeviceCard,M3CameraCard,M3JournalCard,M3SensorCard,M3Dashboard])Card.getConfigElement=()=>document.createElement('ha-m3-editor');
+for(const Card of [M3ClimateCard,M3DeviceCard,M3QuickDeviceCard,M3CameraCard,M3JournalCard,M3SensorCard,M3Dashboard,M3ActionBar])Card.getConfigElement=()=>document.createElement('ha-m3-editor');
 M3SensorCard.getStubConfig=()=>({config_version:1,title:'Sensors',groups:[{name:'Room',tiles:[{entity:'sensor.choose_sensor'}]}]});
 M3ClimateCard.getStubConfig=()=>({config_version:1,entities:{room_temperature:'sensor.choose_temperature',target_temperature:'input_number.choose_target',enabled:'input_boolean.choose_control'},presets:[]});
 M3DeviceCard.getStubConfig=()=>({config_version:1,entity:'sensor.choose_entity'});
@@ -17,6 +18,7 @@ M3CameraCard.getStubConfig=()=>({config_version:1,entity:'camera.choose_camera'}
 M3Dashboard.getStubConfig=()=>({config_version:1,home:{cards:[]},rooms:[]});
 window.customCards=window.customCards||[];
 for(const[type,name,description]of[
+  ['ha-m3-action-bar','Material 3 Expressive - Quick access','Configurable quick actions with explicit confirmation and a mobile dock'],
   ['ha-m3-climate-card','Material 3 Expressive - Climate','Room target, control and ventilation presets'],
   ['ha-m3-camera-card','Material 3 Expressive - Camera','Native HA camera with preview fallback'],
   ['ha-m3-device-card','Material 3 Expressive - Device','Entity controls and live state'],

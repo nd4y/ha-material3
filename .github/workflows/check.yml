@@ -40,6 +40,11 @@ jobs:
       - run: node scripts/test-journal-browser.mjs "$GITHUB_WORKSPACE" /tmp/m3-browser-tools
       - run: node scripts/test-history-browser.mjs "$GITHUB_WORKSPACE" /tmp/m3-browser-tools
       - run: node scripts/test-sensors-browser.mjs "$GITHUB_WORKSPACE" /tmp/m3-browser-tools
+      - run: node scripts/test-mobile-browser.mjs "$GITHUB_WORKSPACE" /tmp/m3-browser-tools
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: mobile-browser-report
+          path: mobile-browser-report.json
       - uses: actions/upload-artifact@v7.0.2
         with:
           name: sensors-browser-report

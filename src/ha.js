@@ -99,6 +99,7 @@ export function validateConfig(config,kind='panel'){
   if(config.appearance?.motion&&!['expressive','reduced'].includes(config.appearance.motion))throw new Error('Invalid motion');
   if(kind==='climate'){
     validateAirGoals(config);
+    if(config.temperature_display&&(!entityId(config.temperature_display.entity,'sensor')||typeof config.temperature_display.max_age!=='number'||!Number.isFinite(config.temperature_display.max_age)||config.temperature_display.max_age<=0||config.temperature_display.max_age>86400))throw new Error('Display fallback needs a sensor and bounded max_age');
     for(const k of ['room_temperature','target_temperature','enabled'])if(typeof config.entities?.[k]!=='string')throw new Error(`Missing entities.${k}`);
     if(!config.entities.target_temperature.startsWith('input_number.'))throw new Error('Target must be input_number');
     if(!config.entities.enabled.startsWith('input_boolean.'))throw new Error('Enabled control must be input_boolean');
