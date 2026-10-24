@@ -1,3 +1,9 @@
+## 0.15.2 - 2026-10-24
+
+- Move hold progress and release guidance into a theme-aware status bubble outside the finger's touch area, including compact mobile docks.
+- Keep feedback in the browser top layer and within viewport edges; preserve release-to-confirm, cancellation and native HACS updates.
+- Add touch, clipping, viewport, progress and reduced-motion browser regressions with mocked services.
+
 ## 0.14.0
 
 - Direct per-parameter HA Auto, Manual and Device Auto buttons replace ownership popups.
