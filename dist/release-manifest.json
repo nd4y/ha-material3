@@ -118,7 +118,7 @@
     "scripts/test-history-browser.mjs": "cb2cf8103c88ffb082199e2779704aec13abc28a48b93f1cab4dd15f63943614",
     "scripts/test-hold-browser.mjs": "c2f0c1c62ae7dff17a7a875ff62387dc2c0b08d08744d2b57abb19c25de081ea",
     "scripts/test-journal-browser.mjs": "c0d7e328926bbf3f2ad4cf08f688c67c60394f90edcb3a903543d71ffd821a82",
-    "scripts/test-mobile-browser.mjs": "42768fb9dfc158e5bcae5929e8839a46bc5a4aaa41e9a924849859e8cddf494f",
+    "scripts/test-mobile-browser.mjs": "e813c010dbe4f67a615317196c44ef92e94c98fd5ef492f49ed49442d6778949",
     "scripts/test-sensors-browser.mjs": "a03af641e71bd6696af314a64bce7b85dc8590fa58c742fa958942fdb9d77375",
     "scripts/theme.mjs": "5b420fdb40cd38a5412666d32fa5332f07328e72aac0c8b86ef5caf6eafa33b5",
     "src/action-bar.js": "4f3184fb9e1664f57be397b795d09e302a5890209796c3254f8220b25cc03ed4",
