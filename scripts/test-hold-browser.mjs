@@ -1,11 +1,12 @@
 // All services are mocked. This fixture cannot unlock a real door.
 import fs from 'node:fs/promises';
+import {pathToFileURL} from 'node:url';
 const root=process.argv[2]||process.cwd(),renderer=await fs.readFile(root+'/docs/tools/render-public-media.mjs','utf8'),setup=renderer.slice(0,renderer.indexOf('const report='));
 const checks=String.raw`
 let browser;let count=0;const errors=[];
 const expect=(ok,message)=>{count++;if(!ok)throw Error(message);};
 try{
- browser=await chromium.launch({headless:true,args:['--disable-dev-shm-usage']});
+ browser=await chromium.launch({headless:true,channel:process.env.M3_BROWSER_CHANNEL||undefined,args:['--disable-dev-shm-usage']});
  const page=await browser.newPage({viewport:{width:390,height:844},locale:'ru-RU',hasTouch:true});
  page.on('pageerror',e=>errors.push(e.message));
  await page.goto(base+'/public-preview.html');await page.waitForFunction(()=>!!window.publicPreview);
@@ -34,9 +35,47 @@ try{
  const writes=()=>page.evaluate(()=>window.writes.length);
  const down=async()=>{const b=await hold.boundingBox();await page.mouse.move(b.x+b.width/2,b.y+b.height/2);await page.mouse.down();};
  await hold.click();await hold.dblclick();expect(await writes()===0,'Short and double taps submitted');
+ const feedback=bar.locator('ha-m3-hold-button').locator('#hold-feedback');
+ expect(await feedback.isHidden(),'Idle feedback visible');
+ // Test feedback outside a 64px finger radius, even in clipped/transformed docks.
+ for(const [width,height,placement] of [[320,568,'bottom'],[390,844,'bottom'],[700,390,'bottom'],[390,844,'top'],[1280,844,'bottom']]){
+  await page.setViewportSize({width,height});
+  await bar.evaluate((el,placement)=>{el.style.cssText='position:fixed;right:12px;width:84px;transform:translateZ(0);overflow:hidden;'+(placement==='top'?'top:12px':'bottom:12px');el.renderRoot.querySelector('ha-m3-hold-button').compact=true;},placement);
+  const touch=await hold.boundingBox(),x=touch.x+touch.width/2,y=touch.y+touch.height/2;
+  await down();await feedback.waitFor({state:'visible'});await page.waitForTimeout(250);
+  const f=await feedback.boundingBox();
+  expect(f.x>=11&&f.y>=11&&f.x+f.width<=width-11&&f.y+f.height<=height-11,'Feedback outside viewport '+width+' '+placement);
+  expect(f.y+f.height<=y-63||f.y>=y+63,'Feedback obscured by finger '+width+' '+placement);
+  expect(await feedback.evaluate(el=>el.matches(':popover-open')),'Feedback clipped instead of top layer');
+  expect(await feedback.evaluate(el=>getComputedStyle(el).pointerEvents)==='none','Feedback intercepts gestures');
+  const fill=await feedback.locator('.progress').evaluate(el=>new DOMMatrixReadOnly(getComputedStyle(el).transform).a);
+  expect(fill>0&&fill<1,'Progress does not visibly fill during hold');
+  expect(await feedback.innerText()!==''&&await feedback.getAttribute('role')==='status','Feedback missing accessible status');
+  if(width===390&&placement==='bottom'){
+   await page.evaluate(({x,y})=>{const finger=document.createElement('div');finger.id='finger-example';finger.style.cssText='position:fixed;pointer-events:none;z-index:2147483647;width:72px;height:72px;border-radius:50%;background:#777b;border:2px solid #ddd;left:'+(x-36)+'px;top:'+(y-36)+'px';document.body.append(finger);},{x,y});
+   await page.screenshot({path:root+'/hold-progress-mobile.png'});await page.evaluate(()=>document.querySelector('#finger-example').remove());
+  }
+  await hold.dispatchEvent('pointercancel');await page.mouse.up();expect(await feedback.isHidden(),'Cancelled feedback remains visible');expect(await writes()===0,'Feedback test submitted a command');
+ }
+ await page.setViewportSize({width:390,height:844});
+ await bar.evaluate(el=>{el.style.cssText='';el.renderRoot.querySelector('ha-m3-hold-button').compact=false;});
+ await page.emulateMedia({reducedMotion:'reduce'});await down();await page.waitForTimeout(350);
+ expect(await feedback.isVisible(),'Reduced motion hides feedback');
+ expect(await feedback.locator('.progress').evaluate(el=>{const fill=new DOMMatrixReadOnly(getComputedStyle(el).transform).a;return fill>0&&fill<1;}),'Reduced motion has no progress');
+ await hold.dispatchEvent('pointercancel');await page.mouse.up();await page.emulateMedia({reducedMotion:'no-preference'});
+ await down();await page.setViewportSize({width:390,height:800});await page.mouse.up();expect(await feedback.isHidden()&&await writes()===0,'Viewport change did not cancel safely');
+ await page.setViewportSize({width:390,height:844});
+ // Exercise actual touch input, then cancel rather than call even a mocked service.
+ const touchSession=await page.context().newCDPSession(page),touchBox=await hold.boundingBox();
+ await touchSession.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:touchBox.x+touchBox.width/2,y:touchBox.y+touchBox.height/2}]});
+ await feedback.waitFor({state:'visible'});expect(await writes()===0,'Touch started an action before release');
+ await touchSession.send('Input.dispatchTouchEvent',{type:'touchCancel',touchPoints:[]});await touchSession.detach();expect(await feedback.isHidden()&&await writes()===0,'Touch cancellation submitted');
  await down();await page.waitForTimeout(900);expect(await writes()===0,'Duration submitted without release');
  expect(await hold.getAttribute('class')==='holding ready','Ready feedback missing');
+ expect(await feedback.getByText('Отпустите для подтверждения',{exact:true}).isVisible(),'Ready instruction hidden under finger');
+ expect(await feedback.locator('.progress').evaluate(el=>new DOMMatrixReadOnly(getComputedStyle(el).transform).a===1),'Ready progress incomplete');
  await page.mouse.up();expect(await writes()===1,'Ready release must submit once');
+ expect(await feedback.isHidden(),'Confirmed feedback remains visible');
  await down();await page.waitForTimeout(900);await page.mouse.move(0,400);await page.mouse.up();expect(await writes()===1,'Release outside submitted');
  for(const event of ['pointercancel','lostpointercapture','blur']){
   await down();await page.waitForTimeout(850);await hold.dispatchEvent(event);await page.mouse.up();expect(await writes()===1,event+' submitted');
@@ -72,4 +111,4 @@ try{
  await page.screenshot({path:root+'/hold-public-mobile.png'});console.log('Hold/sheets: '+count+' checks passed');
 }finally{if(browser)await browser.close();await new Promise(resolve=>server.close(resolve));}
 `;
-const tmp=root+'/docs/tools/.hold-browser-run.mjs';try{await fs.writeFile(tmp,setup+checks);await import(new URL('file://'+tmp));}finally{await fs.unlink(tmp).catch(()=>{});}
+const tmp=root+'/docs/tools/.hold-browser-run.mjs';try{await fs.writeFile(tmp,setup+checks);await import(pathToFileURL(tmp));}finally{await fs.unlink(tmp).catch(()=>{});}

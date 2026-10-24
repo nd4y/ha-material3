@@ -19,7 +19,12 @@ actions:
       perform_action: script.example_guarded_open
 ```
 
-Hold with a finger, mouse, Space or Enter. Progress fills during the hold.
+Hold with a finger, mouse, Space or Enter. A non-interactive status bubble
+shows the action name, progress and release instruction outside the finger's
+touch area. It uses the browser's top layer to escape clipped or transformed
+cards, stays inside the viewport, and moves below controls near the top edge.
+Reduced-motion mode shows progress in discrete steps. Scrolling or resizing
+the viewport cancels the gesture and dismisses its feedback.
 Release after the indicator is ready to submit once. A short tap, double
 tap, release outside, scroll/pointer cancellation, Escape, blur, hidden tab,
 disconnect or unavailable action cancels. Duration is 800-5000 ms, default
