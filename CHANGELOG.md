@@ -1,3 +1,9 @@
+## 0.15.3 - 2026-10-24
+
+- Distinguish HA automation, held manual values and device automation with labeled icons; use a lock for the manual setting.
+- Give each owner a consistent touch target, an explicit selected outline and a description of who controls the parameter.
+- Preserve direct one-tap selection, parameter independence and native HACS updates.
+
 ## 0.15.2 - 2026-10-24
 
 - Move hold progress and release guidance into a theme-aware status bubble outside the finger's touch area, including compact mobile docks.
