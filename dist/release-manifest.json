@@ -1,6 +1,6 @@
 {
   "name": "ha-material3",
-  "version": "0.15.2",
+  "version": "0.15.3",
   "files": [
     {
       "path": "ha-material3-theme.yaml",
@@ -9,8 +9,8 @@
     },
     {
       "path": "ha-material3.js",
-      "bytes": 414042,
-      "sha256": "5a3a4e31b6838f09dc98f1bdc06efb6a36cecdb2d8fcacb2716ce6d4ef45fee6"
+      "bytes": 415772,
+      "sha256": "3b403e07a8ab915060242a81986469fe0fd8b5b14a6ea598f510d94b975fcd97"
     },
     {
       "path": "LICENSE",
@@ -102,8 +102,8 @@
     "controller/intent-transition.jinja": "7e099608ae77316d25c16542d3f8d7a6934b3417aeb1c722cddf382ee903a688",
     "controller/legacy-policy.jinja": "9ed7b5a0a403eb02762054f587dcea4cb01ee88c0c8e7e0f9aad8066e46912a1",
     "controller/thermal-environment.jinja": "6d6c7c5cc077e6595033d164ec346bf2f653a5fa61da27a70edc52453b8c2493",
-    "package-lock.json": "f2d6e6e8ea77b8e7d87ecb7eb128055dd147d8e954347dab9097b93f339bf29f",
-    "package.json": "254167e20e4fa80c4b17efa522947718fd0530795b4fecb00a48b5cd3e735c72",
+    "package-lock.json": "2338827cd782a5af730f71f1a9bf1cb0c1c8d6c42affac53247520ecd91bffa4",
+    "package.json": "576bfa9b84103d0da55950522c8b3a47846a124543b624caecb9d398cf0b4933",
     "scripts/audit-release.mjs": "ca5fbff89ef1c15a3844746208aaad340f13219dda338bf8b537b52ffb649118",
     "scripts/build.mjs": "ba715c54ed44408e583a14ffcc8d77b046d943b894691137019f9f3722ffd29f",
     "scripts/dev-server.mjs": "9a708517056f40cf7fdd778b0c8a8627137c48ebe59ad47a81b518a459900bb2",
@@ -118,7 +118,7 @@
     "scripts/test-history-browser.mjs": "cb2cf8103c88ffb082199e2779704aec13abc28a48b93f1cab4dd15f63943614",
     "scripts/test-hold-browser.mjs": "c2f0c1c62ae7dff17a7a875ff62387dc2c0b08d08744d2b57abb19c25de081ea",
     "scripts/test-journal-browser.mjs": "c0d7e328926bbf3f2ad4cf08f688c67c60394f90edcb3a903543d71ffd821a82",
-    "scripts/test-mobile-browser.mjs": "182796d38b3debab164522c577d2665446c89f66ba85eb5fc8b80e7b4cad3cd6",
+    "scripts/test-mobile-browser.mjs": "e813c010dbe4f67a615317196c44ef92e94c98fd5ef492f49ed49442d6778949",
     "scripts/test-sensors-browser.mjs": "a03af641e71bd6696af314a64bce7b85dc8590fa58c742fa958942fdb9d77375",
     "scripts/theme.mjs": "5b420fdb40cd38a5412666d32fa5332f07328e72aac0c8b86ef5caf6eafa33b5",
     "src/action-bar.js": "4f3184fb9e1664f57be397b795d09e302a5890209796c3254f8220b25cc03ed4",
@@ -141,14 +141,14 @@
     "src/index.js": "19ee331b2b1c38ff69428e20998c516108f766a9fba83f0b4fb7b5e9c13cb0c4",
     "src/journal-card.js": "30f8bc2240073b711a4a16b530d5154faf8a8eb66d8bec49e162ba3eda534e66",
     "src/journal-model.js": "214fbd279384ba44ac81d2d5b6362587bde01422114e1cc4267a97cd34aaf43c",
-    "src/localize.js": "f4dc3deaf3dc62061a9c96659fe146d98bb02a91662f5539eec8002c8b9ddaaa",
+    "src/localize.js": "9abd6412e8507734606ae5be294b9e827b4538ad8e8e6d786c41a31767f6f442",
     "src/motion.js": "08e3eea7ce0006823ea4877d7f83bb75ec46603581c9a8872351ce413ac8bbb3",
     "src/native-dashboard.js": "27e298b20e8568009f14c244997c36a3c2a5c2576c1d67f900526ef8405383e7",
     "src/ownership.js": "e90e76386954c0cb2cf333818d78d1787e60886807b17aa9f517087af5b3de36",
     "src/panel.js": "09760aa39972be12adec7b7fc432591576201ad96895c5221576fafbb75d18ac",
     "src/popover.js": "bd767249095af4fcefffc8fc5ab65451dfd6a5ba3780bcd66d2ace500b20e2fc",
     "src/preset-controls.js": "e0c482b44554c7e500ab8a6af14df6874e804f5d2de8e8f8d844ac71fdcd1b68",
-    "src/quick-card.js": "be7b3afbfe9d504b11ef43b0a38a3d07c87321cae1969eafce7ef3f9ab63ee68",
+    "src/quick-card.js": "a49d3a1f7f72c90f58da99e9e8fbc43a88e0a1ac68bf8fe53f3794bfdbc68397",
     "src/quick-controls.js": "338320d6c1793eae9416f8811d51a86d00da9bb6551643ee6bea53848194a91e",
     "src/room-controls.js": "758d40a73fa125752e688b97e83848269ff5d9bc3c193e55b25b820b7f132d5a",
     "src/room-reading.js": "0ede52114b2d2a1ceb004b6118613559b1b120d78e3863f5cfeb12c75694a11a",

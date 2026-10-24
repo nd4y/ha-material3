@@ -41,6 +41,10 @@ jobs:
       - run: node scripts/test-history-browser.mjs "$GITHUB_WORKSPACE" /tmp/m3-browser-tools
       - run: node scripts/test-sensors-browser.mjs "$GITHUB_WORKSPACE" /tmp/m3-browser-tools
       - run: node scripts/test-mobile-browser.mjs "$GITHUB_WORKSPACE" /tmp/m3-browser-tools
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: owner-controls-mobile
+          path: owner-controls-mobile.png
       - run: node scripts/test-hold-browser.mjs "$GITHUB_WORKSPACE" /tmp/m3-browser-tools
       - uses: actions/upload-artifact@v7.0.2
         with:

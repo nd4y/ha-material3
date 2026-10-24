@@ -25,3 +25,5 @@ Object.assign(en,{journalActions:'Actions',journalAll:'All records',journalFilte
 
 Object.assign(ru,{manualShort:'Вручную',quickAccess:'Быстрый доступ',lastKnownTemperature:'Последнее показание',thermalPaused:'Проверьте источник температуры'});
 Object.assign(en,{manualShort:'Manual',quickAccess:'Quick access',lastKnownTemperature:'Last reading',thermalPaused:'Check temperature source'});
+Object.assign(ru,{deviceAutoShort:'Авто прибора',ownerHaHelp:'Home Assistant автоматически выбирает значение.',ownerManualHelp:'Ручное значение закреплено: Home Assistant не меняет этот параметр.',ownerDeviceHelp:'Значение выбирает автоматика самого прибора.'});
+Object.assign(en,{deviceAutoShort:'Device Auto',ownerHaHelp:'Home Assistant chooses the value automatically.',ownerManualHelp:'The manual value is held: Home Assistant does not change this parameter.',ownerDeviceHelp:'The device itself chooses the value automatically.'});
