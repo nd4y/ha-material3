@@ -50,6 +50,28 @@ test('metric freshness matrix retains last measured numbers and neutralizes stal
   const numeric=roomMetricReading(hass,{},metric({freshness:undefined}),now);assert.equal(numeric.quality,'fresh');assert.equal(numeric.tone,'notice');
 });
 
+test('explicit display clock tolerance clamps only bounded small future timestamps',()=>{
+  let cases=0;for(const tolerance of [0,1,28,60,120])for(const ahead of new Set([0,Math.max(0,tolerance-.001),tolerance,tolerance+.001])){
+    const item=metric({freshness:{max_age:300,timestamp:'last_updated',clock_tolerance:tolerance}}),hass={states:{'sensor.room_co2':state('812',{unit_of_measurement:'ppm'},-ahead)}},before=structuredClone(hass),result=roomMetricReading(hass,{},item,now),within=ahead<=tolerance;
+    validateRoomMetrics({room_metrics:[item]});assert.equal(result.quality,within?'fresh':'unknown');assert.equal(result.tone,within?'notice':'unknown');assert.equal(result.age,within?0:-ahead);assert.equal(result.value,812);assert.deepEqual(hass,before);cases++;
+  }
+  assert.equal(cases,18);
+  const hass={states:{'sensor.room_co2':state('812',{},-28)}},strict=metric({freshness:{max_age:300,timestamp:'last_updated'}}),allowed=metric({freshness:{max_age:300,timestamp:'last_updated',clock_tolerance:60}});
+  assert.equal(roomMetricReading(hass,{},strict,now).quality,'unknown');assert.equal(roomMetricReading(hass,{},strict,now).age,-28);assert.equal(roomMetricReading(hass,{},allowed,now).quality,'fresh');assert.equal(roomMetricReading(hass,{},allowed,now).age,0);
+  hass.states['sensor.room_co2']=state('812',{},301);const old=roomMetricReading(hass,{},allowed,now);assert.equal(old.quality,'stale');assert.equal(old.age,301);
+});
+
+test('clock tolerance is opt-in, bounded and never turns invalid or missing reports into fresh data',()=>{
+  for(const tolerance of [-.001,120.001,NaN,Infinity,-Infinity,'60',true,false,null,{},[]]){
+    const item=metric({freshness:{max_age:300,timestamp:'last_reported',clock_tolerance:tolerance}}),hass={states:{[item.entity]:state('812')}};
+    assert.throws(()=>validateRoomMetrics({room_metrics:[item]}));assert.equal(roomMetricReading(hass,{},item,now).quality,'unknown');assert.equal(roomMetricReading(hass,{},item,now).tone,'unknown');
+  }
+  for(const timestamp of ['last_reported','last_updated','last_changed']){
+    const item=metric({freshness:{max_age:300,timestamp,clock_tolerance:60}}),hass={states:{[item.entity]:state('812',{},-28)}};assert.equal(roomMetricReading(hass,{},item,now).quality,'fresh');delete hass.states[item.entity][timestamp];assert.equal(roomMetricReading(hass,{},item,now).quality,'unknown');
+    hass.states[item.entity]=state('unknown',{},-28);assert.equal(roomMetricReading(hass,{},item,now).value,null);assert.equal(roomMetricReading(hass,{},item,now).quality,'unknown');
+  }
+});
+
 test('temperature display fallback stays unqualified and neutral without entering controller source',()=>{
   const config={entities:{room_temperature:'sensor.qualified'},temperature_display:{entity:'sensor.raw',max_age:3600}},item=metric({id:'temperature',name:'Temperature',entity:'sensor.qualified',unit:'°C',color:{target_entity:'input_number.target',tolerance:1}}),hass={states:{'sensor.qualified':state('unavailable'), 'sensor.raw':state('24',{unit_of_measurement:'°C'},100),'input_number.target':state('24')}};
   const before=structuredClone(hass),result=roomMetricReading(hass,config,item,now);assert.equal(result.value,24);assert.equal(result.quality,'stale');assert.equal(result.tone,'unknown');assert.equal(result.age,100);assert.deepEqual(hass,before);

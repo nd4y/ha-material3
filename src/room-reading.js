@@ -22,7 +22,8 @@ export function roomMetricReading(hass,config,item,now=Date.now()){
   let quality=value===null?'unknown':reading.qualified?'fresh':'stale',age=reading.age??null;
   if(value!==null&&reading.qualified&&item.freshness){
     const stamp=Date.parse(source?.[item.freshness.timestamp]||''),elapsed=(now-stamp)/1000;age=Number.isFinite(elapsed)?elapsed:null;
-    if(!Number.isFinite(elapsed)||elapsed<0)quality='unknown';else if(elapsed>item.freshness.max_age)quality='stale';
+    const tolerance=item.freshness.clock_tolerance===undefined?0:item.freshness.clock_tolerance,validTolerance=typeof tolerance==='number'&&Number.isFinite(tolerance)&&tolerance>=0&&tolerance<=120;
+    if(!Number.isFinite(elapsed)||!validTolerance||elapsed< -tolerance)quality='unknown';else{age=Math.max(0,elapsed);if(elapsed>item.freshness.max_age)quality='stale';}
   }
   const color=readingColor(hass,value,item.color,quality);
   return {value,unit,quality,age,tone:color.tone,label:color.label,entity:item.entity};

@@ -21,6 +21,17 @@ test('mobile stale, missing and future-timestamp readings cannot retain a favora
     assert.equal(result.quality,quality);assert.equal(result.value,value);assert.equal(result.tone,'unknown');assert.equal(result.label,'');
   }
 });
+test('mobile clock tolerance is explicit and bounded without extending old-data freshness',()=>{
+  for(const [offset,tolerance,quality,age]of [[28000,undefined,'unknown',-28],[28000,0,'unknown',-28],[28000,60,'fresh',0],[60000,60,'fresh',0],[60001,60,'unknown',-60.001],[-61000,60,'stale',61],[120000,120,'fresh',0],[120001,120,'unknown',-120.001]]){
+    const item={...metric,freshness:{...metric.freshness,...(tolerance===undefined?{}:{clock_tolerance:tolerance})}},source={...fresh(8),last_updated:new Date(now+offset).toISOString()};
+    const result=roomMetricReading({states:{'sensor.pm':source}},{},item,now);
+    assert.equal(result.quality,quality);assert.equal(result.age,age);assert.equal(result.tone,quality==='fresh'?'good':'unknown');assert.ok(!('last_reported' in source));
+  }
+});
+test('mobile metric clock tolerance rejects invalid values and accepts only zero to 120 seconds',()=>{
+  for(const tolerance of [0,60,120])assert.doesNotThrow(()=>validateRoomMetrics({room_metrics:[{...metric,freshness:{...metric.freshness,clock_tolerance:tolerance}}]}));
+  for(const tolerance of [-1,120.001,null,'60',false,NaN,Infinity])assert.throws(()=>validateRoomMetrics({room_metrics:[{...metric,freshness:{...metric.freshness,clock_tolerance:tolerance}}]}));
+});
 test('mobile temperature fallback remains display-only and neutral despite a numerically favorable value',()=>{
   const config={entities:{room_temperature:'sensor.qualified'},temperature_display:{entity:'sensor.raw',max_age:3600}};
   const item={id:'temperature',name:'Температура',entity:'sensor.qualified',color:{target_entity:'input_number.goal',tolerance:1}};
