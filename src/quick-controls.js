@@ -2,6 +2,15 @@ import {available,finite,stateOf,matches,validateAction} from './ha.js';
 import {validateOperation} from './operation-colors.js';
 
 const read=(state,attribute)=>attribute?state?.attributes?.[attribute]:state?.state;
+export function automationTrustState(hass,config){
+  const locks=config.automation_reset?.lock_entities??(config.automation_groups||[]).flatMap(group=>(group.controls||[]).map(item=>item.lock_entity));
+  const enabled=[config.entities?.enabled,...(config.automation_reset?.enabled_entities||[])].map(entity=>stateOf(hass,entity));
+  if(enabled.some(state=>state?.state==='off'))return 'partial';
+  if(!enabled.every(state=>available(state)&&state.state==='on')||!locks.length||locks.some(entity=>!entity))return 'unknown';
+  const values=locks.map(entity=>stateOf(hass,entity));
+  if(values.some(state=>state?.state==='on'))return 'partial';
+  return values.every(state=>available(state)&&state.state==='off')?'all':'unknown';
+}
 export function automationPermission(hass,item){
   const state=stateOf(hass,item.lock_entity),known=available(state)&&['on','off'].includes(state.state);
   return {available:known,automatic:known&&state.state==='off'};

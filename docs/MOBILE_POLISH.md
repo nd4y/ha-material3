@@ -16,6 +16,8 @@ Set `presentation: drawer` on `custom:ha-m3-journal-card` to replace the persist
 
 On `custom:ha-m3-climate-card`, `layout: summary` displays the room name, optional `navigation_action`, configured `room_metrics` and the existing `automation_reset` action. Use this on an overview; the full `layout: calm` card remains on the climate view. The shortcut calls the configured script. It does not fabricate a local rollback or change the controller's contracts.
 
+The trust shortcut is a 48px circular icon. Its primary color means the master is on and every configured manual permission is released. A warm icon indicates manual settings or disabled automation; neutral means insufficient state data. The accessible label and tooltip include the current status. Color changes follow HA state, never an optimistic click. Configure `automation_reset.lock_entities` with the complete set of boolean helpers that must be off, and optional `automation_reset.enabled_entities` with eligibility helpers that must be on, in addition to `entities.enabled`. Without explicit lock helpers, `automation_groups[].controls[].lock_entity` is used. An empty/missing permission set cannot report fully trusted. These fields observe helpers only; the original reset action remains unchanged.
+
 ```yaml
 room_metrics:
   - id: pm25
