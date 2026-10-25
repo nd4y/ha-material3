@@ -33,7 +33,7 @@ export function validateRoomMetrics(config){
   const ids=new Set();for(const metric of config.room_metrics){
     if(!object(metric)||typeof metric.id!=='string'||!/^[-a-z0-9_]+$/.test(metric.id)||ids.has(metric.id)||!entity(metric.entity)||typeof metric.name!=='string'||!metric.name.trim())throw new Error('Room metrics need unique IDs, entities and names');ids.add(metric.id);
     if(metric.unit!==undefined&&typeof metric.unit!=='string'||metric.icon!==undefined&&!isBundledIcon(metric.icon))throw new Error('Invalid metric label or unbundled icon');
-    if(metric.freshness!==undefined){const f=metric.freshness;if(!object(f)||typeof f.max_age!=='number'||!Number.isFinite(f.max_age)||f.max_age<=0||!['last_reported','last_updated','last_changed'].includes(f.timestamp))throw new Error('Metric freshness needs a positive age and an explicit HA timestamp');}
+    if(metric.freshness!==undefined){const f=metric.freshness;if(!object(f)||typeof f.max_age!=='number'||!Number.isFinite(f.max_age)||f.max_age<=0||!['last_reported','last_updated','last_changed'].includes(f.timestamp))throw new Error('Metric freshness needs a positive age and an explicit HA timestamp');if(f.clock_tolerance!==undefined&&(typeof f.clock_tolerance!=='number'||!Number.isFinite(f.clock_tolerance)||f.clock_tolerance<0||f.clock_tolerance>120))throw new Error('Metric clock_tolerance must be numeric seconds from 0 to 120');}
     validateReadingColor(metric.color);
   }
 }

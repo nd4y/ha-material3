@@ -42,7 +42,7 @@ try{
     const set=(entity,value,stamp)=>{fixture.states[entity]={...state(value,fixture.states[entity]?.attributes),...(stamp?{last_updated:stamp}:{})};update();};
     const view=document.createElement('hui-view');view.id='polish-native-view';view.style.display='block';const main=document.querySelector('main');main.replaceWith(view);view.append(main,fixture.bar);
     const blank=document.createElement('div');blank.id='polish-swipe-area';blank.style.cssText='height:130px;margin:12px;background:var(--card-background-color);touch-action:pan-y';view.prepend(blank);
-    const paths=['/demo/home','/demo/climate','/demo/plan'];summary.setConfig({...summary._config,swipe_navigation:{paths}});history.replaceState(null,'',paths[0]);
+    const paths=['/demo/home','/demo/climate','/demo/plan'];home.setConfig({...home._config,swipe_navigation:{paths}});history.replaceState(null,'',paths[0]);
     const routes=[];window.addEventListener('location-changed',()=>routes.push(location.pathname));
     window.polishFixture={fixture,home,summary,journal,view,blank,paths,routes,set,update,metrics};update();await Promise.all([home.updateComplete,summary.updateComplete,journal.updateComplete]);await document.fonts.ready;
   });
@@ -69,6 +69,19 @@ try{
       await set(entity,value);
     }
     expect((await home.locator('[data-metric=pm25]').innerText()).includes('PM2.5'),'Particulate reading presented as an unspecified general AQI');
+  });
+  await scenario('explicit-metric-clock-tolerance-with-frontend-timestamps',async()=>{
+    await home.evaluate(async element=>{element.setConfig({...element._config,room_metrics:element._config.room_metrics.map(item=>item.id==='co2'?{...item,freshness:{...item.freshness,clock_tolerance:60}}:item)});await element.updateComplete;});
+    const skew=seconds=>page.evaluate(seconds=>{const source=window.unifiedFixture.states['sensor.co2'];source.state='812';source.last_updated=new Date(Date.now()+seconds*1000).toISOString();delete source.last_reported;window.polishFixture.update();},seconds);
+    await skew(28);await tone(home,'co2','notice');await tone(climate,'co2','unknown');
+    expect(await home.locator('[data-metric=co2]').getAttribute('data-quality')==='fresh','Configured 60-second tolerance rejected a 28-second host clock lead');expect(await climate.locator('[data-metric=co2]').getAttribute('data-quality')==='unknown','Metric without explicit tolerance accepted a future timestamp');expect(await page.evaluate(()=>!('last_reported' in window.unifiedFixture.states['sensor.co2'])),'Clock-skew fixture accidentally supplied a frontend last_reported timestamp');
+    await skew(90);for(const card of [home,climate]){await tone(card,'co2','unknown');expect(await card.locator('[data-metric=co2]').getAttribute('data-quality')==='unknown','Clock lead beyond configured tolerance was fresh');}
+    await home.evaluate(async element=>{element.setConfig({...element._config,room_metrics:window.polishFixture.metrics});await element.updateComplete;});await set('sensor.co2',500);for(const card of [home,climate])await tone(card,'co2','good');
+  });
+  await scenario('mobile-native-swipe-anchor-is-visible-summary',async()=>{
+    expect(await home.evaluate(element=>element._config.layout==='summary'&&element._config.swipe_navigation.paths.join('|')===window.polishFixture.paths.join('|')),'Native swipe binding is not on the home summary');
+    expect(await page.evaluate(()=>!window.polishFixture.summary._config.swipe_navigation&&!window.polishFixture.fixture.bar._config.swipe_navigation),'Swipe binding duplicated on a different or conditional host');
+    for(const width of [320,390]){await page.setViewportSize({width,height:900});const bounds=await home.boundingBox();expect(await home.isVisible()&&bounds?.width>0&&bounds?.height>0,'Native swipe host is hidden on mobile '+width);expect(await home.locator('.room-metrics').isVisible(),'Visible mobile swipe host has no rendered summary content '+width);}
   });
   await scenario('mobile-container-widths-and-selected-theme',async()=>{
     expect(await home.evaluate(element=>getComputedStyle(element).getPropertyValue('--md-sys-color-primary').trim().toLowerCase()===getComputedStyle(document.documentElement).getPropertyValue('--ha-m3-color-primary').trim().toLowerCase()),'Summary bypassed selected Ice theme');

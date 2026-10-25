@@ -1,3 +1,7 @@
+## 0.17.1 - 2026-10-25
+
+- Allow an explicit bounded clock tolerance for displayed room readings when the Home Assistant and browser clocks differ slightly. Larger future timestamps remain unknown; controller qualification is unchanged.
+
 ## 0.17.0 - 2026-10-25
 
 - Add touch swipes between configured native Lovelace views, excluding controls, media, overlays, vertical scrolling and screen edges.
