@@ -113,7 +113,7 @@ export function validateConfig(config,kind='panel'){
         if(!values.size)throw new Error('Maximum return options missing');
       }
     if(config.target_action){validateAction(config.target_action);if(config.target_action.action!=='perform-action'||!config.target_action.value_field)throw new Error('Target needs a dynamic value action');}
-    if(config.automation_reset){if(!config.automation_reset.name)throw new Error('Automation reset needs a name');validateAction(config.automation_reset.action);}
+    if(config.automation_reset){if(!config.automation_reset.name)throw new Error('Automation reset needs a name');validateAction(config.automation_reset.action);for(const key of ['lock_entities','enabled_entities']){const value=config.automation_reset[key];if(value!==undefined&&(!Array.isArray(value)||value.some(entity=>typeof entity!=='string'||!/^input_boolean\.[a-z0-9_]+$/.test(entity))))throw new Error('Automation reset state helpers must be input_boolean entity arrays');}}
       for(const group of config.automation_groups||[]){if(!group.name||!group.entity||!Array.isArray(group.controls))throw new Error('Automation groups need names, entities and controls');for(const item of group.controls){if(!item.name||!/^input_boolean\.[a-z0-9_]+$/.test(item.lock_entity||''))throw new Error('Automation control needs a name and lock helper');if(item.lock_action)validateAction(item.lock_action);}}
     if(config.actuators!==undefined&&!Array.isArray(config.actuators))throw new Error('Actuators must be an array');
     const actuatorIds=new Set();for(const item of config.actuators||[]){

@@ -58,6 +58,22 @@ try{
     expect(await page.evaluate(()=>Object.entries(window.unifiedFixture.states).filter(([entity])=>entity.startsWith('input_boolean.lock_')).every(([,state])=>state.state==='off')),'CTA did not release configured manual permissions');
     for(const card of [home,climate])expect(await card.locator('.trust-automation').isVisible(),'CTA disappears when all permissions are automatic');
   });
+  await scenario('round-trust-button-confirmed-colors-and-unknown-state',async()=>{
+    const before=await writes(),colors=[];
+    for(const [value,expected] of [['off','all'],['on','partial'],['unavailable','unknown']]){
+      await set('input_boolean.lock_ac_power',value);
+      for(const card of [home,climate]){
+        const button=card.locator('.trust-automation');
+        await page.waitForFunction(({id,expected})=>document.getElementById(id).renderRoot.querySelector('.trust-automation').dataset.trust===expected,{id:await card.getAttribute('id'),expected});
+        const box=await button.getByRole('button').boundingBox();expect(box.width===48&&box.height===48,'Trust button must be a 48px circle');
+        expect((await button.getByRole('button').getAttribute('aria-label')).includes('автомат'),'Missing accessible action/status');
+        const visual=await button.evaluate(el=>{const shape=el.shadowRoot.querySelector('.shape'),s=getComputedStyle(shape);return {radius:s.borderTopLeftRadius,color:s.backgroundColor};});
+        expect(visual.radius==='24px','Trust shape must be circular');if(card===home)colors.push(visual.color);
+      }
+    }
+    expect(new Set(colors).size===3,'All, partial and unknown colors must differ');
+    expect(await writes()===before,'Observing trust state must not send actions');await set('input_boolean.lock_ac_power','off');
+  });
   await scenario('metric-boundaries-target-relative-and-zero',async()=>{
     for(const [value,expected]of [[23.49,'cool'],[23.5,'good'],[25.5,'good'],[25.51,'warm']]){await set('sensor.room',value);await tone(home,'temperature',expected);await tone(climate,'temperature',expected);}
     for(const [entity,id,values]of [['sensor.humidity','humidity',[[29,'high'],[30,'notice'],[35,'good'],[60,'good'],[61,'notice'],[71,'high']]],['sensor.co2','co2',[[799,'good'],[800,'notice'],[1200,'high']]],['sensor.pm','pm25',[[0,'good'],[15,'good'],[15.01,'notice'],[35,'notice'],[35.01,'high']]]])for(const [value,expected]of values){await set(entity,value);await tone(home,id,expected);await tone(climate,id,expected);if(value===0)expect((await home.locator('[data-metric="'+id+'"] .room-metric-value').innerText()).includes('0'),'Zero reading disappeared');}
