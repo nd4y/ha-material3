@@ -4,7 +4,25 @@
   "neutral_palette": null,
   "font_family": "Roboto, Arial, sans-serif",
   "shape": {"card": 28, "temperature": 20},
-  "spacing": {"card": 24, "compact_card": 20, "section": 24, "row": 16},
+  "spacing": {"card": 16, "compact_card": 12, "section": 16, "row": 12},
   "layout": {"max_width": 1440, "primary_ratio": 1.25},
-  "temperature_surface": "surface-container-high"
+  "temperature_surface": "surface-container-high",
+  "operation_colors": {
+    "dark": {
+      "warm": "#FFC089", "warm-container": "#493322",
+      "cool": "#A9CEFF", "cool-container": "#24384D",
+      "fan": "#9DD7D9", "fan-container": "#213D40",
+      "clean": "#91DDA9", "clean-container": "#1E402E",
+      "off": "#C1C7D0", "off-container": "#2A3038",
+      "unknown": "#C1C7D0", "unknown-container": "#2A3038"
+    },
+    "light": {
+      "warm": "#7A3E00", "warm-container": "#FFE2C6",
+      "cool": "#14518B", "cool-container": "#D9E9FF",
+      "fan": "#005D61", "fan-container": "#CCEDEF",
+      "clean": "#176333", "clean-container": "#CEF0D6",
+      "off": "#49515D", "off-container": "#E4E8EF",
+      "unknown": "#49515D", "unknown-container": "#E4E8EF"
+    }
+  }
 }

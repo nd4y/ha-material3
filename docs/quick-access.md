@@ -1,9 +1,13 @@
 # Direct controls and responsive quick access
 
-The quick device card exposes visible owner buttons for every configured
-parameter: **HA Auto**, **Manual**, and **Device Auto** when an `auto` action is
-configured. Selecting the active owner sends no command. Permission actions
-remain independent per parameter. Device Auto uses the existing configured
+The quick device card exposes one circular owner button beside every configured
+parameter. It cycles **HA Auto -> Manual -> Device Auto -> HA Auto** when an
+`auto` action is configured, or **HA Auto -> Manual -> HA Auto** otherwise.
+The current owner remains visible as text; the button announces the next owner.
+An unavailable permission is labelled explicitly. After an action, its parameter
+waits for observed HA state rather than treating a service acknowledgment as
+confirmation. A bounded timeout offers an explicit retry.
+Permission actions remain independent per parameter. Device Auto uses the existing configured
 server action, which must save manual intent and acquire that parameter's lock
 atomically. HA Auto releases the permission and lets the next controller cycle
 decide; it does not force native Auto.
@@ -54,7 +58,7 @@ Failed actions deliberately have no automatic retry button.
 
 On mobile, mini-plots collapse to their history expansion buttons. The full
 history and original records remain accessible; sliders, boost buttons and
-direct ownership stay visible. No device functionality is removed.
+owner controls stay visible. No device functionality is removed.
 
 ## Temperature continuity
 

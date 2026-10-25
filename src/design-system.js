@@ -2,7 +2,7 @@ import defaults from '../tokens/design-system.json' with {type:'json'};
 import foundation from '../tokens/foundation.json' with {type:'json'};
 export const designSystem=defaults;
 export function resolveDesignSystem(overrides={}){
-  const c={...defaults,...overrides,shape:{...defaults.shape,...overrides.shape},spacing:{...defaults.spacing,...overrides.spacing},layout:{...defaults.layout,...overrides.layout}};
+  const c={...defaults,...overrides,shape:{...defaults.shape,...overrides.shape},spacing:{...defaults.spacing,...overrides.spacing},layout:{...defaults.layout,...overrides.layout},operation_colors:{dark:{...defaults.operation_colors.dark,...overrides.operation_colors?.dark},light:{...defaults.operation_colors.light,...overrides.operation_colors?.light}}};
   if(!/^#[a-f0-9]{6}$/i.test(c.seed_color)||typeof c.name!=='string'||!c.name.trim())throw new Error('Invalid theme name or seed_color');
   if(typeof c.font_family!=='string'||/[\r\n]/.test(c.font_family))throw new Error('Invalid font_family');
   if(c.neutral_palette!==null){
@@ -18,8 +18,14 @@ export function resolveDesignSystem(overrides={}){
     if(!['dark','light'].includes(mode)||!roles||typeof roles!=='object'||Array.isArray(roles))throw new Error('Invalid color overrides');
     for(const[role,value]of Object.entries(roles))if(!/^[a-z][a-z-]+$/.test(role)||!/^#[a-f0-9]{6}$/i.test(value))throw new Error('Invalid color role');
   }
+  if(overrides.operation_colors!==undefined&&(!overrides.operation_colors||typeof overrides.operation_colors!=='object'||Array.isArray(overrides.operation_colors)))throw new Error('Invalid operation colors');
+  for(const[mode,roles]of Object.entries(overrides.operation_colors||{})){
+    if(!['dark','light'].includes(mode)||!roles||typeof roles!=='object'||Array.isArray(roles))throw new Error('Invalid operation colors');
+    for(const[role,value]of Object.entries(roles))if(!/^(warm|cool|fan|clean|off|unknown)(-container)?$/.test(role)||!/^#[a-f0-9]{6}$/i.test(value))throw new Error('Invalid operation color role');
+  }
   return c;
 }
+export function operationTokens(settings=defaults,dark=true){const c=resolveDesignSystem(settings);return Object.fromEntries(Object.entries(c.operation_colors[dark?'dark':'light']).map(([role,value])=>['--ha-m3-operation-'+role,value]));}
 export function appTokens(c=defaults){return{'card-radius':c.shape.card+'px','temperature-radius':c.shape.temperature+'px','card-padding':c.spacing.card+'px','compact-card-padding':c.spacing.compact_card+'px','section-gap':c.spacing.section+'px','row-gap':c.spacing.row+'px','content-width':c.layout.max_width+'px','primary-track':c.layout.primary_ratio+'fr','font-family':c.font_family,'temperature-background':`var(--md-sys-color-${c.temperature_surface})`};}
 const mapping={'primary-color':'primary','accent-color':'primary','primary-background-color':'surface','secondary-background-color':'surface-container-low','card-background-color':'surface-container','ha-card-background':'surface-container','primary-text-color':'on-surface','secondary-text-color':'on-surface-variant','divider-color':'outline-variant','disabled-text-color':'outline','error-color':'error','app-header-background-color':'surface','app-header-text-color':'on-surface','sidebar-background-color':'surface','sidebar-text-color':'on-surface-variant','sidebar-icon-color':'on-surface-variant','sidebar-selected-text-color':'on-secondary-container','sidebar-selected-icon-color':'on-secondary-container','sidebar-selected-background-color':'secondary-container','state-icon-color':'on-surface-variant','state-icon-active-color':'primary','state-active-color':'primary'};
 export function themeDefinition(modes,settings=defaults){
@@ -28,6 +34,7 @@ export function themeDefinition(modes,settings=defaults){
   for(const[role,tuple]of Object.entries(foundation.typography))['size','line-height','tracking','weight'].forEach((field,i)=>{const value=String(tuple[i])+(i===3?'':'px');theme[`ha-m3-type-${role}-${field}`]=value;theme[`md-sys-typescale-${role}-${field}`]=value;});
   for(const[mode,roles]of Object.entries(modes)){
     const values={};for(const[ha,md]of Object.entries(mapping))values[ha]=roles[md];
+    for(const[key,value]of Object.entries(operationTokens(c,mode==='dark'))){values[key.slice(2)]=value;values['ha-m3-theme-'+key.slice(8)]=value;}
     for(const[role,value]of Object.entries(roles)){values['ha-m3-color-'+role]=value;values['md-sys-color-'+role]=value;}
     theme.modes[mode]=values;
   }

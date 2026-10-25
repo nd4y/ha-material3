@@ -1,6 +1,6 @@
 import {createColorRoles} from './color-scheme.js';
 import foundation from '../tokens/foundation.json' with {type:'json'};
-import {designSystem,appTokens} from './design-system.js';
+import {designSystem,appTokens,operationTokens} from './design-system.js';
 import {assetUrl} from './asset-url.js';
 const cache=new Map();
 export function colorRoles(seed=designSystem.seed_color,dark=true){
@@ -17,7 +17,8 @@ export function applyTheme(host,config,hass){
   host.style.setProperty('--ha-m3-effects-duration',a.motion==='reduced'?'0ms':'150ms');
   host.style.setProperty('--ha-m3-scrim-duration',a.motion==='reduced'?'0ms':'200ms');
   host.style.setProperty('--ha-m3-progress-animation',a.motion==='reduced'?'none':'m3-spin');
-  const key=(a.seed_color||designSystem.seed_color)+dark+inherit;if(host._themeKey===key)return;host._themeKey=key;
+  const key=(a.seed_color||designSystem.seed_color)+dark+inherit+JSON.stringify(a.operation_colors||{});if(host._themeKey===key)return;host._themeKey=key;
+  for(const[k,v]of Object.entries(operationTokens(a.operation_colors?{operation_colors:a.operation_colors}:designSystem,dark)))host.style.setProperty(k,inherit&&!a.operation_colors?`var(--ha-m3-theme-${k.slice(8)},${v})`:v);
   for(const[k,v]of Object.entries(colorRoles(a.seed_color,dark)))host.style.setProperty(`--md-sys-color-${k}`,inherit?`var(--ha-m3-color-${k},${v})`:v);
   for(const[role,v]of Object.entries(foundation.typography))['size','line-height','tracking','weight'].forEach((field,i)=>host.style.setProperty(`--md-sys-typescale-${role}-${field}`,`var(--ha-m3-type-${role}-${field},${v[i]+(i===3?'':'px')})`));
   for(const[k,v]of Object.entries(appTokens()))host.style.setProperty('--ha-m3-ui-'+k,k==='temperature-background'&&!inherit?v:`var(--ha-m3-${k},${v})`);

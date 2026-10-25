@@ -1,4 +1,5 @@
 import {available,finite,stateOf,matches,validateAction} from './ha.js';
+import {validateOperation} from './operation-colors.js';
 
 const read=(state,attribute)=>attribute?state?.attributes?.[attribute]:state?.state;
 export function automationPermission(hass,item){
@@ -44,6 +45,7 @@ export function valueAction(action,value){
   const result=structuredClone(action);delete result.value_field;result.data={...result.data,[action.value_field]:value};return result;
 }
 export function validateControls(config){
+  validateOperation(config);
   const ids=new Set();
   for(const item of config.quick_controls||[]){
     if(!item.id||ids.has(item.id)||!item.name||!item.entity||!item.set_action)throw new Error('Controls need unique IDs, names, entities and set actions');

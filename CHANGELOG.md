@@ -1,3 +1,10 @@
+## 0.16.0 - 2026-10-25
+
+- Connect device controls in one compact responsive panel, keeping each device action, parameter and automation owner independent.
+- Replace the three owner buttons with one labeled circular control that cycles through supported HA, Manual and Device modes. Keep the current owner visible and announce the next action.
+- Apply shared compact surfaces and operation colors across light and dark themes, with explicit unknown and off states. Breather heating requires a configured evidence source.
+- Keep phone touch areas, keyboard access, histories, dialogs and protected hold actions; verify mobile, tablet and desktop layouts with reduced motion and mocked services.
+
 ## 0.15.3 - 2026-10-24
 
 - Distinguish HA automation, held manual values and device automation with labeled icons; use a lock for the manual setting.
