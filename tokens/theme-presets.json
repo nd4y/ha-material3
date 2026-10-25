@@ -9,7 +9,7 @@
     "seed_color": "#9ACBFF",
     "neutral_palette": {"hue": 255, "chroma": 7, "variant_chroma": 12},
     "shape": {"card": 20, "temperature": 16},
-    "spacing": {"card": 20, "compact_card": 16, "section": 16, "row": 8},
+    "spacing": {"card": 16, "compact_card": 12, "section": 16, "row": 12},
     "color_overrides": {"dark": {
       "surface": "#101317", "surface-container-lowest": "#0B0E12",
       "surface-container-low": "#161A20", "surface-container": "#1A1E24",
