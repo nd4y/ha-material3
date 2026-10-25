@@ -31,3 +31,9 @@ Object.assign(ru,{devicesGroup:'Управление приборами',operati
 Object.assign(en,{devicesGroup:'Device controls',operationHeat:'Heating',operationCool:'Cooling',operationFan:'Ventilation',operationFresh:'Without heating',operationClean:'Cleaning',operationBoost:'Intense cleaning',operationOff:'Off',operationIdle:'Idle',operationUnknown:'No operation data',operationHeaterUnknown:'No heater data',operationHeating:'Heating active',operationCooling:'Cooling active',ownerNext:'Next owner'});
 Object.assign(ru,{ownerConfirmationTimeout:'Нет подтверждения режима'});
 Object.assign(en,{ownerConfirmationTimeout:'Ownership change not confirmed'});
+Object.assign(ru,{ownerAutomaticShort:'Авто',ownerDeviceShort:'Прибор',roomMetrics:'Воздух в комнате',setTemperature:'Заданная температура',readingStale:'Данные устарели',readingInRange:'В заданном диапазоне',trustAllAutomation:'Доверить всё автоматике'});
+Object.assign(en,{ownerAutomaticShort:'Auto',ownerDeviceShort:'Device',roomMetrics:'Room air',setTemperature:'Set temperature',readingStale:'Readings are stale',readingInRange:'Within configured range',trustAllAutomation:'Use automation for all'});
+Object.assign(ru,{readingNotFresh:'Нет свежих данных',climateNavigation:'Управление климатом'});
+Object.assign(en,{readingNotFresh:'No fresh readings',climateNavigation:'Climate controls'});
+Object.assign(ru,{ownerHomeAutomatic:'Автоматика дома',ownerManualControl:'Ручное управление',ownerDeviceAutomatic:'Автоматика прибора'});
+Object.assign(en,{ownerHomeAutomatic:'Home automation',ownerManualControl:'Manual control',ownerDeviceAutomatic:'Device automation'});

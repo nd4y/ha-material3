@@ -23,9 +23,12 @@ try{
  await page.waitForFunction(()=>document.querySelector('ha-m3-quick-device-card').hass.states['climate.ac'].attributes.fan_mode==='auto');
  expect(await speedOwner.getAttribute('data-owner')==='device','Native Auto not selected');
  expect(await speedOwner.locator('.symbol').innerText()==='devices','Device Auto lacks device icon');
+ expect((await speedOwner.getAttribute('aria-label')).includes('Автоматика прибора'),'Native Auto missing full accessible meaning');
+ expect((await speedOwner.locator('.owner-copy').innerText())==='Прибор','Native Auto compact label missing');
  await speedOwner.click();await page.waitForFunction(()=>document.querySelector('ha-m3-quick-device-card').hass.states['input_boolean.lock_ac_speed'].state==='off');await speedOwner.click();
  await page.waitForFunction(()=>document.querySelector('ha-m3-quick-device-card').hass.states['climate.ac'].attributes.fan_mode==='low');
  expect(await speedOwner.getAttribute('data-owner')==='manual','Native Auto did not exit');
+ expect((await speedOwner.getAttribute('aria-label')).includes('Ручное управление'),'Manual owner missing full accessible meaning');
  expect(await speedOwner.locator('.symbol').innerText()==='lock','Manual mode lacks lock');
  expect((await speedOwner.getAttribute('aria-description')).includes('не меняет этот параметр'),'Manual lock meaning is unclear');
  expect(await page.evaluate(()=>document.querySelector('ha-m3-quick-device-card').hass.states['input_boolean.lock_ac_temperature'].state==='off'),'Speed changed thermal permission');
@@ -33,7 +36,9 @@ try{
  await page.waitForFunction(()=>document.querySelector('ha-m3-quick-device-card').hass.states['input_boolean.lock_ac_speed'].state==='off');
  expect(await speedOwner.locator('.symbol').innerText()==='lock_open','HA Auto lacks open lock icon');
  expect(await speed.locator('.owner').count()===1,'More than one ownership button');
- expect((await speedOwner.getAttribute('aria-label')).includes('Авто HA'),'Current owner missing from accessible label');
+ const currentOwnerLabel=await speedOwner.getAttribute('aria-label');
+ expect(currentOwnerLabel.includes('Автоматика дома')&&currentOwnerLabel.includes('Следующий режим: Ручное управление'),'Current and next owner missing from accessible label');
+ expect((await speedOwner.locator('.owner-copy').innerText())==='Авто','Home automation compact label missing');
  await page.evaluate(()=>{
   window.doorWrites=[];const bar=document.createElement('ha-m3-action-bar');
   bar.setConfig({language:'ru',actions:[{name:'Дверь',icon:'door',confirmation:'Подтвердить действие?',action:{action:'perform-action',perform_action:'script.demo_open'}}]});

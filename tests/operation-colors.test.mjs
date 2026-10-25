@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {operationModel,parameterOperation,validateOperation} from '../src/operation-colors.js';
+import {operationModel,parameterOperation,validateOperation,operationMotion} from '../src/operation-colors.js';
 const state=(state,attributes={})=>({state,attributes});
 const config={entity:'climate.example',operation:{kind:'climate'}};
 const hass=(mode,attributes={},extra={})=>({states:{'climate.example':state(mode,attributes),...extra}});
@@ -65,4 +65,23 @@ test('operation configuration is finite and contains no installation constants',
   validateOperation(config);validateOperation({...config,grouped:true});
   for(const operation of [null,{}, {kind:'guess'}, {kind:'climate',states:{}}, {kind:'climate',states:{unknown:'heat'}}, {kind:'climate',states:{on:'red'}}, {kind:'breather',indicator:{entity:'binary_sensor.heater',active_value:'on',inactive_value:'on'}}])assert.throws(()=>validateOperation({...config,operation}));
   assert.throws(()=>validateOperation({...config,grouped:'yes'}));assert.throws(()=>validateOperation({...config,quick_controls:[{operation:'guess'}]}));
+});
+
+test('decorative operation motion needs matching observed HVAC activity rather than a selected mode or target',()=>{
+  const expected={heat:{heating:'heat'},cool:{cooling:'cool'},fan_only:{fan:'flow'}};
+  for(const mode of ['heat','cool','fan_only','off','unknown','unavailable'])for(const activity of ['heating','cooling','fan','idle','off',undefined,'unavailable']){
+    const op=operationModel(hass(mode,{hvac_action:activity,temperature:mode==='cool'?35:10}),config);
+    assert.equal(operationMotion(op),expected[mode]?.[activity]||'none',`${mode}/${activity}`);
+  }
+});
+
+test('breather and purifier motion follows finite actual evidence, with unknown and conflicts static',()=>{
+  const breather={...config,operation:{kind:'breather',indicator:{entity:'binary_sensor.heater',active_value:'on',inactive_value:'off'}}};
+  for(const [heater,motion]of [['on','heat'],['off','flow'],['unknown','none'],['unavailable','none'],['other','none']])assert.equal(operationMotion(operationModel(hass('fan_only',{}, {'binary_sensor.heater':state(heater)}),breather)),motion);
+  assert.equal(operationMotion(operationModel(hass('off',{}, {'binary_sensor.heater':state('on')}),breather)),'none');
+  assert.equal(operationMotion(operationModel(hass('fan_only'),{...config,operation:{kind:'breather'}})),'none');
+  const purifier={...config,operation:{kind:'purifier'}};
+  assert.equal(operationMotion(operationModel(hass('on'),purifier)),'spin');
+  for(const mode of ['off','unknown','unavailable'])assert.equal(operationMotion(operationModel(hass(mode),purifier)),'none');
+  const cleaning=operationModel(hass('on'),purifier);assert.equal(parameterOperation(cleaning,{operation:'airflow'}).tone,'clean');
 });

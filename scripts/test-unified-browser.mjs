@@ -92,6 +92,7 @@ try{
     await page.evaluate(()=>window.unifiedFixture.resetOwners());
     const button=owner(ac,'temperature');check(await button.count()===1,'One owner button required');
     check(await button.getAttribute('data-owner')==='ha'&&await button.getAttribute('data-next-owner')==='manual','Initial/current-next owner');
+    check((await button.getAttribute('aria-label')).includes('Автоматика дома')&&(await button.getAttribute('aria-label')).includes('Следующий режим: Ручное управление'),'Full current/next owner labels missing');
     check(await button.getAttribute('aria-pressed')===null,'Three-state owner must not claim binary pressed');
     await button.click();await page.waitForFunction(()=>window.unifiedFixture.states['input_boolean.lock_ac_temperature'].state==='on');
     check(await button.getAttribute('data-owner')==='manual','Manual not reflected');
@@ -103,6 +104,7 @@ try{
     const button=owner(ac,'speed');await button.click();await page.waitForFunction(()=>window.unifiedFixture.states['input_boolean.lock_ac_speed'].state==='on');
     check(await button.getAttribute('data-owner')==='manual','HA -> manual failed');
     await button.click();await page.waitForFunction(()=>window.unifiedFixture.states['climate.ac'].attributes.fan_mode==='auto');check(await button.getAttribute('data-owner')==='device','Manual -> device failed');
+    check((await button.getAttribute('aria-label')).includes('Автоматика прибора'),'Native Auto accessible name is ambiguous');
     await button.click();await page.waitForFunction(()=>window.unifiedFixture.states['input_boolean.lock_ac_speed'].state==='off');check(await button.getAttribute('data-owner')==='ha','Device -> HA failed');
     // Returning from native Auto through HA then manual preserves the existing valid-manual-value model.
     await button.click();await page.waitForFunction(()=>window.unifiedFixture.states['climate.ac'].attributes.fan_mode!=='auto');
