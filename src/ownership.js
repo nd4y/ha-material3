@@ -6,6 +6,22 @@ export function ownerModel(hass,item){
   return {available:p.available,owner:p.automatic?'ha':m.auto?'device':'manual',
     choices:item.auto?['ha','manual','device']:['ha','manual']};
 }
+
+export function ownerPresentation(owner){
+  return {
+    ha:{labelKey:'ownerAutomaticShort',accessibleKey:'ownerHomeAutomatic',icon:'lock_open',helpKey:'ownerHaHelp'},
+    manual:{labelKey:'manualShort',accessibleKey:'ownerManualControl',icon:'lock',helpKey:'ownerManualHelp'},
+    device:{labelKey:'ownerDeviceShort',accessibleKey:'ownerDeviceAutomatic',icon:'devices',helpKey:'ownerDeviceHelp'}
+  }[owner]||{labelKey:'unavailable',accessibleKey:'unavailable',icon:'info',helpKey:'unavailable'};
+}
+
+// A whole-card restriction is an observed aggregate, never a new service.
+// Unknown permissions must not be presented as a confirmed manual block.
+export function deviceOwnershipModel(hass,config){
+  const items=[config.power,...(config.quick_controls||[])].filter(item=>item?.lock_entity),permissions=[...new Map(items.map(item=>[item.lock_entity,item])).values()].map(item=>automationPermission(hass,item));
+  const automatic=permissions.filter(item=>item.automatic).length,restricted=permissions.filter(item=>item.available&&!item.automatic).length,total=permissions.length,known=total>0&&permissions.every(item=>item.available);
+  return {state:!known?'unknown':restricted===total?'blocked':automatic===total?'automatic':'mixed',known,automatic,restricted,total};
+}
 export function ownerAction(hass,item,owner){
   const m=ownerModel(hass,item);
   if(!m.available||!m.choices.includes(owner))throw new Error('Unavailable ownership');

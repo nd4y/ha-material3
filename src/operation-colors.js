@@ -17,7 +17,7 @@ const activityKeys={heating:'operationHeating',cooling:'operationCooling',fan:'o
 const read=(state,attribute)=>attribute?state?.attributes?.[attribute]:state?.state;
 const scalar=value=>['string','number','boolean'].includes(typeof value)&&String(value)!=='';
 const validEntity=value=>typeof value==='string'&&/^[a-z_][a-z0-9_]*\.[a-z0-9_]+$/.test(value);
-const model=(mode,extra={})=>({mode,...modes[mode],available:mode!=='unknown',activityKey:null,deviceAvailable:false,deviceOn:false,...extra});
+const model=(mode,extra={})=>({mode,...modes[mode],available:mode!=='unknown',kind:null,activity:null,activityKey:null,deviceAvailable:false,deviceOn:false,...extra});
 
 export function validateOperation(config){
   const op=config.operation;
@@ -44,15 +44,15 @@ export function validateOperation(config){
 export function operationModel(hass,config){
   const op=config.operation,main=stateOf(hass,config.entity);
   const deviceAvailable=available(main),deviceOn=deviceAvailable&&['on','heat','cool','heat_cool','auto','fan_only','dry','cleaning'].includes(main.state);
-  const result=(mode,extra={})=>model(mode,{deviceAvailable,deviceOn,...extra});
+  const result=(mode,extra={})=>model(mode,{kind:op?.kind??null,deviceAvailable,deviceOn,...extra});
   const unknown=()=>result('unknown',op?.kind==='breather'?{labelKey:'operationHeaterUnknown'}:{});
   if(!op||!available(main))return unknown();
   if(main.state==='off')return result('off');
   if(op.kind==='breather'&&op.indicator){
     const i=op.indicator,state=stateOf(hass,i.entity),value=read(state,i.attribute);
     if(!available(state)||!scalar(value))return unknown();
-    if(String(value)===String(i.active_value))return result('heat',{labelKey:'operationHeating'});
-    if(String(value)===String(i.inactive_value))return result('fresh');
+    if(String(value)===String(i.active_value))return result('heat',{labelKey:'operationHeating',activity:'heating'});
+    if(String(value)===String(i.inactive_value))return result('fresh',{activity:'fan'});
     return unknown();
   }
   // A configured state map is authoritative: missing/unrecognized values do
@@ -63,10 +63,20 @@ export function operationModel(hass,config){
   const map=op.states||(op.kind==='climate'?climateModes:purifierModes);
   const mode=Object.hasOwn(map,String(value))?map[String(value)]:'unknown';
   if(!Object.hasOwn(modes,mode)||mode==='unknown')return unknown();
-  const activity=op.kind==='climate'?main.attributes?.hvac_action:null;
-  return result(mode,{activityKey:Object.hasOwn(activityKeys,activity)?activityKeys[activity]:null});
+  const activity=op.kind==='climate'?main.attributes?.hvac_action:op.kind==='purifier'&&['clean','boost'].includes(mode)?'cleaning':op.kind==='breather'?{heat:'heating',fresh:'fan',fan:'fan'}[mode]??null:null;
+  return result(mode,{activity,activityKey:op.kind==='climate'&&Object.hasOwn(activityKeys,activity)?activityKeys[activity]:null});
 }
 
 export function parameterOperation(operation,item){
-  return item.operation==='airflow'&&operation.deviceOn?model('fan',{deviceAvailable:operation.deviceAvailable,deviceOn:true}):operation;
+  return item.operation==='airflow'&&operation.deviceOn&&operation.kind!=='purifier'?model('fan',{kind:operation.kind,deviceAvailable:operation.deviceAvailable,deviceOn:true}):operation;
+}
+
+// Motion depicts reported activity, not a selected setpoint or owner request.
+// Inconsistent/missing HVAC activity remains static instead of being guessed.
+export function operationMotion(operation){
+  if(!operation.deviceAvailable||!operation.deviceOn||!operation.available)return 'none';
+  if(operation.kind==='purifier')return ['clean','boost'].includes(operation.mode)&&operation.activity==='cleaning'?'spin':'none';
+  if(operation.mode==='heat'&&operation.activity==='heating')return 'heat';
+  if(operation.mode==='cool'&&operation.activity==='cooling')return 'cool';
+  return ['fan','fresh'].includes(operation.mode)&&operation.activity==='fan'?'flow':'none';
 }

@@ -1,3 +1,11 @@
+## 0.17.0 - 2026-10-25
+
+- Add touch swipes between configured native Lovelace views, excluding controls, media, overlays, vertical scrolling and screen edges.
+- Show a compact room summary and automation shortcut, with configurable colors for temperature, humidity, CO2 and PM2.5. Missing or stale readings remain neutral.
+- Add an optional side drawer for the automation journal, with keyboard focus, Escape dismissal and reduced motion.
+- Refine ownership labels, align icons, separate device lock backgrounds from parameter colors and animate only supported reported activity.
+- Preserve device action bindings, controller behavior and the native dashboard routes.
+
 ## 0.16.1 - 2026-10-25
 
 - Apply unified compact spacing to the Ice preset as well as Graphite Blue, preserving its colors and shapes.

@@ -5,8 +5,10 @@ import {applyTheme} from './theme.js';
 import {available,finite,stateOf,stepTarget,targetDecimals,selectedPreset,timerText,formatState,actionAvailable,perform,validateConfig,matches,actuatorState,actuatorAction} from './ha.js';
 import {translate,locale,formatNumber} from './localize.js';
 import {roomControlStyles,renderRoomTarget,renderContext,renderAutomationAccess} from './room-controls.js';
-import {calmRoomStyles,renderCalmRoom} from './calm-room.js';
+import {calmRoomStyles,renderCalmRoom,renderRoomSummary} from './calm-room.js';
+import {validateRoomMetrics} from './reading-colors.js';
 import {airGoalStyles,renderAirGoals,renderHealthAlerts,syncAirGoalDrafts,clearAirGoalTimers} from './air-goals.js';
+import {bindSwipeNavigation,validateSwipeNavigation} from './swipe-navigation.js';
 
 const cardStyles=css`
   :host{container-type:inline-size;--md-ref-typeface-plain:var(--ha-m3-ui-font-family,'HA M3 Roboto',Roboto,Arial,sans-serif);--md-ref-typeface-brand:var(--md-ref-typeface-plain)}
@@ -20,7 +22,9 @@ export class M3BaseCard extends LitElement{
   static properties={hass:{attribute:false},_config:{state:true},_busy:{state:true},_error:{state:true},_pending:{state:true}};
   static styles=[common,cardStyles];
   constructor(){super();this._config={};this._busy=false;this._error=false;this._pending='';}
-  setConfig(config){this._config=validateConfig(config,this.kind||'panel');}
+  setConfig(config){validateSwipeNavigation(config?.swipe_navigation);this._config=validateConfig(config,this.kind||'panel');this._disposeSwipe?.();if(this.isConnected)this._disposeSwipe=bindSwipeNavigation(this,this._config.swipe_navigation);}
+  connectedCallback(){super.connectedCallback();this._disposeSwipe=bindSwipeNavigation(this,this._config.swipe_navigation);}
+  disconnectedCallback(){this._disposeSwipe?.();super.disconnectedCallback();}
   get hass(){return this._hass;}
   set hass(value){const old=this._hass;this._hass=value;this.requestUpdate('hass',old);}
   willUpdate(){applyTheme(this,this._config,this.hass);}
@@ -50,12 +54,13 @@ export class M3ClimateCard extends M3BaseCard{
     @container(max-width:400px){.wide{display:none}.compact{display:block;width:100%}}@container(max-width:350px){.temperature{padding:16px}.toggle-label{gap:8px}.goal .target-value{font-size:24px;line-height:32px}.goal{gap:8px}.stepper{flex-shrink:0}}
   `];
   constructor(){super();this.kind='climate';this._now=Date.now();this._roomTargetDraft=null;}
+  setConfig(config){validateRoomMetrics(config);if(config.navigation_action&&(config.navigation_action.action!=='navigate'||!/^\/(?!\/)/.test(config.navigation_action.navigation_path||'')))throw Error('Room summary navigation must use a local HA path');super.setConfig(config);}
   willUpdate(changed){super.willUpdate(changed);if(changed.has('hass')){this._now=Date.now();syncAirGoalDrafts(this);}if(this._roomTargetDraft!==null&&Number(this.s(this._config.entities?.target_temperature)?.state)===this._roomTargetDraft){this._roomTargetDraft=null;clearTimeout(this._roomTargetTimer);}}
   renderActuators(){
     const c=this._config;if(!c.actuators?.length)return nothing;
     return html`<div class="actuators" role="group" aria-label=${c.actuators_name||this.t('actuators')}><span class="body-label">${c.actuators_name||this.t('actuators')}</span>${c.actuators.map(item=>{const state=actuatorState(this.hass,item);return html`<div class="toggle-row"><div class="toggle-label">${icon(item.icon||'thermostat')}<span><strong>${item.name}</strong><small>${item.description||(!state.available?this.t('unavailable'):state.selected?this.t('allowed'):this.t('excluded'))}</small></span></div><ha-m3-switch .selected=${state.selected} .disabled=${!state.available||this._busy} .loading=${this._pending==='actuator:'+item.id} .label=${item.name} motion=${this.motion} @m3-change=${event=>this.run(actuatorAction(this.hass,item,event.detail.selected),'actuator:'+item.id)}></ha-m3-switch></div>`;})}</div>`;
   }
-  connectedCallback(){super.connectedCallback();clearInterval(this.clock);this.clock=setInterval(()=>{if(this.s(this._config.maximum?.timer)?.state==='active'||this._config.air_goals?.some(item=>this.s(item.boost?.active_entity)?.state==='on'))this._now=Date.now();},1000);}
+  connectedCallback(){super.connectedCallback();clearInterval(this.clock);this.clock=setInterval(()=>{if(this.s(this._config.maximum?.timer)?.state==='active'||this._config.air_goals?.some(item=>this.s(item.boost?.active_entity)?.state==='on')||this._config.room_metrics?.length&&Date.now()-this._now>=30000)this._now=Date.now();},1000);}
   disconnectedCallback(){super.disconnectedCallback();clearInterval(this.clock);clearTimeout(this._roomTargetTimer);clearAirGoalTimers(this);}
   getCardSize(){return 10;}
   async showModes(){await this.updateComplete;this.renderRoot.querySelector('ha-m3-dialog').show();}
@@ -78,6 +83,7 @@ export class M3ClimateCard extends M3BaseCard{
     </section>`;
   }
   render(){
+    if(this._config.layout==='summary')return renderRoomSummary(this);
     if(this._config.layout==='calm')return renderCalmRoom(this);
     if(this._config.compact)return this.renderCompact();
     const c=this._config,e=c.entities||{},room=this.s(e.room_temperature),target=this.s(e.target_temperature),enabled=this.s(e.enabled),roomNumber=available(room)?finite(room.state):null,targetNumber=available(target)?finite(target.state):null;
