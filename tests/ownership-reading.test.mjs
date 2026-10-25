@@ -5,11 +5,12 @@ import {roomReading} from '../src/room-reading.js';
 const s=(state,attributes={})=>({state,attributes,last_changed:new Date(100000).toISOString()});
 const item={entity:'fan.demo',lock_entity:'input_boolean.lock',attribute:'preset_mode',options_attribute:'preset_modes',set_action:{action:'perform-action',perform_action:'script.manual',value_field:'value'},auto:{value:'Auto',active_when:[{entity:'fan.demo',attribute:'preset_mode',value:'Auto'}],action:{action:'perform-action',perform_action:'script.device_auto'}}};
 test('direct ownership keeps HA, native Auto and manual distinct',()=>{
-  const hass={states:{'fan.demo':s('on',{preset_mode:'Auto'}),'input_boolean.lock':s('off')}};
+  const hass={states:{'fan.demo':s('on',{preset_mode:'Auto',preset_modes:['Auto','low','high']}),'input_boolean.lock':s('off')}};
   assert.equal(ownerModel(hass,item).owner,'ha');
   assert.equal(ownerAction(hass,item,'ha'),null);
   assert.equal(ownerAction(hass,item,'device').perform_action,'script.device_auto');
-  assert.equal(ownerAction(hass,item,'manual').perform_action,'input_boolean.turn_on');
+  assert.equal(ownerAction(hass,item,'manual').perform_action,'script.manual');
+  assert.equal(ownerAction(hass,item,'manual').data.value,'low');
   hass.states['input_boolean.lock']=s('on');hass.states['fan.demo'].attributes.preset_modes=['Auto','low','high'];assert.equal(ownerModel(hass,item).owner,'device');
   assert.equal(ownerAction(hass,item,'manual').data.value,'low');
   hass.states['fan.demo']=s('on',{preset_mode:'low'});assert.equal(ownerModel(hass,item).owner,'manual');

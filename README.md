@@ -3,7 +3,7 @@
 Optional [smooth history and noise preferences](docs/history-and-noise.md) include
 Recorder-backed mini graphs and secondary PM1 in expanded air-quality details.
 
-Configurable Material 3 Expressive cards and theme for Home Assistant. Use native HA navigation and Sections layout with independent cards. Dark appearance is the fallback; the active companion theme is inherited by default. Version **0.12.1**, Apache-2.0. Independent project, not an official Google or Home Assistant product.
+Configurable Material 3 Expressive cards and theme for Home Assistant. Use native HA navigation and Sections layout with independent cards. Dark appearance is the fallback; the active companion theme is inherited by default. Version **0.16.0**, Apache-2.0. Independent project, not an official Google or Home Assistant product.
 
 [Releases](https://github.com/nd4y/ha-material3/releases) · [Changelog](CHANGELOG.md) · [Issues](https://github.com/nd4y/ha-material3/issues)
 
@@ -20,6 +20,7 @@ User comfort preferences are independent inputs, not device-speed readings. Opti
 - Native HA views, room subviews and Sections layout: [recommended setup](docs/native-dashboard.md), no nested application or second navigation bar.
 - `custom:ha-m3-climate-card`: room temperature, helper target, control switch, configured ventilation presets and backend timer.
 - `custom:ha-m3-device-card`: device state and supported controls; HA more-info and configured navigation actions preserve access to advanced features.
+- `custom:ha-m3-device-group-card`: [connected device controls](docs/unified-device-group.md) with responsive columns, independent owner buttons and evidence-based operation colors.
 - `custom:ha-m3-camera-card`: native live camera when HA card helpers are available, otherwise a protected HA preview and more-info action.
 - `custom:ha-m3-sensor-card`: compact [sensor mini-tiles grouped by room](docs/sensor-mini-tiles.md), with measurements, leak states, batteries and native history.
 - Optional YAML theme for the surrounding HA interface, generated from the same color roles.

@@ -27,10 +27,11 @@ export class M3Button extends LitElement{
     button{color:var(--md-sys-color-on-secondary-container)}.state{position:absolute;inset:0;background:currentColor;opacity:0;transition:opacity var(--fx-fast)}
     button:hover:not(:disabled) .state{opacity:.08}button:focus-visible:not(:disabled) .state{opacity:.1}button:active:not(:disabled) .state{opacity:.1}
     button:focus-visible{outline:3px solid var(--md-sys-color-secondary);outline-offset:2px;border-radius:12px;z-index:2}
-    .icon{width:48px;padding:4px}.icon .shape{inset:4px}.icon .symbol{font-size:24px}
+    .icon{width:48px;padding:0}.icon .shape{inset:0}.icon .symbol{font-size:24px}
     .filled,.selected{color:var(--md-sys-color-on-primary)}.filled .shape,.selected .shape{background:var(--md-sys-color-primary)}
     .text{color:var(--md-sys-color-primary)}.text .shape,.row .shape{background:transparent}
-    .row{padding:8px 16px;min-height:72px;justify-content:flex-start;text-align:left;white-space:normal;color:var(--md-sys-color-on-surface);font-weight:400;font-size:16px;line-height:24px;letter-spacing:.5px;gap:16px}
+    .nav{flex-direction:column;gap:2px;padding:4px;min-height:64px;font-size:12px;line-height:16px;white-space:normal;text-align:center}.nav .shape{inset:0;background:transparent}.nav .symbol{font-size:24px}
+    .row{padding:8px 12px;min-height:64px;justify-content:flex-start;text-align:left;white-space:normal;color:var(--md-sys-color-on-surface);font-weight:400;font-size:16px;line-height:24px;letter-spacing:.5px;gap:12px}
     .row .shape{inset:0}.row slot{flex:1}.row .symbol{color:var(--md-sys-color-on-surface-variant)}
     .connected{padding:4px 12px;min-width:48px}.connected .symbol{font-size:18px}
     button:disabled{cursor:default;color:color-mix(in srgb,var(--md-sys-color-on-surface) 38%,transparent)}button:disabled .shape{background:color-mix(in srgb,var(--md-sys-color-on-surface) 12%,transparent)}
@@ -43,7 +44,7 @@ export class M3Button extends LitElement{
   disconnectedCallback(){super.disconnectedCallback();this.anim.stop();}
   updated(){
     const shape=this.renderRoot.querySelector('.shape'),connected=this.kind==='connected';
-    let corners=connected?[8,8,8,8]:this.kind==='row'?[0,0,0,0]:[20,20,20,20];
+    let corners=connected?[8,8,8,8]:this.kind==='row'?[0,0,0,0]:this.kind==='icon'?[24,24,24,24]:[20,20,20,20];
     if(connected){if(this.position==='first')corners=[20,8,8,20];if(this.position==='last')corners=[8,20,20,8];if(this.position==='only')corners=[20,20,20,20];if(this.selected)corners=[20,20,20,20];}
     if(this._pressed&&!this.disabled&&!this.loading){corners=connected?[4,4,4,4]:this.kind==='row'?[0,0,0,0]:[8,8,8,8];if(connected&&this.position==='first')corners=[20,4,4,20];if(connected&&this.position==='last')corners=[4,20,20,4];}
     ['--tl','--tr','--br','--bl'].forEach((k,i)=>this.anim.number(shape,k,corners[i]));
@@ -86,9 +87,9 @@ customElements.define('ha-m3-connected-group',M3ConnectedGroup);
 export class M3Dialog extends LitElement{
   static properties={heading:{},motion:{},open:{type:Boolean},_closing:{state:true}};
   static styles=[common,css`
-    dialog{border:0;border-radius:28px;background:var(--md-sys-color-surface-container-high);color:var(--md-sys-color-on-surface);padding:24px;width:min(560px,calc(100vw - 32px));max-height:calc(100dvh - 48px);margin:auto;overflow:auto;box-shadow:0 8px 24px color-mix(in srgb,var(--md-sys-color-shadow) 24%,transparent);transform:translateY(var(--dialog-y,0px)) scale(var(--dialog-scale,1));opacity:var(--dialog-opacity,1)}
+    dialog{border:0;border-radius:28px;background:var(--md-sys-color-surface-container-high);color:var(--md-sys-color-on-surface);padding:16px;width:min(560px,calc(100vw - 32px));max-height:calc(100dvh - 48px);margin:auto;overflow:auto;box-shadow:0 8px 24px color-mix(in srgb,var(--md-sys-color-shadow) 24%,transparent);transform:translateY(var(--dialog-y,0px)) scale(var(--dialog-scale,1));opacity:var(--dialog-opacity,1)}
     dialog::backdrop{background:color-mix(in srgb,var(--md-sys-color-scrim) 32%,transparent);animation:m3-scrim-in var(--ha-m3-scrim-duration,200ms) cubic-bezier(.34,.80,.34,1) both}dialog.closing::backdrop{animation:m3-scrim-out var(--ha-m3-scrim-duration,200ms) cubic-bezier(.34,.80,.34,1) both}@keyframes m3-scrim-in{from{background:transparent}to{background:color-mix(in srgb,var(--md-sys-color-scrim) 32%,transparent)}}@keyframes m3-scrim-out{from{background:color-mix(in srgb,var(--md-sys-color-scrim) 32%,transparent)}to{background:transparent}}:host([motion=reduced]) dialog::backdrop{animation:none}@media(prefers-reduced-motion:reduce){dialog::backdrop{animation:none}}header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}h2{font-size:24px;line-height:32px}section{font-size:14px;line-height:20px;color:var(--md-sys-color-on-surface-variant)}footer{display:flex;justify-content:flex-end;padding-top:16px}ha-m3-button{margin:-8px -8px 0 0}
-    @media(max-width:700px){dialog{margin:auto 0 0;width:100%;max-width:none;max-height:85dvh;border-radius:28px 28px 0 0;padding:20px 20px max(16px,env(safe-area-inset-bottom));transform:translateY(var(--dialog-y,0px));overscroll-behavior:contain}footer{position:sticky;bottom:0;background:var(--md-sys-color-surface-container-high);gap:8px}header{gap:12px}h2{font-size:22px;line-height:28px}}
+    @media(max-width:700px){dialog{margin:auto 0 0;width:100%;max-width:none;max-height:85dvh;border-radius:28px 28px 0 0;padding:16px 16px max(16px,env(safe-area-inset-bottom));transform:translateY(var(--dialog-y,0px));overscroll-behavior:contain}footer{position:sticky;bottom:0;background:var(--md-sys-color-surface-container-high);gap:8px}header{gap:12px}h2{font-size:20px;line-height:28px}}
   `];
   constructor(){super();this.heading='';this.open=false;this._closing=false;this.anim=new Motion(this);}
   async show(){clearTimeout(this.closeTimer);this.open=true;this._closing=false;await this.updateComplete;const d=this.renderRoot.querySelector('dialog');if(!d.open){d.showModal();this.anim.number(d,'--dialog-y',24);this.anim.number(d,'--dialog-scale',.92,'defaultSpatial','');this.anim.number(d,'--dialog-opacity',0,'defaultEffects','');}this.anim.number(d,'--dialog-y',0,'defaultSpatial');this.anim.number(d,'--dialog-scale',1,'defaultSpatial','');this.anim.number(d,'--dialog-opacity',1,'defaultEffects','');}

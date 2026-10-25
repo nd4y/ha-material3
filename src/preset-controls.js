@@ -2,8 +2,8 @@ import {html,css,nothing} from 'lit';
 import {actionAvailable,selectedPreset} from './ha.js';
 
 export const presetControlStyles=css`
-  .calm-preset-compact{display:flex;align-items:center;flex-wrap:wrap;gap:4px 16px;min-width:0}
-  .calm-preset-icons{display:flex;align-items:center;flex-wrap:wrap;gap:4px;min-width:0}
+  .calm-preset-compact{display:flex;align-items:center;flex-wrap:wrap;gap:4px 12px;min-width:0}
+  .calm-preset-icons{display:flex;align-items:center;flex-wrap:wrap;gap:2px;min-width:0}
   .calm-preset-icons .preset-icon{flex:0 0 48px;width:48px;height:48px}
   .calm-preset-current{min-width:0;font-size:12px;line-height:16px;color:var(--md-sys-color-on-surface-variant);overflow-wrap:anywhere}
   .calm-preset-current strong{font-weight:500;color:var(--md-sys-color-on-surface)}
