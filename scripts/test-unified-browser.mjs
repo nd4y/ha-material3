@@ -6,11 +6,16 @@ import {pathToFileURL} from 'node:url';
 import {createRequire} from 'node:module';
 
 const root=path.resolve(process.argv[2]||'.');
+const selectedTheme=process.env.M3_UNIFIED_PRESET||'Material 3 Expressive - Graphite Blue';
+const reportPrefix=process.env.M3_UNIFIED_REPORT_PREFIX||'unified';
+if(!/^[a-z][a-z0-9-]{0,47}$/.test(reportPrefix))throw new Error('M3_UNIFIED_REPORT_PREFIX must be a safe lowercase filename prefix');
+const artifactName=reportPrefix+'-browser-artifacts',reportName=reportPrefix+'-browser-report.json';
 const tools=path.resolve(process.argv[3]||'/work/tools');
 const require=createRequire(path.join(tools,'loader.cjs'));
 const {chromium}=require('playwright-core');
 const {generateThemeData}=await import(pathToFileURL(path.join(root,'scripts/theme.mjs')));
-const preset=JSON.parse(await fs.readFile(path.join(root,'tokens/theme-presets.json'),'utf8')).find(p=>p.name==='Material 3 Expressive - Graphite Blue');
+const preset=JSON.parse(await fs.readFile(path.join(root,'tokens/theme-presets.json'),'utf8')).find(p=>p.name===selectedTheme);
+if(!preset)throw new Error('M3_UNIFIED_PRESET must name an existing theme preset');
 const theme=(await generateThemeData(preset))[preset.name];
 const manifest=JSON.parse(await fs.readFile(path.join(root,'dist/release-manifest.json'),'utf8'));
 const fixed=Object.fromEntries(manifest.files.map(item=>['/'+item.path,'dist/'+item.path]));
@@ -28,7 +33,7 @@ const server=http.createServer(async(req,res)=>{
 });
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 const base='http://127.0.0.1:'+server.address().port;
-const report={version:manifest.version,synthetic_data_only:true,live_ha_connection:false,physical_actions:false,widths:[320,390,768,1024,1440],schemes:['light','dark'],motion:['expressive','reduced'],matrix:[],cases:[],page_errors:[],external_requests:[],screenshots:[]};
+const report={version:manifest.version,selected_theme:preset.name,report_prefix:reportPrefix,synthetic_data_only:true,live_ha_connection:false,physical_actions:false,widths:[320,390,768,1024,1440],schemes:['light','dark'],motion:['expressive','reduced'],matrix:[],cases:[],page_errors:[],external_requests:[],screenshots:[]};
 let browser,activeCase,page;
 const check=(ok,message)=>{if(!ok)throw Error(message);activeCase.assertions++;};
 async function scenario(id,body){activeCase={id,assertions:0,passed:false};report.cases.push(activeCase);try{await body();activeCase.passed=true;}catch(error){activeCase.error=error.message;throw error;}}
@@ -210,19 +215,19 @@ try{
     const before=await writes();await page.locator('ha-m3-action-bar').getByRole('button',{name:'Камеры',exact:true}).click();check(await writes()===before+1,'Navigation needs extra interaction');check(await page.evaluate(()=>window.unifiedFixture.writes.at(-1).service)==='navigation','Unexpected navigation command');
   });
   await scenario('network-and-runtime-isolation',async()=>{check(report.external_requests.length===0,'External requests escaped fixture');check(report.page_errors.length===0,JSON.stringify(report.page_errors));check(report.matrix.length===20&&report.matrix.every(cell=>cell.passed),'Incomplete layout matrix');});
-  const artifact=path.join(root,'unified-browser-artifacts');await fs.mkdir(artifact,{recursive:true});
-  for(const [width,scheme]of [[390,'dark'],[1440,'light']]){await page.setViewportSize({width,height:1000});await page.evaluate(({scheme})=>window.unifiedFixture.appearance(scheme,'reduced'),{scheme});const file='unified-'+width+'-'+scheme+'.png';await page.screenshot({path:path.join(artifact,file),fullPage:true,animations:'disabled'});report.screenshots.push('unified-browser-artifacts/'+file);}
+  const artifact=path.join(root,artifactName);await fs.mkdir(artifact,{recursive:true});
+  for(const [width,scheme]of [[390,'dark'],[1440,'light']]){await page.setViewportSize({width,height:1000});await page.evaluate(({scheme})=>window.unifiedFixture.appearance(scheme,'reduced'),{scheme});const file=reportPrefix+'-'+width+'-'+scheme+'.png';await page.screenshot({path:path.join(artifact,file),fullPage:true,animations:'disabled'});report.screenshots.push(artifactName+'/'+file);}
   report.passed=true;
 }catch(error){
   report.passed=false;report.error=error.message;process.exitCode=1;
-  const artifact=path.join(root,'unified-browser-artifacts');await fs.mkdir(artifact,{recursive:true});
+  const artifact=path.join(root,artifactName);await fs.mkdir(artifact,{recursive:true});
   await fs.writeFile(path.join(artifact,'failure-layout.json'),JSON.stringify(report.last_layout_snapshot||{case:activeCase?.id,error:error.message},null,2)+'\n');
   if(page&&!page.isClosed()){
     try{
       report.fixture_snapshot=await page.evaluate(()=>{const fixture=window.unifiedFixture;if(!fixture)return null;return {writes:fixture.writes.slice(-8),acknowledged:fixture.acknowledged,children:fixture.group._children.map(card=>({entity:card._config.entity,busy:card._busy,requested:card._ownerRequests,errors:card._ownerErrors,permissions:Object.fromEntries(Object.entries(fixture.states).filter(([entity])=>entity.startsWith('input_boolean.lock_')).map(([entity,state])=>[entity,state.state]))}))};});
       await fs.writeFile(path.join(artifact,'failure-state.json'),JSON.stringify(report.fixture_snapshot,null,2)+'\n');
     }catch(stateError){report.state_snapshot_error=stateError.message;}
-    try{const file='unified-browser-artifacts/failure.png';await page.screenshot({path:path.join(root,file),fullPage:true,animations:'disabled'});report.screenshots.push(file);}catch(screenshotError){report.screenshot_error=screenshotError.message;}
+    try{const file=artifactName+'/failure.png';await page.screenshot({path:path.join(root,file),fullPage:true,animations:'disabled'});report.screenshots.push(file);}catch(screenshotError){report.screenshot_error=screenshotError.message;}
   }
 }
-finally{await browser?.close();await new Promise(resolve=>server.close(resolve));report.assertions=report.cases.reduce((n,test)=>n+test.assertions,0);await fs.writeFile(path.join(root,'unified-browser-report.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({passed:report.passed,cases:report.cases.length,assertions:report.assertions,matrix:report.matrix.length,error:report.error}));}
+finally{await browser?.close();await new Promise(resolve=>server.close(resolve));report.assertions=report.cases.reduce((n,test)=>n+test.assertions,0);await fs.writeFile(path.join(root,reportName),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({passed:report.passed,selected_theme:preset.name,report:reportName,cases:report.cases.length,assertions:report.assertions,matrix:report.matrix.length,error:report.error}));}

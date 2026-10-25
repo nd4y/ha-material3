@@ -1,3 +1,8 @@
+## 0.16.1 - 2026-10-25
+
+- Apply unified compact spacing to the Ice preset as well as Graphite Blue, preserving its colors and shapes.
+- Run the actual component browser matrix against both named themes and retain separate reports.
+
 ## 0.16.0 - 2026-10-25
 
 - Connect device controls in one compact responsive panel, keeping each device action, parameter and automation owner independent.

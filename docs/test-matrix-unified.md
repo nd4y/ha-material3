@@ -10,6 +10,7 @@ This is the finite acceptance inventory for `unified-panel-spec.md`. A listed ca
 | Existing controller suite | `npm run test:controller`, `controller-test-report.json` | Existing 100 unique named climate scenarios and all controller methods; no controller policy changes |
 | Existing browser suites | CI reports for mobile, hold, history, sensor and journal | Existing guards, full hold cancellation matrix, histories and details |
 | Unified browser suite | `node scripts/test-unified-browser.mjs <root> <tools>`; `unified-browser-report.json` | Shipped components loaded from built release assets, synthetic entities, intercepted services, local-only networking |
+| Ice browser suite | Same command with `M3_UNIFIED_PRESET="Material 3 Expressive - Ice"` and `M3_UNIFIED_REPORT_PREFIX="unified-ice"`; `unified-ice-browser-report.json` | Same mandatory matrix against the existing exported Ice preset; independent artifact directory |
 | Reproducible release | `npm run check`, committed distribution comparison, release manifest | Exact source/build consistency |
 | Installation acceptance | Private checkpoint/readback and view inventory | Real HA rendering and unchanged actions, entities, routes and backend; independent from mocked tests |
 | Physical acceptance | Explicit human verification | Not performed by browser tests; no door, call, microphone or climate device action |
@@ -18,7 +19,9 @@ Builds and full browser runs are coordinated by the parent agent on build-01 or 
 
 ## Layout cells
 
-All Cartesian combinations are mandatory: widths **320, 390, 768, 1024, 1440 px**, schemes **light/dark**, motion **expressive/reduced**. Total: **20 cells**.
+All Cartesian combinations are mandatory: widths **320, 390, 768, 1024, 1440 px**, schemes **light/dark**, motion **expressive/reduced**. Total: **20 cells per preset**, **40 cells** across mandatory Graphite Blue and Ice runs.
+
+`M3_UNIFIED_PRESET` selects an exact existing preset from `tokens/theme-presets.json`; omitting it selects Graphite Blue. Unknown names fail rather than silently testing a different palette. Each report records `selected_theme`. `M3_UNIFIED_REPORT_PREFIX` defaults to `unified` and permits only a lowercase ASCII filename prefix (1-48 characters, starting with a letter); it cannot redirect outputs outside the repository root. For Ice, `unified-ice` produces `unified-ice-browser-report.json` and `unified-ice-browser-artifacts/`, keeping success and failure evidence separate from the default run.
 
 Every cell checks viewport overflow, essential text clipping, supporting/parameter typography, effective touch targets (48 px owner controls, at least 44 px other controls), actual component presence, independent owner count, grouped responsive columns and mobile dock bounds. The quick card's resolved primary role must equal the selected exported document theme role, so a fallback palette cannot silently pass the selected light/dark theme matrix. Screenshots are representative additional evidence, not replacements for numeric layout checks.
 

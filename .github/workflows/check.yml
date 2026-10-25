@@ -47,12 +47,19 @@ jobs:
           path: owner-controls-mobile.png
       - run: node scripts/test-hold-browser.mjs "$GITHUB_WORKSPACE" /tmp/m3-browser-tools
       - run: node scripts/test-unified-browser.mjs "$GITHUB_WORKSPACE" /tmp/m3-browser-tools
+      - name: Verify unified controls in the Ice theme
+        env:
+          M3_UNIFIED_PRESET: Material 3 Expressive - Ice
+          M3_UNIFIED_REPORT_PREFIX: unified-ice
+        run: node scripts/test-unified-browser.mjs "$GITHUB_WORKSPACE" /tmp/m3-browser-tools
       - uses: actions/upload-artifact@v7.0.2
         with:
           name: unified-browser-report
           path: |
             unified-browser-report.json
             unified-browser-artifacts/
+            unified-ice-browser-report.json
+            unified-ice-browser-artifacts/
       - uses: actions/upload-artifact@v7.0.2
         with:
           name: hold-browser-report
