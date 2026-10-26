@@ -217,18 +217,76 @@ try{
     await page.evaluate(async()=>{window.unifiedFixture.summary.setConfig(window.helpFixture.originalClimateConfig);await window.unifiedFixture.summary.updateComplete;});
   });
 
-  // Diagnostic only: reproduce browser cancellation without changing any real HA state.
-  // If still present, report a separate defect rather than silently relaxing help tests.
-  await scenario('slider-cancel-diagnostic-no-service',async()=>{
-    await reset();const input=ac.locator('[data-control-id="temperature"] ha-m3-slider').getByRole('slider'),before=await writes();
-    report.diagnostics.slider_before=await input.evaluate(element=>({value:Number(element.value),output:element.getRootNode().host.shown}));
+  await scenario('slider-cancel-restores-value-and-following-input',async()=>{
+    await reset();const field=ac.locator('[data-control-id="temperature"]'),input=field.locator('ha-m3-slider').getByRole('slider'),before=await writes();
+    report.diagnostics.slider_before=await input.evaluate(element=>({value:Number(element.value),shown:element.getRootNode().host.shown}));
+    report.diagnostics.slider_before.parentOutput=await field.locator('output').innerText();
     await input.dispatchEvent('pointerdown',{pointerId:91,pointerType:'touch',button:0,isPrimary:true});
     await input.evaluate(element=>{element.value=String(Math.min(Number(element.max),Number(element.value)+2));element.dispatchEvent(new Event('input',{bubbles:true,composed:true}));});
     await input.dispatchEvent('pointercancel',{pointerId:91,pointerType:'touch',isPrimary:true});
     await page.waitForTimeout(100);
-    report.diagnostics.slider_after=await input.evaluate(element=>({value:Number(element.value),output:element.getRootNode().host.shown,pressed:element.getRootNode().host._pressed}));
+    report.diagnostics.slider_after=await input.evaluate(element=>({value:Number(element.value),shown:element.getRootNode().host.shown,pressed:element.getRootNode().host._pressed}));
+    report.diagnostics.slider_after.parentOutput=await field.locator('output').innerText();
     report.diagnostics.slider_cancel_retains_uncommitted_value=report.diagnostics.slider_after.value!==report.diagnostics.slider_before.value;
-    expect(await writes()===before,'Cancelled slider diagnostic unexpectedly sent a service');
+    expect(!report.diagnostics.slider_cancel_retains_uncommitted_value,'Cancelled slider retained an unsent value');
+    expect(report.diagnostics.slider_after.shown===report.diagnostics.slider_before.shown,'Cancelled slider track retained an unsent value');
+    expect(report.diagnostics.slider_after.parentOutput===report.diagnostics.slider_before.parentOutput,'Cancelled slider left the parent output on its unsent draft');
+    expect(report.diagnostics.slider_after.pressed===false,'Cancelled slider retained its pressed state');
+    expect(await writes()===before,'Cancelled slider unexpectedly sent a service');
+
+    const freshValue=report.diagnostics.slider_before.value+1;
+    await page.evaluate(value=>{const f=window.unifiedFixture;f.setState('climate.ac',f.states['climate.ac'].state,{...f.states['climate.ac'].attributes,temperature:value});},freshValue);
+    await page.waitForFunction(value=>{const card=window.unifiedFixture.group._children[0],slider=card.renderRoot.querySelector('[data-control-id="temperature"] ha-m3-slider');return Number(slider.renderRoot.querySelector('input').value)===value;},freshValue);
+    expect(Number(await input.inputValue())===freshValue,'Fresh HA observation did not replace a cancelled draft');
+    expect(await writes()===before,'Rendering a fresh observation sent a service');
+
+    const expected=freshValue+Number(await input.getAttribute('step'));
+    await input.focus();await page.keyboard.press('ArrowRight');
+    await page.waitForFunction(value=>Number(window.unifiedFixture.states['input_number.manual_ac'].state)===value,expected);
+    expect(await writes()===before+1,'Following keyboard adjustment must issue exactly one action');
+    expect(Number(await input.inputValue())===expected,'Following keyboard adjustment did not render the confirmed value');
+    expect(await page.evaluate(()=>window.unifiedFixture.states['input_boolean.lock_ac_temperature'].state)==='on','Following keyboard adjustment lost the existing manual ownership policy');
+
+    const observed=expected+1;
+    await page.evaluate(value=>window.unifiedFixture.setState('input_number.manual_ac',value),observed);
+    await page.waitForFunction(value=>{const slider=window.unifiedFixture.group._children[0].renderRoot.querySelector('[data-control-id="temperature"] ha-m3-slider');return Number(slider.renderRoot.querySelector('input').value)===value;},observed);
+    expect(Number(await input.inputValue())===observed,'A subsequent confirmed HA state was hidden by the completed input draft');
+    expect(await writes()===before+1,'Updating confirmed HA state replayed the previous command');
+  });
+
+  await scenario('slider-blur-and-busy-disable-discard-uncommitted-edit',async()=>{
+    await reset();const field=ac.locator('[data-control-id="temperature"]'),input=field.locator('ha-m3-slider').getByRole('slider');
+    for(const reason of ['blur','disabled']){
+      await input.focus();const before=await writes(),value=Number(await input.inputValue()),output=await field.locator('output').innerText();
+      await input.dispatchEvent('pointerdown',{pointerId:92,pointerType:'touch',button:0,isPrimary:true});
+      await input.evaluate(element=>{element.value=String(Number(element.value)+1);element.dispatchEvent(new Event('input',{bubbles:true,composed:true}));});
+      if(reason==='blur')await input.evaluate(element=>element.blur());
+      else await ac.evaluate(async card=>{card._busy=true;await card.updateComplete;await card.renderRoot.querySelector('[data-control-id="temperature"] ha-m3-slider').updateComplete;});
+      await page.waitForTimeout(100);
+      expect(Number(await input.inputValue())===value,reason+' left an unsent slider value');
+      expect(await field.locator('output').innerText()===output,reason+' left an unsent parent output');
+      expect(await writes()===before,reason+' unexpectedly submitted the edit');
+      if(reason==='disabled'){
+        expect(await input.isDisabled(),'Busy state did not disable the edited slider');
+        await ac.evaluate(async card=>{card._busy=false;await card.updateComplete;});
+      }
+    }
+  });
+
+  await scenario('room-target-cancel-clears-card-preview',async()=>{
+    const target=page.locator('#help-climate .room-target'),input=target.locator('ha-m3-slider').getByRole('slider');
+    await input.focus();const before=await writes(),value=Number(await input.inputValue()),output=await target.locator('output').innerText();
+    await input.dispatchEvent('pointerdown',{pointerId:93,pointerType:'touch',button:0,isPrimary:true});
+    await input.evaluate(element=>{element.value=String(Number(element.value)+1);element.dispatchEvent(new Event('input',{bubbles:true,composed:true}));});
+    await input.dispatchEvent('pointercancel',{pointerId:93,pointerType:'touch',isPrimary:true});
+    await page.waitForTimeout(100);
+    expect(Number(await input.inputValue())===value,'Room target range retained the cancelled draft');
+    expect(await target.locator('output').innerText()===output,'Room target card retained the cancelled preview');
+    expect(await writes()===before,'Cancelling the room target sent a service');
+    await page.evaluate(value=>window.unifiedFixture.setState('input_number.goal',value),value+.5);
+    await page.waitForFunction(value=>{const card=window.unifiedFixture.summary,slider=card.renderRoot.querySelector('.room-target ha-m3-slider');return Number(slider.renderRoot.querySelector('input').value)===value;},value+.5);
+    expect(Number(await input.inputValue())===value+.5,'Room target preview hid fresh HA state after cancellation');
+    expect(await writes()===before,'Rendering a confirmed room target sent a service');
   });
 
   await scenario('runtime-and-network-isolation',async()=>{
@@ -242,5 +300,5 @@ finally{
   await browser?.close();await new Promise(resolve=>server.close(resolve));
   report.assertions=report.cases.reduce((sum,item)=>sum+item.assertions,0);
   await fs.writeFile(path.join(root,'hold-help-browser-report.json'),JSON.stringify(report,null,2)+'\n');
-  console.log(JSON.stringify({passed:report.passed,cases:report.cases.length,assertions:report.assertions,diagnostics:report.diagnostics,error:report.error}));
+  console.log(JSON.stringify({passed:report.passed,cases:report.cases.length,assertions:report.assertions,slider_cancel_retains_uncommitted_value:report.diagnostics.slider_cancel_retains_uncommitted_value,error:report.error}));
 }

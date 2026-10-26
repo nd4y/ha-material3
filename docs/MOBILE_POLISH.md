@@ -20,6 +20,8 @@ The trust shortcut is a 48px circular icon. Its primary color means the master i
 
 Automation-owner, trust and preset buttons keep their quick tap action. Holding for 600 ms opens contextual help without sending a command; F1 or a context click opens the same help on desktop. Releasing a held button does not run its tap action. Moving more than 10px, scrolling, cancelling the pointer or leaving the control cancels the gesture. Closing help restores focus. Presets can supply a `description`; otherwise help explains the selection without inventing controller behavior. The guarded door hold remains a separate interaction.
 
+Cancelling an unfinished slider adjustment restores its confirmed value and the card's label without sending a command. This also applies when focus is lost, the page is hidden or the control becomes unavailable. A subsequent adjustment remains available; a completed change is not undone by losing focus.
+
 ```yaml
 room_metrics:
   - id: pm25
