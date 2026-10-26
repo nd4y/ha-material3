@@ -18,6 +18,10 @@ On `custom:ha-m3-climate-card`, `layout: summary` displays the room name, option
 
 The trust shortcut is a 48px circular icon. Its primary color means the master is on and every configured manual permission is released. A warm icon indicates manual settings or disabled automation; neutral means insufficient state data. The accessible label and tooltip include the current status. Color changes follow HA state, never an optimistic click. Configure `automation_reset.lock_entities` with the complete set of boolean helpers that must be off, and optional `automation_reset.enabled_entities` with eligibility helpers that must be on, in addition to `entities.enabled`. Without explicit lock helpers, `automation_groups[].controls[].lock_entity` is used. An empty/missing permission set cannot report fully trusted. These fields observe helpers only; the original reset action remains unchanged.
 
+Automation-owner, trust and preset buttons keep their quick tap action. Holding for 600 ms opens contextual help without sending a command; F1 or a context click opens the same help on desktop. Releasing a held button does not run its tap action. Moving more than 10px, scrolling, cancelling the pointer or leaving the control cancels the gesture. Closing help restores focus. Presets can supply a `description`; otherwise help explains the selection without inventing controller behavior. The guarded door hold remains a separate interaction.
+
+Cancelling an unfinished slider adjustment restores its confirmed value and the card's label without sending a command. This also applies when focus is lost, the page is hidden or the control becomes unavailable. A subsequent adjustment remains available; a completed change is not undone by losing focus.
+
 ```yaml
 room_metrics:
   - id: pm25

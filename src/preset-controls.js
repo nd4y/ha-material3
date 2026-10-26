@@ -1,5 +1,6 @@
 import {html,css,nothing} from 'lit';
 import {actionAvailable,selectedPreset} from './ha.js';
+import {holdHelp} from './hold-help.js';
 
 export const presetControlStyles=css`
   .calm-preset-compact{display:flex;align-items:center;flex-wrap:wrap;gap:4px 12px;min-width:0}
@@ -22,7 +23,8 @@ export function presetControlsModel(card){
 export function renderPresetControls(card,choose){
   const model=presetControlsModel(card);
   const select=(preset,event)=>{if(!preset.disabled)return choose(card,preset,event);};
+  const help=preset=>holdHelp({heading:preset.name,body:[preset.description||card.t('presetHelpAction'),`${card.t('presetHelpCurrent')}: ${model.current}`,card.t('holdHelpHint')].join('\n\n'),motion:card.motion,language:card._config.language||card.hass?.language||'en'});
   if(!model.choices.length)return nothing;
-  if(!model.icons)return html`<div class="calm-presets" role="group" aria-label=${model.label}>${model.choices.map(preset=>html`<ha-m3-button full .toggle=${true} .selected=${preset.selected} .disabled=${preset.disabled} .loading=${preset.loading} motion=${card.motion} @click=${event=>select(preset,event)}><span>${preset.name}</span></ha-m3-button>`)}</div>`;
-  return html`<div class="calm-preset-compact"><div class="calm-preset-icons" role="group" aria-label=${model.label}>${model.choices.map(preset=>html`<ha-m3-button class="preset-icon" kind="icon" data-preset-id=${preset.id} .icon=${preset.icon||'air'} .label=${preset.name} title=${preset.name} .toggle=${true} .selected=${preset.selected} .disabled=${preset.disabled} .loading=${preset.loading} motion=${card.motion} @click=${event=>select(preset,event)}></ha-m3-button>`)}</div><p class="calm-preset-current" aria-live="polite">${card.t('mode')}: <strong>${model.current}</strong></p></div>`;
+  if(!model.icons)return html`<div class="calm-presets" role="group" aria-label=${model.label}>${model.choices.map(preset=>html`<ha-m3-button ${help(preset)} full .toggle=${true} .selected=${preset.selected} .disabled=${preset.disabled} .loading=${preset.loading} motion=${card.motion} @click=${event=>select(preset,event)}><span>${preset.name}</span></ha-m3-button>`)}</div>`;
+  return html`<div class="calm-preset-compact"><div class="calm-preset-icons" role="group" aria-label=${model.label}>${model.choices.map(preset=>html`<ha-m3-button ${help(preset)} class="preset-icon" kind="icon" data-preset-id=${preset.id} .icon=${preset.icon||'air'} .label=${preset.name} title=${preset.name} .toggle=${true} .selected=${preset.selected} .disabled=${preset.disabled} .loading=${preset.loading} motion=${card.motion} @click=${event=>select(preset,event)}></ha-m3-button>`)}</div><p class="calm-preset-current" aria-live="polite">${card.t('mode')}: <strong>${model.current}</strong></p></div>`;
 }

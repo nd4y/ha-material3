@@ -1,3 +1,9 @@
+## 0.17.3 - 2026-10-26
+
+- Open contextual help by holding automation-owner, trust and preset buttons, or by using F1 or a context click. A short tap keeps its existing action.
+- Suppress the action after help or a cancelled gesture, and restore keyboard focus when help closes.
+- Restore the confirmed slider value and card label after a cancelled adjustment without sending a command.
+
 ## 0.17.1 - 2026-10-25
 
 - Allow an explicit bounded clock tolerance for displayed room readings when the Home Assistant and browser clocks differ slightly. Larger future timestamps remain unknown; controller qualification is unchanged.
