@@ -58,6 +58,9 @@ try{
   const homeTrust=page.locator('#help-home .trust-automation').getByRole('button');
   const help=page.locator('ha-m3-dialog[data-hold-help]');
   const popup=help.locator('dialog[open]');
+  // The body is light DOM projected through the dialog's shadow-root slot.
+  // Native dialog.innerText contains its heading but does not include that body.
+  const helpText=async()=>({heading:await popup.locator('h2').innerText(),body:await help.locator('p').innerText()});
   const writes=()=>page.evaluate(()=>window.unifiedFixture.writes.length);
   const focusIs=target=>target.evaluate(element=>element.matches(':focus'));
   const reset=async()=>{await page.evaluate(()=>window.unifiedFixture.resetOwners());await owner.waitFor({state:'visible'});};
@@ -92,8 +95,9 @@ try{
 
   await scenario('touch-hold-owner-help-without-action',async()=>{
     await reset();const before=await writes();await hold(owner);
-    expect((await popup.innerText()).includes('Цель в комнате'),'Owner help lacks parameter context');
-    expect((await popup.innerText()).toLowerCase().includes('автомат'),'Owner help lacks the current automation meaning');
+    const content=await helpText();report.diagnostics.owner_help={...content,owner:await owner.getAttribute('data-owner')};
+    expect(content.heading==='Цель в комнате','Owner help lacks parameter context');
+    expect(content.body.includes('Автоматика дома'),'Owner help lacks the current automation meaning');
     expect(await writes()===before,'Long touch or its release sent an owner action');
     await close(owner,{escape:true});expect(await writes()===before,'Closing owner help sent an action');
     await owner.tap();await page.waitForFunction(()=>window.unifiedFixture.states['input_boolean.lock_ac_temperature'].state==='on');
@@ -103,7 +107,9 @@ try{
   await scenario('touch-hold-trust-help-on-both-surfaces',async()=>{
     for(const button of [trust,homeTrust]){
       const before=await writes();await hold(button);
-      expect((await popup.innerText()).includes('Доверить всё автоматике'),'Trust help lacks its action title');
+      const content=await helpText();report.diagnostics.trust_help=content;
+      expect(content.heading==='Доверить всё автоматике','Trust help lacks its action title');
+      expect(content.body.toLowerCase().includes('автомат'),'Trust help lacks its action explanation');
       expect(await writes()===before,'Trust hold or release changed automation');
       await close(button);expect(await writes()===before,'Trust help dismissal changed automation');
     }
@@ -175,8 +181,9 @@ try{
       },style);
       const choice=page.locator('#help-climate').getByRole('button',{name:'Стандартный',exact:true});
       const before=await writes();await choice.focus();await page.keyboard.press('F1');await popup.waitFor({state:'visible'});
-      expect((await popup.innerText()).includes('Стандартный'),'Preset '+style+' help lost its name');
-      expect((await popup.innerText()).includes('Тихий'),'Preset '+style+' help lost the current mode');
+      const content=await helpText();report.diagnostics['preset_help_'+style]=content;
+      expect(content.heading==='Стандартный','Preset '+style+' help lost its name');
+      expect(content.body.includes('Тихий'),'Preset '+style+' help lost the current mode');
       expect(await writes()===before,'Preset '+style+' help sent an action');
       await close(choice,{escape:true});
       await point(choice);await choice.tap();await page.waitForFunction(()=>window.unifiedFixture.states['input_select.mode'].state==='standard');
