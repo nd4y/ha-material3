@@ -4,6 +4,8 @@ import {available,actionAvailable} from './ha.js';
 import {controlModel,controlValue,valueAction,automationSummary,automationTrustState} from './quick-controls.js';
 import {roomMetricReading} from './room-reading.js';
 import {icon} from './components.js';
+import {holdHelp} from './hold-help.js';
+import {locale} from './localize.js';
 
 export const roomControlStyles=css`
   .room-target{margin:12px 0 8px}.room-target-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;line-height:20px}.room-target output{font-size:20px;line-height:28px;min-width:6ch;text-align:right;font-variant-numeric:tabular-nums}.room-target .endpoints{display:flex;justify-content:space-between;font-size:12px;line-height:16px;color:var(--md-sys-color-on-surface-variant)}
@@ -27,7 +29,8 @@ export function renderRoomMetrics(card,{history=true}={}){
 export function renderTrustButton(card){
   const reset=card._config.automation_reset;if(!reset)return nothing;
   const state=automationTrustState(card.hass,card._config),name=reset.name||card.t('trustAllAutomation'),status=card.t(state==='all'?'trustAllActive':state==='partial'?'trustPartial':'trustUnknown'),label=`${name}. ${status}`;
-  return html`<div class="room-trust"><ha-m3-button class="trust-automation" data-trust=${state} kind="icon" icon=${state==='all'?'auto_awesome':state==='partial'?'tune':'info'} .selected=${state==='all'} .label=${label} title=${label} .disabled=${card._busy||!actionAvailable(card.hass,reset.action)} .loading=${card._pending==='automation-reset'} motion=${card.motion} @click=${()=>card.run(reset.action,'automation-reset')}></ha-m3-button></div>`;
+  const help={heading:name,body:`${status}.\n\n${card.t('trustAllHelp')}\n\n${card.t('holdHelpHint')}`,motion:card.motion,language:locale(card.hass,card._config)};
+  return html`<div class="room-trust"><ha-m3-button class="trust-automation" data-trust=${state} kind="icon" icon=${state==='all'?'auto_awesome':state==='partial'?'tune':'info'} .selected=${state==='all'} .label=${label} title=${label} .disabled=${card._busy||!actionAvailable(card.hass,reset.action)} .loading=${card._pending==='automation-reset'} motion=${card.motion} ${holdHelp(help)} @click=${()=>card.run(reset.action,'automation-reset')}></ha-m3-button></div>`;
 }
 export function renderRoomTarget(card,{metrics=true}={}){
   const c=card._config,readings=metrics?renderRoomMetrics(card):nothing;if(!c.target_slider)return readings;

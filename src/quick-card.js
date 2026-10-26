@@ -1,6 +1,8 @@
 import {html,css,nothing} from 'lit';
 import {renderHistory} from './history.js';
 import {ownerModel,nextOwner,ownerRequest,ownerRequestStatus,ownerPresentation,deviceOwnershipModel} from './ownership.js';
+import {holdHelp} from './hold-help.js';
+import {locale} from './localize.js';
 import {operationModel,parameterOperation,operationMotion} from './operation-colors.js';
 import {M3DeviceCard} from './cards.js';
 import {common,icon} from './components.js';
@@ -82,7 +84,8 @@ export class M3QuickDeviceCard extends M3DeviceCard{
     if(!item.lock_entity)return nothing;
     const m=ownerModel(this.hass,item),request=this._ownerRequests[item.id],disabled=unavailable||!m.available||this._busy||!!request,next=m.available?nextOwner(this.hass,item):null,owner=m.available?m.owner:'unknown';
     const presentation=ownerPresentation(owner),label=this.t(presentation.labelKey),accessibleLabel=this.t(presentation.accessibleKey),requestLabel=request?this.t(ownerPresentation(request.owner).accessibleKey):null,nextLabel=next?this.t(ownerPresentation(next).accessibleKey):null,description=`${name}: ${accessibleLabel}. ${request?this.t('pending')+': '+requestLabel:next?this.t('ownerNext')+': '+nextLabel:this.t('unavailable')}`;
-    return html`<button type="button" class="owner" data-owner=${owner} data-next-owner=${next||nothing} data-requested-owner=${request?.owner||nothing} aria-busy=${request?'true':nothing} aria-label=${description} title=${description} aria-description=${this.t(presentation.helpKey)} ?disabled=${disabled} @click=${()=>this.requestOwner(item)}><span class="owner-icon">${request?html`<span class="spinner" aria-hidden="true"></span>`:icon(presentation.icon)}</span><span class="owner-copy">${label}</span></button>`;
+    const help={heading:name,body:`${description}\n\n${this.t(presentation.helpKey)}\n\n${this.t('holdHelpHint')}`,motion:this.motion,language:locale(this.hass,this._config)};
+    return html`<button type="button" class="owner" data-owner=${owner} data-next-owner=${next||nothing} data-requested-owner=${request?.owner||nothing} aria-busy=${request?'true':nothing} aria-label=${description} title=${description} aria-description=${`${this.t(presentation.helpKey)} ${this.t('holdHelpHint')}`} ?disabled=${disabled} ${holdHelp(help)} @click=${()=>this.requestOwner(item)}><span class="owner-icon">${request?html`<span class="spinner" aria-hidden="true"></span>`:icon(presentation.icon)}</span><span class="owner-copy">${label}</span></button>`;
   }
   async setAutomatic(item,automatic){
     this._permissionDrafts={...this._permissionDrafts,[item.id]:automatic};await this.run(automationAction(item,automatic),'permission:'+item.id);
