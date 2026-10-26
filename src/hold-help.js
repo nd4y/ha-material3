@@ -74,6 +74,13 @@ class HoldHelpDirective extends AsyncDirective{
     const document=this.element.ownerDocument,dialog=document.createElement('ha-m3-dialog');
     dialog.dataset.holdHelp='';dialog.heading=this.options.heading;
     dialog.motion=this.options.motion||'expressive';dialog.lang=this.options.language||'en';
+    // showModal can retarget the held finger's release to the backdrop. Consume
+    // that click here as well; an explicit new gesture may close the help.
+    let openingGesture=true;
+    dialog.addEventListener('pointerdown',()=>{openingGesture=false;},true);
+    dialog.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' ')openingGesture=false;},true);
+    dialog.addEventListener('click',event=>{if(openingGesture){event.preventDefault();event.stopImmediatePropagation();}},true);
+    dialog.addEventListener('contextmenu',event=>{if(openingGesture)event.preventDefault();},true);
     const body=document.createElement('p');body.style.whiteSpace='pre-line';body.textContent=this.options.body;
     dialog.append(body);
     dialog.addEventListener('m3-closed',()=>this.removeDialog(true),{once:true});

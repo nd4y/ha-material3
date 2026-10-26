@@ -58,9 +58,32 @@ try{
   const homeTrust=page.locator('#help-home .trust-automation').getByRole('button');
   const help=page.locator('ha-m3-dialog[data-hold-help]');
   const popup=help.locator('dialog[open]');
-  // The body is light DOM projected through the dialog's shadow-root slot.
-  // Native dialog.innerText contains its heading but does not include that body.
-  const helpText=async()=>({heading:await popup.locator('h2').innerText(),body:await help.locator('p').innerText()});
+  async function helpSnapshot(label){
+    const snapshot=await page.evaluate(()=>{
+      const dialogs=[],owners=[];
+      function visit(root){
+        for(const element of root.querySelectorAll('*')){
+          if(element.matches('ha-m3-dialog[data-hold-help]')){
+            const native=element.shadowRoot?.querySelector('dialog');
+            dialogs.push({outerHTML:element.outerHTML,shadowHTML:element.shadowRoot?.innerHTML,children:[...element.childNodes].map(node=>({name:node.nodeName,text:node.textContent})),pcount:element.querySelectorAll('p').length,open:native?.open,isConnected:element.isConnected,rootHost:element.getRootNode().host?.localName,heading:element.shadowRoot?.querySelector('h2')?.textContent,body:element.querySelector('p')?.textContent});
+          }
+          if(element.matches('button.owner'))owners.push({label:element.getAttribute('aria-label'),owner:element.dataset.owner,rootChildren:[...element.getRootNode().children].map(node=>node.localName)});
+          if(element.shadowRoot)visit(element.shadowRoot);
+        }
+      }
+      visit(document);return{dialogs,owners};
+    });
+    (report.diagnostics.help_snapshots??=[]).push({label,...snapshot});return snapshot;
+  }
+  // Read the light-DOM body directly, and preserve exact DOM evidence if a
+  // release gesture removes the modal before the next assertion can inspect it.
+  const helpText=async()=>{
+    const snapshot=await helpSnapshot(current.id+'-text');
+    const dialog=snapshot.dialogs.find(item=>item.open);
+    if(!dialog)throw Error('Help disappeared before its text could be inspected; see help_snapshots');
+    if(dialog.pcount!==1)throw Error('Help body is missing; see help_snapshots');
+    return{heading:dialog.heading,body:dialog.body};
+  };
   const writes=()=>page.evaluate(()=>window.unifiedFixture.writes.length);
   const focusIs=target=>target.evaluate(element=>element.matches(':focus'));
   const reset=async()=>{await page.evaluate(()=>window.unifiedFixture.resetOwners());await owner.waitFor({state:'visible'});};
@@ -69,7 +92,9 @@ try{
     const p=await point(target);
     await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{...p,id:1,radiusX:3,radiusY:3,force:1}]});
     await popup.waitFor({state:'visible',timeout:2000});
+    await helpSnapshot(current.id+'-before-touch-release');
     await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+    await helpSnapshot(current.id+'-after-touch-release');
   }
   async function mouseHold(target){const p=await point(target);await page.mouse.move(p.x,p.y);await page.mouse.down();await popup.waitFor({state:'visible',timeout:2000});await page.mouse.up();}
   async function close(target,{escape=false}={}){
