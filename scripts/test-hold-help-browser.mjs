@@ -61,7 +61,7 @@ try{
   const writes=()=>page.evaluate(()=>window.unifiedFixture.writes.length);
   const focusIs=target=>target.evaluate(element=>element.matches(':focus'));
   const reset=async()=>{await page.evaluate(()=>window.unifiedFixture.resetOwners());await owner.waitFor({state:'visible'});};
-  async function point(target){await target.scrollIntoViewIfNeeded();const r=await target.boundingBox();return{x:r.x+r.width/2,y:r.y+r.height/2};}
+  async function point(target){await target.evaluate(element=>element.scrollIntoView({block:'center',inline:'nearest'}));const r=await target.boundingBox();return{x:r.x+r.width/2,y:r.y+r.height/2};}
   async function hold(target){
     const p=await point(target);
     await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{...p,id:1,radiusX:3,radiusY:3,force:1}]});
@@ -80,11 +80,11 @@ try{
   }
 
   await scenario('short-touch-preserves-single-action',async()=>{
-    await reset();let before=await writes();await owner.tap();
+    await reset();let before=await writes();await point(owner);await owner.tap();
     await page.waitForFunction(()=>window.unifiedFixture.states['input_boolean.lock_ac_temperature'].state==='on');
     expect(await writes()===before+1,'Owner short tap must issue exactly one existing action');
     expect(await popup.count()===0,'Short owner tap opened help');
-    before=await writes();await trust.tap();
+    before=await writes();await point(trust);await trust.tap();
     await page.waitForFunction(()=>window.unifiedFixture.states['input_boolean.master'].state==='on'&&window.unifiedFixture.states['input_boolean.lock_ac_temperature'].state==='off');
     expect(await writes()===before+1,'Trust short tap must issue exactly one existing action');
     expect(await popup.count()===0,'Short trust tap opened help');
@@ -179,7 +179,7 @@ try{
       expect((await popup.innerText()).includes('Тихий'),'Preset '+style+' help lost the current mode');
       expect(await writes()===before,'Preset '+style+' help sent an action');
       await close(choice,{escape:true});
-      await choice.tap();await page.waitForFunction(()=>window.unifiedFixture.states['input_select.mode'].state==='standard');
+      await point(choice);await choice.tap();await page.waitForFunction(()=>window.unifiedFixture.states['input_select.mode'].state==='standard');
       expect(await writes()===before+1,'Preset '+style+' tap did not issue exactly one original action');
     }
     await page.evaluate(async()=>{window.unifiedFixture.summary.setConfig(window.helpFixture.originalClimateConfig);await window.unifiedFixture.summary.updateComplete;});
