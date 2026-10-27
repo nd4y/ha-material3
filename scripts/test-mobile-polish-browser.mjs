@@ -58,6 +58,13 @@ try{
     expect(await page.evaluate(()=>Object.entries(window.unifiedFixture.states).filter(([entity])=>entity.startsWith('input_boolean.lock_')).every(([,state])=>state.state==='off')),'CTA did not release configured manual permissions');
     for(const card of [home,climate])expect(await card.locator('.trust-automation').isVisible(),'CTA disappears when all permissions are automatic');
   });
+  await scenario('climate-header-keeps-runtime-warning-visible',async()=>{
+    const before=await writes();
+    await page.evaluate(async()=>{const f=window.polishFixture; f.fixture.states['input_boolean.runtime_ready']={state:'off',attributes:{}}; const config=f.summary._config; f.summary.setConfig({...config,automation_reset:{...config.automation_reset,runtime_ready_entity:'input_boolean.runtime_ready'}});f.update();await f.summary.updateComplete;});
+    for(const width of [320,390,1024]){await page.setViewportSize({width,height:900});const warning=climate.locator('.room-trust[data-not-ready] .trust-scope');expect(await warning.isVisible(),'Runtime warning hidden '+width);expect((await warning.innerText()).includes('недоступно'),'Runtime warning missing '+width);expect(await climate.locator('.trust-automation').getByRole('button').isDisabled(),'Unavailable automation action enabled '+width);}
+    expect(await writes()===before,'Rendering a warning must not emit actions');
+    await page.evaluate(async()=>{const f=window.polishFixture;f.fixture.states['input_boolean.runtime_ready'].state='on';f.update();await f.summary.updateComplete;});
+  });
   await scenario('round-trust-button-confirmed-colors-and-unknown-state',async()=>{
     const before=await writes(),colors=[];
     for(const [value,expected] of [['off','all'],['on','partial'],['unavailable','unknown']]){
