@@ -1,3 +1,8 @@
+## 0.18.1 - 2026-10-28
+
+- Refresh the climate page layout to align room readings, preferences and ventilation with the unified device panels.
+- Keep the automation action in the page header and preserve visible safety warnings.
+
 ## 0.18.0 - 2026-10-27
 
 - Add optional climate mode scales with release-to-apply, observed Auto positions and device-specific Off semantics.
