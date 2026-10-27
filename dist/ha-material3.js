@@ -359,8 +359,8 @@ const __m3ModuleUrl = import.meta.url; if (!customElements.get("ha-m3-panel")) {
   .climate-page .calm-body.with-preferences{grid-template-columns:repeat(2,minmax(0,1fr))}
   .climate-page .calm-body.with-air-goals>div{padding:12px;background:var(--md-sys-color-surface-container-high);border-radius:20px;min-width:0}
   .climate-page .calm-body.with-air-goals>div:first-child{--ha-m3-slider-active-color:var(--ha-m3-operation-cool,var(--md-sys-color-primary))}
-  .climate-page .calm-body.with-air-goals>div[data-air-goal=fresh]{--ha-m3-slider-active-color:var(--ha-m3-operation-fan,var(--md-sys-color-primary))}
-  .climate-page .calm-body.with-air-goals>div[data-air-goal=clean]{--ha-m3-slider-active-color:var(--ha-m3-operation-clean,var(--md-sys-color-tertiary))}
+  .climate-page .calm-body.with-air-goals>div[data-air-goal=fresh]{background:var(--ha-m3-operation-fan-container,var(--md-sys-color-surface-container-high));--ha-m3-slider-active-color:var(--ha-m3-operation-fan,var(--md-sys-color-primary))}
+  .climate-page .calm-body.with-air-goals>div[data-air-goal=clean]{background:var(--ha-m3-operation-clean-container,var(--md-sys-color-surface-container-high));--ha-m3-slider-active-color:var(--ha-m3-operation-clean,var(--md-sys-color-tertiary))}
   .climate-page .calm-body.with-air-goals>div[data-air-goal=noise]{--ha-m3-slider-active-color:var(--md-sys-color-secondary)}
   .climate-page .room-target-heading,.climate-page .air-goal-heading{font-weight:500;min-height:24px}
   .climate-page .air-goal-heading output,.climate-page .room-target output{font-size:18px;line-height:24px;color:var(--md-sys-color-on-surface)}

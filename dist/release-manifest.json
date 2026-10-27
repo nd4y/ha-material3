@@ -9,8 +9,8 @@
     },
     {
       "path": "ha-material3.js",
-      "bytes": 526960,
-      "sha256": "c39201c1a29ffef811f10f423f62149aef2e71ccac07bcb6bcdf919f3b28c80b"
+      "bytes": 527144,
+      "sha256": "b0594917bfdb7390e3227f218a7407ae2b926004074529c546e194b238e10723"
     },
     {
       "path": "LICENSE",
@@ -127,7 +127,7 @@
     "src/action-bar.js": "dff0c704791133fdcb0b73b147855380e878ff22ca80c8c47282a7a40547249c",
     "src/air-goals.js": "c8218db05d375fad9d8779fea2101790c9473ee3102ad89041626c3a032eb32e",
     "src/asset-url.js": "033c8020367ab43ce04061bb2196f2b866ca0b891fae019cd612a3223a256c9b",
-    "src/calm-room.js": "c55f6d55c5d854d3a96c62e95a37d0fecd2777147d713810f350204c24208184",
+    "src/calm-room.js": "8e46185ba8b9d8a2db433b0613d8c90437453e047753fcd252e8c2a2ddb02c21",
     "src/cards.js": "f8afc43582dc24d307f069285a6f6973253d9aae225e6ea757bd47d0494ccbf6",
     "src/climate-scale.js": "99e20475e048d462793657e06fa3c1dfe95aa1065aa99f4582d78a6ea6a11bb2",
     "src/color-scheme.js": "16b6d291d27ad9bcd3e0b747a5c94cd3dedeb2bd740bcf409c0b570b30c0c0f9",
