@@ -32,8 +32,6 @@ export function validateQuickSettings(menu){
         if(!/^(sensor|binary_sensor|update)\.[a-z0-9_]+$/.test(item.entity||'')||item.action!==undefined)throw new Error('Reading must be a read-only sensor or update state');
       }else if(item.type==='filter-reset'){
         validateAction(item.action);if(!validFilterReset(item))throw new Error('Filter reset must target its exact permitted button');
-      }else if(item.type==='scale-native-auto'){
-        if(typeof item.control_id!=='string'||!/^[-a-z0-9_]+$/.test(item.control_id)||item.action!==undefined||item.entity!==undefined)throw new Error('Native Auto must reference a scale');
       }else throw new Error('Unknown settings item');
     }
   }

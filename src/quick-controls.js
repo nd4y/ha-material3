@@ -1,16 +1,8 @@
-import {available,finite,stateOf,matches,validateAction,runtimeSafetyReady,validateAdditionalTrustReadiness} from './ha.js';
+import {available,finite,stateOf,matches,validateAction,runtimeSafetyReady} from './ha.js';
 import {validateOperation} from './operation-colors.js';
 
 const read=(state,attribute)=>attribute?state?.attributes?.[attribute]:state?.state;
-export function automationTrustReady(hass,config){
-  const reset=config.automation_reset,id=reset?.runtime_ready_entity,a=reset?.additional_readiness;
-  if(!((id===undefined||stateOf(hass,id)?.state==='on')&&runtimeSafetyReady(hass,reset?.runtime_safety)))return false;
-  if(a===undefined)return true;
-  try{validateAdditionalTrustReadiness(a);}catch{return false;}
-  if(!a.enabled||!id)return false;
-  const hash=stateOf(hass,a.backend_hash_entity),gate=stateOf(hass,a.transition_entity),health=stateOf(hass,a.health_entity),fault=stateOf(hass,a.fault_latched_entity),sensor=stateOf(hass,a.fault_sensor_entity),pr=stateOf(hass,a.protection_entity_source),protection=stateOf(hass,pr?.state),cr=stateOf(hass,a.controller_entity_source),controller=stateOf(hass,cr?.state);
-  return [hash,gate,health,fault,sensor,pr,protection,cr,controller].every(available)&&hash.state===a.backend_sha256&&gate.state==='idle'&&health.state==='on'&&fault.state==='off'&&sensor.state===a.fault_clear_value&&String(pr.state).startsWith('automation.')&&protection.state==='on'&&protection.attributes?.id===a.protection_id&&String(cr.state).startsWith('automation.')&&controller.state==='on'&&controller.attributes?.id===a.controller_id;
-}
+export function automationTrustReady(hass,config){const reset=config.automation_reset,id=reset?.runtime_ready_entity;return (id===undefined||stateOf(hass,id)?.state==='on')&&runtimeSafetyReady(hass,reset?.runtime_safety);}
 export function automationTrustState(hass,config){
   if(!automationTrustReady(hass,config))return 'unknown';
   const locks=config.automation_reset?.lock_entities??(config.automation_groups||[]).flatMap(group=>(group.controls||[]).map(item=>item.lock_entity));
