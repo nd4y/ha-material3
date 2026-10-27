@@ -58,6 +58,20 @@ try{
     expect(await page.evaluate(()=>Object.entries(window.unifiedFixture.states).filter(([entity])=>entity.startsWith('input_boolean.lock_')).every(([,state])=>state.state==='off')),'CTA did not release configured manual permissions');
     for(const card of [home,climate])expect(await card.locator('.trust-automation').isVisible(),'CTA disappears when all permissions are automatic');
   });
+  await scenario('climate-and-device-controls-share-segmented-visual-language',async()=>{
+    const before=await writes();
+    const sliders=climate.locator('.room-target ha-m3-slider, .air-goal ha-m3-slider');
+    expect(await sliders.count()>=4,'Missing room preference controls');
+    for(let i=0;i<await sliders.count();i++){
+      const slider=sliders.nth(i);const detail=await slider.evaluate(el=>({segmented:el.segmented,terminalAccent:el.terminalAccent,count:el.renderRoot.querySelectorAll('.segment').length,role:el.renderRoot.querySelector('input')?.type}));
+      expect(detail.segmented&&detail.count>=2&&detail.count<=15,'Room control must use usable bounded segments');
+      expect(detail.terminalAccent===false,'Room control must not suggest an Auto endpoint');expect(detail.role==='range','Accessible range input missing');
+    }
+    for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:900});const box=await climate.boundingBox();const dimensions=await climate.evaluate(e=>({scroll:e.scrollWidth,client:e.clientWidth}));expect(box.width<=width&&dimensions.scroll<=dimensions.client+1,'Climate card overflows '+width);}
+    expect(await writes()===before,'Inspecting segmented controls must not emit commands');
+    await page.setViewportSize({width:390,height:900});const control=climate.locator('.air-goal ha-m3-slider').first().locator('input[type=range]');await control.scrollIntoViewIfNeeded();const b=await control.boundingBox();
+    await page.mouse.move(b.x+b.width*.15,b.y+b.height/2);await page.mouse.down();await page.mouse.move(b.x+b.width*.8,b.y+b.height/2,{steps:4});expect(await writes()===before,'Dragging room preference sent a command before release');await page.mouse.up();await page.waitForFunction(n=>window.unifiedFixture.writes.length===n+1,before);expect(await writes()===before+1,'Release must send exactly one room preference command');
+  });
   await scenario('climate-header-keeps-runtime-warning-visible',async()=>{
     const before=await writes();
     await page.evaluate(async()=>{const f=window.polishFixture; f.fixture.states['input_boolean.runtime_ready']={state:'off',attributes:{}}; const config=f.summary._config; f.summary.setConfig({...config,automation_reset:{...config.automation_reset,runtime_ready_entity:'input_boolean.runtime_ready'}});f.update();await f.summary.updateComplete;});

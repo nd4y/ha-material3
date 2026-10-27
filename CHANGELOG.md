@@ -1,3 +1,8 @@
+## 0.18.2 - 2026-10-28
+
+- Align room preference controls with the segmented device scales and compact panels.
+- Preserve precise values and do not add an automatic endpoint to room preferences.
+
 ## 0.18.1 - 2026-10-28
 
 - Refresh the climate page layout to align room readings, preferences and ventilation with the unified device panels.
