@@ -24,8 +24,13 @@ export const calmRoomStyles=[popoverStyles,presetControlStyles,css`
   .climate-page .room-metric{background:var(--md-sys-color-surface-container-high);padding:4px 10px;min-width:0}
   .climate-page .room-metric-button{padding:4px 0;min-height:72px;border-radius:12px}
   .climate-page .room-metric-value{font-size:24px;line-height:29px}
-  .climate-page .calm-body.with-air-goals{gap:2px;border-radius:20px}
-  .climate-page .calm-body.with-air-goals>div{padding:12px;background:var(--md-sys-color-surface-container-high)}
+  .climate-page .calm-body.with-air-goals{gap:8px;border-radius:0;overflow:visible}
+  .climate-page .calm-body.with-preferences{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .climate-page .calm-body.with-air-goals>div{padding:12px;background:var(--md-sys-color-surface-container-high);border-radius:20px;min-width:0}
+  .climate-page .calm-body.with-air-goals>div:first-child{--ha-m3-slider-active-color:var(--ha-m3-operation-cool,var(--md-sys-color-primary))}
+  .climate-page .calm-body.with-air-goals>div[data-air-goal=fresh]{--ha-m3-slider-active-color:var(--ha-m3-operation-fan,var(--md-sys-color-primary))}
+  .climate-page .calm-body.with-air-goals>div[data-air-goal=clean]{--ha-m3-slider-active-color:var(--ha-m3-operation-clean,var(--md-sys-color-tertiary))}
+  .climate-page .calm-body.with-air-goals>div[data-air-goal=noise]{--ha-m3-slider-active-color:var(--md-sys-color-secondary)}
   .climate-page .room-target-heading,.climate-page .air-goal-heading{font-weight:500;min-height:24px}
   .climate-page .air-goal-heading output,.climate-page .room-target output{font-size:18px;line-height:24px;color:var(--md-sys-color-on-surface)}
   .climate-page .calm-intent-modes{margin-top:10px;padding:10px 12px;border-radius:20px;background:var(--md-sys-color-surface-container-high)}
@@ -35,6 +40,7 @@ export const calmRoomStyles=[popoverStyles,presetControlStyles,css`
   .climate-page .calm-access{padding-top:4px}
   @container(max-width:1000px){.calm-body.with-preferences{grid-template-columns:repeat(2,minmax(0,1fr))}}
   @container(max-width:650px){.calm-body{grid-template-columns:1fr;gap:8px}.calm-body.with-air-goals{grid-template-columns:1fr;gap:2px}.calm-body.with-preferences{grid-template-columns:repeat(2,minmax(0,1fr))}.calm-intent-modes .calm-presets,.calm-presets{grid-template-columns:repeat(2,minmax(0,1fr))}.calm-bottom .context-sensors{gap:8px}.calm-bottom .context-metric{flex:1 1 40%}}
+  @container(max-width:650px){.climate-page .calm-body.with-preferences{grid-template-columns:1fr}}
   @container(max-width:440px){.calm-body.with-preferences{grid-template-columns:1fr}.calm-body.with-air-goals>div{padding:8px 12px}.calm-head h2{font-size:16px}.calm-reading{gap:6px}}
 `];
 export function maximumOptions(config){return (config.maximum?.return_options||[]).filter(p=>p&&typeof p.value==='string'&&p.name);}
