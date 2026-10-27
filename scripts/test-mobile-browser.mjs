@@ -25,8 +25,15 @@ try{
  expect(await speedOwner.locator('.symbol').innerText()==='devices','Device Auto lacks device icon');
  expect((await speedOwner.getAttribute('aria-label')).includes('Автоматика прибора'),'Native Auto missing full accessible meaning');
  expect((await speedOwner.locator('.owner-copy').innerText())==='Прибор','Native Auto compact label missing');
- await speedOwner.click();await page.waitForFunction(()=>document.querySelector('ha-m3-quick-device-card').hass.states['input_boolean.lock_ac_speed'].state==='off');await speedOwner.click();
- await page.waitForFunction(()=>document.querySelector('ha-m3-quick-device-card').hass.states['climate.ac'].attributes.fan_mode==='low');
+ await speedOwner.click();await page.waitForFunction(()=>document.querySelector('ha-m3-quick-device-card').hass.states['input_boolean.lock_ac_speed'].state==='off');
+ // Native Auto is not a measured manual speed. Refuse to manufacture one
+ // until the integration supplies a supported value, and send no command.
+ const beforeUnknown=await page.locator('#log').textContent();await speedOwner.click();await speed.locator('.owner-error').waitFor();
+ expect(await page.locator('#log').textContent()===beforeUnknown,'Unknown native speed sent a command');
+ expect(await page.evaluate(()=>{const s=document.querySelector('ha-m3-quick-device-card').hass.states;return s['input_boolean.lock_ac_speed'].state==='off'&&s['climate.ac'].attributes.fan_mode==='auto';}),'Unknown native speed was presented as manual');
+ // This is a synthetic new readback, not a fabricated value chosen by the UI.
+ await page.evaluate(()=>{window.publicPreview.states['climate.ac'].attributes.fan_mode='low';window.publicPreview.update();});await speedOwner.click();
+ await page.waitForFunction(()=>{const s=document.querySelector('ha-m3-quick-device-card').hass.states;return s['input_boolean.lock_ac_speed'].state==='on'&&s['climate.ac'].attributes.fan_mode==='low';});
  expect(await speedOwner.getAttribute('data-owner')==='manual','Native Auto did not exit');
  expect((await speedOwner.getAttribute('aria-label')).includes('Ручное управление'),'Manual owner missing full accessible meaning');
  expect(await speedOwner.locator('.symbol').innerText()==='lock','Manual mode lacks lock');
@@ -39,6 +46,8 @@ try{
  const currentOwnerLabel=await speedOwner.getAttribute('aria-label');
  expect(currentOwnerLabel.includes('Автоматика дома')&&currentOwnerLabel.includes('Следующий режим: Ручное управление'),'Current and next owner missing from accessible label');
  expect((await speedOwner.locator('.owner-copy').innerText())==='Авто','Home automation compact label missing');
+ const purifierLock=await page.evaluate(async()=>{const s=window.publicPreview.states,h=document.querySelector('ha-m3-quick-device-card').hass,prior={preset:s['fan.purifier'].attributes.preset_mode,lock:s['input_boolean.lock_purifier_speed'].state,saved:s['input_text.saved_purifier_speed'].state};s['fan.purifier'].attributes.preset_mode='Авто';s['input_boolean.lock_purifier_speed'].state='off';let rejected=false;try{await h.callService('script','manual',{device:'purifier',parameter:'speed',operation:'lock',value:true},{});}catch{rejected=true;}const result={rejected,lock:s['input_boolean.lock_purifier_speed'].state,saved:s['input_text.saved_purifier_speed'].state,previousSaved:prior.saved,preset:s['fan.purifier'].attributes.preset_mode};s['fan.purifier'].attributes.preset_mode=prior.preset;s['input_boolean.lock_purifier_speed'].state=prior.lock;window.publicPreview.update();return result;});
+ expect(purifierLock.rejected&&purifierLock.lock==='off'&&purifierLock.saved===purifierLock.previousSaved&&purifierLock.preset==='Авто','Synthetic purifier native Auto must not freeze Favorite as actual speed');
  await page.evaluate(()=>{
   window.doorWrites=[];const bar=document.createElement('ha-m3-action-bar');
   bar.setConfig({language:'ru',actions:[{name:'Дверь',icon:'door',confirmation:'Подтвердить действие?',action:{action:'perform-action',perform_action:'script.demo_open'}}]});

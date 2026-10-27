@@ -19,7 +19,13 @@ for(const native of [false,true])for(const initial of ['low','Auto']){
   test(`unified owner cycle retains independent permissions; native=${native}; reported=${initial}`,()=>{
     const hass=input('off',initial),item=native?field:{...field,auto:undefined};
     const expected=native?['manual','device','ha','manual']:['manual','ha','manual','ha'];
-    for(const next of expected){apply(hass,ownerCycleAction(hass,item));assert.equal(ownerModel(hass,item).owner,next);assert.equal(hass.states['input_boolean.power_lock'].state,'off');assert.equal(hass.states['input_boolean.temperature_lock'].state,'on');}
+    for(const next of expected){
+      if(native&&next==='manual'&&hass.states['fan.demo'].attributes.preset_mode==='Auto'){
+        assert.throws(()=>ownerCycleAction(hass,item));
+        hass.states['fan.demo'].attributes.preset_mode='high'; // later effective readback
+      }
+      apply(hass,ownerCycleAction(hass,item));assert.equal(ownerModel(hass,item).owner,next);assert.equal(hass.states['input_boolean.power_lock'].state,'off');assert.equal(hass.states['input_boolean.temperature_lock'].state,'on');
+    }
   });
 }
 test('unified ownership fails closed for missing or invalid permission without emitting an action',()=>{

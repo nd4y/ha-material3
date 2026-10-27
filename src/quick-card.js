@@ -6,11 +6,14 @@ import {locale} from './localize.js';
 import {operationModel,parameterOperation,operationMotion} from './operation-colors.js';
 import {M3DeviceCard} from './cards.js';
 import {common,icon} from './components.js';
-import {available,matches} from './ha.js';
+import {available,matches,perform,validateRuntimeSafety,runtimeSafetyReady} from './ha.js';
 import {controlModel,controlValue,valueAction,validateControls,automationPermission,automationAction} from './quick-controls.js';
+import {validateQuickScale,quickScaleModel,quickScaleRequest,quickScaleOffRequest,quickScaleConfirmed,quickScaleSaved,roomSnapshot,validateDeviceOwner,deviceOwnerRequest,deviceOwnerConfirmed,requestId} from './quick-scale.js';
+import {validateQuickSettings} from './quick-settings-model.js';
+import './quick-settings-menu.js';
 
 export class M3QuickDeviceCard extends M3DeviceCard{
-  static properties={...M3DeviceCard.properties,_drafts:{state:true},_permissionDrafts:{state:true},_ownerRequests:{state:true},_ownerErrors:{state:true},_operationVisible:{state:true},_pageVisible:{state:true}};
+  static properties={...M3DeviceCard.properties,_drafts:{state:true},_permissionDrafts:{state:true},_ownerRequests:{state:true},_ownerErrors:{state:true},_operationVisible:{state:true},_pageVisible:{state:true},_scaleDrafts:{state:true},_scaleRequests:{state:true},_scaleErrors:{state:true},_deviceRequest:{state:true},_deviceError:{state:true},_stopRequest:{state:true},_stopStatus:{state:true},_recoveryRequest:{state:true},_recoveryStatus:{state:true},_settingsControlId:{state:true}};
   static styles=[M3DeviceCard.styles,common,css`
     .surface{padding:var(--ha-m3-ui-card-padding);overflow:visible;--quick-tone:var(--ha-m3-operation-unknown,var(--md-sys-color-on-surface-variant));--quick-container:var(--ha-m3-operation-unknown-container,var(--md-sys-color-surface-container-high))}
     .surface.grouped{background:var(--md-sys-color-surface-container-low);border-radius:20px;padding:10px}
@@ -21,7 +24,8 @@ export class M3QuickDeviceCard extends M3DeviceCard{
     [data-tone=clean]{--quick-tone:var(--ha-m3-operation-clean,var(--md-sys-color-tertiary));--quick-container:var(--ha-m3-operation-clean-container,var(--md-sys-color-tertiary-container))}
     [data-tone=off]{--quick-tone:var(--ha-m3-operation-off,var(--md-sys-color-on-surface-variant));--quick-container:var(--ha-m3-operation-off-container,var(--md-sys-color-surface-container-high))}
     [data-tone=unknown]{--quick-tone:var(--ha-m3-operation-unknown,var(--md-sys-color-on-surface-variant));--quick-container:var(--ha-m3-operation-unknown-container,var(--md-sys-color-surface-container-high))}
-    .quick-header{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;margin:0 2px 4px}
+    .quick-header{display:flex;align-items:center;gap:8px;margin:0 2px 4px}.quick-title{flex:1}
+    .quick-header:not(:has(.device-owner)){grid-template-columns:minmax(0,1fr) auto}.device-owner{width:44px;height:44px;min-width:44px;border-radius:50%!important}
     .quick-title{display:flex;align-items:center;gap:7px;min-width:0}.quick-title h2{font-size:16px;line-height:22px;font-weight:500;overflow-wrap:anywhere}.quick-title>.symbol{font-size:22px;color:var(--quick-tone)}
     .quick-operation{position:relative;display:flex;align-items:center;justify-content:center;min-width:36px;min-height:36px;width:36px;color:var(--quick-tone);font-size:14px;line-height:18px}.operation-symbol{display:grid;place-items:center;width:36px;height:36px;border-radius:13px;background:var(--quick-container);color:var(--quick-tone)}.operation-glyph{display:grid;place-items:center;transform-origin:center}.operation-glyph>.symbol{font-size:23px;display:block;line-height:1}.operation-copy{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.operation-activity{font-size:12px;line-height:16px}
     .quick-operation:not([role=img]){width:auto;max-width:150px;overflow-wrap:anywhere}.owner[data-owner=unknown] .owner-copy{display:none}
@@ -32,20 +36,149 @@ export class M3QuickDeviceCard extends M3DeviceCard{
     .owner{position:relative;isolation:isolate;display:grid;align-content:center;justify-items:center;gap:2px;width:56px;height:52px;min-width:56px;padding:4px;border:0;border-radius:50%;background:var(--md-sys-color-surface-container);color:var(--md-sys-color-on-surface-variant);cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;transition:transform var(--fx-fast),border-radius var(--fx-fast),background-color var(--fx-fast),color var(--fx-fast)}.owner[data-owner=ha]{color:var(--md-sys-color-primary)}.owner[data-owner=manual]{border-radius:16px;background:var(--ha-m3-owner-manual-container,var(--ha-m3-operation-warm-container,var(--md-sys-color-tertiary-container)));color:var(--ha-m3-owner-manual-color,var(--ha-m3-operation-warm,var(--md-sys-color-on-tertiary-container)))}.owner[data-owner=device]{border-radius:20px;background:var(--md-sys-color-tertiary-container);color:var(--md-sys-color-on-tertiary-container)}.owner-icon{display:grid;place-items:center;width:22px;height:22px;line-height:0}.owner-icon>.symbol{display:block;font-size:20px;line-height:1}.owner-copy{font-size:11px;line-height:14px;white-space:nowrap}.owner::after{content:'';position:absolute;inset:0;z-index:-1;border-radius:inherit;background:currentColor;opacity:0;pointer-events:none;transition:opacity var(--fx-fast)}.owner:hover:not(:disabled)::after{opacity:.08}.owner:active:not(:disabled){transform:scale(.95);border-radius:16px}.owner:active:not(:disabled)::after{opacity:.12}.owner:focus-visible{outline:3px solid var(--md-sys-color-primary);outline-offset:2px}.owner:disabled{cursor:default;opacity:.5}.owner .spinner{width:20px;height:20px}
     .owner[data-owner=unknown]{background:var(--md-sys-color-surface-container-highest);color:var(--md-sys-color-on-surface-variant)}.owner-error{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--md-sys-color-error);font-size:12px;line-height:16px}.owner-label[aria-busy=true]{color:var(--md-sys-color-on-surface-variant)}
     .saved-hint{display:block;font-size:12px;line-height:16px;color:var(--md-sys-color-on-surface-variant)}.saved-hint:empty{display:none}.footer-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;border-top:1px solid var(--md-sys-color-outline-variant);margin-top:8px;padding-top:2px}.popover-row ha-m3-switch{flex-shrink:0}
+    .scale-head{display:flex;align-items:center;gap:4px}.scale-details{display:grid;place-items:center;width:44px;height:44px;border:0;border-radius:50%;background:transparent;color:inherit}.scale-ticks{display:flex;justify-content:space-between;gap:4px;font-size:11px;line-height:16px;color:var(--md-sys-color-on-surface-variant)}.scale-ticks span{text-align:center}.scale-error{font-size:12px;line-height:16px;color:var(--md-sys-color-error)}.runtime-warning{font-size:13px;line-height:18px;color:var(--md-sys-color-on-surface-variant);margin:0 0 8px}.scale-choice{min-height:48px;width:100%;background:var(--md-sys-color-surface-container);color:var(--md-sys-color-on-surface);border:1px solid var(--md-sys-color-outline);border-radius:12px;padding:0 12px}
     .operation-symbol[data-moving=true][data-motion=heat] .operation-glyph{animation:quick-heat 3.2s ease-in-out infinite}.operation-symbol[data-moving=true][data-motion=cool] .operation-glyph{animation:quick-cool 4s ease-in-out infinite}.operation-symbol[data-moving=true][data-motion=flow] .operation-glyph{animation:quick-flow 3s ease-in-out infinite}.operation-symbol[data-moving=true][data-motion=spin] .operation-glyph{animation:quick-spin 4s linear infinite}
     .surface[data-operation-visible=false] .operation-glyph,.surface[data-page-visible=false] .operation-glyph{animation-play-state:paused!important}
     @keyframes quick-heat{0%,100%{transform:scale(.96)}50%{transform:scale(1.08)}}@keyframes quick-cool{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}@keyframes quick-flow{0%,100%{transform:translateX(-1.5px)}50%{transform:translateX(1.5px)}}@keyframes quick-spin{to{transform:rotate(360deg)}}
     .surface[data-motion=reduced] .operation-glyph{animation:none!important}.surface[data-motion=reduced] .owner,.surface[data-motion=reduced] .owner::after{transition:none!important}.surface[data-motion=reduced] .owner:active{transform:none}
     @media(prefers-reduced-motion:reduce){.operation-glyph{animation:none!important}.owner,.owner::after{transition:none!important}.owner:active{transform:none}}
-    @container(max-width:350px){.surface{padding:var(--ha-m3-ui-compact-card-padding)}.surface.grouped{padding:8px}.quick-field{padding:9px 10px}.quick-header{gap:6px}.quick-title h2{font-size:15px}.field-control{gap:8px}.power-policy{gap:8px}}
+    @container(max-width:350px){.surface{padding:var(--ha-m3-ui-compact-card-padding)}.surface.grouped{padding:8px}.quick-field{padding:9px 10px}.quick-header{gap:2px}.quick-header .scale-details{flex:0 0 44px}.quick-title{gap:4px}.quick-title h2{font-size:15px;overflow-wrap:normal}.field-control{gap:8px}.power-policy{gap:8px}}
   `];
-  constructor(){super();this._drafts={};this._permissionDrafts={};this._draftTimers=new Map();this._ownerRequests={};this._ownerErrors={};this._ownerTimers=new Map();this._operationVisible=true;this._pageVisible=typeof document==='undefined'||!document.hidden;this._visibilityChanged=()=>this._pageVisible=!document.hidden;}
-  connectedCallback(){super.connectedCallback();document.addEventListener('visibilitychange',this._visibilityChanged);this._visibilityChanged();if(typeof IntersectionObserver!=='undefined'){this._operationObserver=new IntersectionObserver(entries=>{this._operationVisible=entries.at(-1)?.isIntersecting??false;});this._operationObserver.observe(this);}}
-  setConfig(config){validateControls(config);const signature=JSON.stringify(config);if(this._ownerConfig!==undefined&&this._ownerConfig!==signature)this.clearOwnerRequests();super.setConfig(config);this._ownerConfig=signature;}
+  constructor(){super();this._drafts={};this._permissionDrafts={};this._draftTimers=new Map();this._ownerRequests={};this._ownerErrors={};this._ownerTimers=new Map();this._scaleDrafts={};this._scaleRequests={};this._scaleLate={};this._scaleErrors={};this._scaleSnapshots={};this._scaleTimers=new Map();this._deviceRequest=null;this._deviceLate=null;this._deviceError=false;this._deviceTimer=null;this._stopRequest=null;this._stopStatus='';this._stopTimer=null;this._recoveryRequest=null;this._recoveryStatus='';this._recoveryTimer=null;this._scaleHold=null;this._settingsControlId='';this._operationVisible=true;this._pageVisible=typeof document==='undefined'||!document.hidden;this._visibilityChanged=()=>this._pageVisible=!document.hidden;this._scaleScroll=()=>this.clearScaleHold();}
+  connectedCallback(){super.connectedCallback();document.addEventListener('visibilitychange',this._visibilityChanged);window.addEventListener('scroll',this._scaleScroll,true);this._visibilityChanged();if(typeof IntersectionObserver!=='undefined'){this._operationObserver=new IntersectionObserver(entries=>{this._operationVisible=entries.at(-1)?.isIntersecting??false;});this._operationObserver.observe(this);}}
+  setConfig(config){if(config.runtime_ready_entity!==undefined&&!/^input_boolean\.[a-z0-9_]+$/.test(config.runtime_ready_entity))throw new Error('Runtime readiness must be an input_boolean');validateRuntimeSafety(config.runtime_safety);if(config.runtime_safety&&!config.runtime_ready_entity)throw new Error('Runtime safety needs readiness');if(config.stop_only!==undefined){const s=config.stop_only,a=s?.gateway;if(!config.runtime_ready_entity||!/^input_text\.[a-z0-9_]+$/.test(s?.completed_entity||'')||a?.action!=='perform-action'||!/^script\.[a-z0-9_]+$/.test(a?.perform_action||'')||!a.data||Object.keys(a.data).length!==1||!/^[a-z0-9_]{1,64}$/.test(a.data.device||'')||Object.keys(a).some(k=>!['action','perform_action','data'].includes(k)))throw new Error('Stop-only needs an explicit script and one device');}if(config.recovery!==undefined){const r=config.recovery,a=r?.gateway;if(!config.runtime_ready_entity||!['request_entity','completed_entity','status_entity','transition_entity'].every(k=>/^input_text\.[a-z0-9_]+$/.test(r?.[k]||''))||new Set([r.request_entity,r.completed_entity,r.status_entity,r.transition_entity]).size!==4||a?.action!=='perform-action'||!/^script\.[a-z0-9_]+$/.test(a?.perform_action||'')||Object.keys(a).some(k=>!['action','perform_action'].includes(k)))throw new Error('Recovery needs an explicit script and separate readback entities');}validateControls(config);for(const item of config.quick_controls||[])validateQuickScale(item);validateDeviceOwner(config);validateQuickSettings(config.settings_menu);const signature=JSON.stringify(config);if(this._ownerConfig!==undefined&&this._ownerConfig!==signature){this.clearOwnerRequests();this.clearScaleRequests();}super.setConfig(config);this._ownerConfig=signature;}
+  runtimeReady(){const id=this._config?.runtime_ready_entity;if(id===undefined)return true;return this.s(id)?.state==='on'&&runtimeSafetyReady(this.hass,this._config.runtime_safety)&&(!this._config?.recovery||this.s(this._config.recovery.transition_entity)?.state==='idle');}
+  runtimeWarning(){const ru=locale(this.hass,this._config).startsWith('ru');return !runtimeSafetyReady(this.hass,this._config?.runtime_safety)?(ru?'Защита недоступна':'Protection is unavailable'):(ru?'Управление временно недоступно':'Control is temporarily unavailable');}
+  syncStopRequest(){
+    const request=this._stopRequest;if(!request)return;
+    const observed=this.s(this._config.stop_only?.completed_entity)?.state===request.id&&this.s(this._config.entity)?.state==='off';
+    if(observed){clearTimeout(this._stopTimer);request.pending=false;if(this._stopStatus!=='observed')this._stopStatus='observed';return;}
+    if(this._stopStatus==='observed'){this._stopRequest=null;this._stopStatus='';return;}
+    if(request.pending&&Date.now()>=request.deadline){request.pending=false;this._stopStatus='unconfirmed';}
+  }
+  async stopNow(){
+    const config=this._config.stop_only;if(!config||this.runtimeReady()||this._stopRequest?.pending)return;
+    let id;try{id=requestId();}catch{this._stopStatus='unconfirmed';return;}
+    clearTimeout(this._stopTimer);const request={id,pending:true,deadline:Date.now()+30000};this._stopRequest=request;this._stopStatus='pending';
+    this._stopTimer=setTimeout(()=>{if(this._stopRequest===request)this.syncStopRequest();},30000);
+    const action=structuredClone(config.gateway);action.data.request_id=id;
+    try{await perform(this,this.hass,action);}catch{if(this._stopRequest===request){request.pending=false;clearTimeout(this._stopTimer);this._stopStatus='unconfirmed';}return;}
+    if(this._stopRequest===request)this.syncStopRequest();
+  }
+  stopFeedback(){
+    if(!this._stopStatus)return nothing;const ru=locale(this.hass,this._config).startsWith('ru');
+    const text=this._stopStatus==='pending'?(ru?'Проверяем состояние в Home Assistant':'Checking Home Assistant state'):this._stopStatus==='observed'?(ru?'В Home Assistant выключено; результат команды не подтверждён':'Home Assistant reports off; the command result is unconfirmed'):(ru?'Выключение в Home Assistant не подтверждено':'Off state in Home Assistant is unconfirmed');
+    return html`<div class="runtime-warning" role="status">${text}</div>`;
+  }
+  syncRecoveryRequest(){
+    const request=this._recoveryRequest;if(!request)return;const cfg=this._config.recovery;
+    const confirmed=this.s(cfg?.request_entity)?.state===request.id&&this.s(cfg?.completed_entity)?.state===request.id&&available(this.s(cfg?.status_entity))&&this.runtimeReady()&&this.s(cfg?.transition_entity)?.state==='idle';
+    if(confirmed){clearTimeout(this._recoveryTimer);request.pending=false;if(this._recoveryStatus!=='confirmed')this._recoveryStatus='confirmed';return;}
+    if(this._recoveryStatus==='confirmed'){this._recoveryRequest=null;this._recoveryStatus='';return;}
+    if(request.pending&&Date.now()>=request.deadline){request.pending=false;this._recoveryStatus='unconfirmed';}
+  }
+  async checkRecovery(){
+    const config=this._config.recovery;if(!config||this.runtimeReady()||this._recoveryRequest?.pending)return;
+    let id;try{id=requestId();}catch{this._recoveryStatus='unconfirmed';return;}
+    clearTimeout(this._recoveryTimer);const request={id,pending:true,deadline:Date.now()+30000};this._recoveryRequest=request;this._recoveryStatus='pending';
+    this._recoveryTimer=setTimeout(()=>{if(this._recoveryRequest===request)this.syncRecoveryRequest();},30000);
+    const action=structuredClone(config.gateway);action.data={request_id:id};
+    try{await perform(this,this.hass,action);}catch{if(this._recoveryRequest===request){request.pending=false;clearTimeout(this._recoveryTimer);this._recoveryStatus='unconfirmed';}return;}
+    if(this._recoveryRequest===request)this.syncRecoveryRequest();
+  }
+  recoveryFeedback(){
+    if(!this._recoveryStatus)return nothing;const ru=locale(this.hass,this._config).startsWith('ru');
+    const text=this._recoveryStatus==='pending'?(ru?'Проверяем управление':'Checking control'):this._recoveryStatus==='confirmed'?(ru?'Управление доступно':'Control is available'):(ru?'Результат проверки не подтверждён':'The check result is unconfirmed');
+    return html`<div class="runtime-warning" role="status">${text}</div>`;
+  }
   getCardSize(){return this._config.quick_controls?.length>1?6:5;}
-  disconnectedCallback(){this._operationObserver?.disconnect();document.removeEventListener('visibilitychange',this._visibilityChanged);super.disconnectedCallback();for(const timer of this._draftTimers.values())clearTimeout(timer);this.clearOwnerRequests();}
-  willUpdate(changed){super.willUpdate(changed);for(const item of this._config.quick_controls||[]){const m=controlModel(this.hass,item),draft=this._drafts[item.id];if(draft!==undefined&&Number(m.position)===Number(draft)){delete this._drafts[item.id];clearTimeout(this._draftTimers.get(item.id));this._draftTimers.delete(item.id);}}for(const item of [...(this._config.quick_controls||[]),{...this._config.power,id:'power'}]){const p=automationPermission(this.hass,item);if(p.available&&this._permissionDrafts[item.id]===p.automatic){delete this._permissionDrafts[item.id];clearTimeout(this._draftTimers.get('permission:'+item.id));}this.syncOwnerRequest(item);}}
+  disconnectedCallback(){this._operationObserver?.disconnect();document.removeEventListener('visibilitychange',this._visibilityChanged);window.removeEventListener('scroll',this._scaleScroll,true);super.disconnectedCallback();for(const timer of this._draftTimers.values())clearTimeout(timer);this.clearOwnerRequests();this.clearScaleRequests();}
+  willUpdate(changed){super.willUpdate(changed);for(const item of this._config.quick_controls||[]){const m=controlModel(this.hass,item),draft=this._drafts[item.id];if(draft!==undefined&&Number(m.position)===Number(draft)){delete this._drafts[item.id];clearTimeout(this._draftTimers.get(item.id));this._draftTimers.delete(item.id);}if(item.mode_scale)this.syncScaleRequest(item);}for(const item of [...(this._config.quick_controls||[]),{...this._config.power,id:'power'}]){const p=automationPermission(this.hass,item);if(p.available&&this._permissionDrafts[item.id]===p.automatic){delete this._permissionDrafts[item.id];clearTimeout(this._draftTimers.get('permission:'+item.id));}this.syncOwnerRequest(item);}this.syncDeviceRequest();this.syncStopRequest();this.syncRecoveryRequest();}
   clearOwnerRequests(){for(const timer of this._ownerTimers.values())clearTimeout(timer);this._ownerTimers.clear();this._ownerRequests={};this._ownerErrors={};}
+  clearScaleRequests(){for(const timer of this._scaleTimers.values())clearTimeout(timer);this._scaleTimers.clear();clearTimeout(this._deviceTimer);clearTimeout(this._stopTimer);clearTimeout(this._recoveryTimer);this.clearScaleHold();this._scaleRequests={};this._scaleLate={};this._scaleDrafts={};this._scaleSnapshots={};this._scaleErrors={};this._deviceRequest=null;this._deviceLate=null;this._deviceError=false;this._stopRequest=null;this._stopStatus='';this._recoveryRequest=null;this._recoveryStatus='';}
+  scaleErrorText(){return locale(this.hass,this._config).startsWith('ru')?'Не удалось подтвердить настройку. Проверьте состояние устройства.':'The setting was not confirmed. Check the device state.';}
+  deviceErrorText(){return locale(this.hass,this._config).startsWith('ru')?'Управление переключено не полностью или не подтверждено. Проверьте настройки устройства.':'The change may be partial or unconfirmed. Check device settings.';}
+  syncScaleRequest(item){
+    const request=this._scaleRequests[item.id];
+    if(!request){const late=this._scaleLate[item.id];if(late&&late.gatewaySettled!==false&&(quickScaleConfirmed(this.hass,this._config,item,late)||(item.mode_scale.kind==='ac-speed'&&quickScaleSaved(this.hass,this._config,item,late)))){delete this._scaleLate[item.id];this._scaleErrors={...this._scaleErrors,[item.id]:false};}return;}
+    if(item.mode_scale.kind==='ac-speed'&&quickScaleSaved(this.hass,this._config,item,request)){
+      clearTimeout(this._scaleTimers.get(item.id));this._scaleTimers.delete(item.id);const requests={...this._scaleRequests},drafts={...this._scaleDrafts};delete requests[item.id];delete drafts[item.id];this._scaleRequests=requests;this._scaleDrafts=drafts;this._scaleErrors={...this._scaleErrors,[item.id]:false};return;
+    }
+    if(!request.saved&&quickScaleSaved(this.hass,this._config,item,request)){
+      request.saved=true;request.deadline=Date.now()+360000;clearTimeout(this._scaleTimers.get(item.id));
+      this._scaleTimers.set(item.id,setTimeout(()=>{if(this._scaleRequests[item.id]?.request_id===request.request_id)this.syncScaleRequest(item);},360000));
+      this._scaleRequests={...this._scaleRequests};
+    }
+    const expired=Date.now()>=request.deadline,confirmed=request.gatewaySettled!==false&&quickScaleConfirmed(this.hass,this._config,item,request);
+    if(!confirmed&&!expired)return;
+    clearTimeout(this._scaleTimers.get(item.id));this._scaleTimers.delete(item.id);
+    const requests={...this._scaleRequests},drafts={...this._scaleDrafts};delete requests[item.id];delete drafts[item.id];this._scaleRequests=requests;this._scaleDrafts=drafts;if(!confirmed)this._scaleLate[item.id]=request;
+    this._scaleErrors={...this._scaleErrors,[item.id]:!confirmed};
+  }
+  async commitScale(item,position){
+    if(!this.runtimeReady())return;
+    const isOff=position==='force-off'||position===0,busy=this._busy||this._deviceRequest||Object.keys(this._scaleRequests).length;
+    if(busy&&!isOff){const drafts={...this._scaleDrafts};delete drafts[item.id];this._scaleDrafts=drafts;return;}
+    let request;try{request=isOff?quickScaleOffRequest(this.hass,this._config,item):quickScaleRequest(this.hass,this._config,item,position,this._scaleSnapshots[item.id]);}catch{this._scaleErrors={...this._scaleErrors,[item.id]:true};const drafts={...this._scaleDrafts};delete drafts[item.id];this._scaleDrafts=drafts;return;}
+    if(isOff&&busy){for(const timer of this._scaleTimers.values())clearTimeout(timer);this._scaleTimers.clear();clearTimeout(this._deviceTimer);this._deviceRequest=null;this._scaleRequests={};this._scaleDrafts={};}
+    for(const id of Object.keys(this._scaleLate)){delete this._scaleLate[id];const errors={...this._scaleErrors};delete errors[id];this._scaleErrors=errors;}this._deviceLate=null;this._deviceError=false;
+    const timeout=request.choice==='turbo'?90000:30000;if(request.choice==='turbo')request.gatewaySettled=false;
+    delete this._scaleSnapshots[item.id];request.deadline=Date.now()+timeout;this._scaleErrors={...this._scaleErrors,[item.id]:false};this._scaleRequests={...this._scaleRequests,[item.id]:request};
+    this._scaleTimers.set(item.id,setTimeout(()=>{if(this._scaleRequests[item.id]?.request_id===request.request_id)this.syncScaleRequest(item);},timeout));
+    try{await perform(this,this.hass,request.action);}catch{if(this._scaleRequests[item.id]?.request_id!==request.request_id)return;clearTimeout(this._scaleTimers.get(item.id));this._scaleTimers.delete(item.id);const requests={...this._scaleRequests},drafts={...this._scaleDrafts};delete requests[item.id];delete drafts[item.id];this._scaleRequests=requests;this._scaleDrafts=drafts;this._scaleErrors={...this._scaleErrors,[item.id]:true};return;}
+    if(this._scaleRequests[item.id]?.request_id===request.request_id||this._scaleLate[item.id]?.request_id===request.request_id){if(request.choice==='turbo')request.gatewaySettled=true;this.syncScaleRequest(item);}
+  }
+  syncDeviceRequest(){
+    const request=this._deviceRequest;if(!request){if(this._deviceLate&&deviceOwnerConfirmed(this.hass,this._config,this._deviceLate)){this._deviceLate=null;this._deviceError=false;}return;}
+    const confirmed=deviceOwnerConfirmed(this.hass,this._config,request),expired=Date.now()>=request.deadline;
+    if(!confirmed&&!expired)return;
+    clearTimeout(this._deviceTimer);this._deviceRequest=null;if(!confirmed)this._deviceLate=request;this._deviceError=!confirmed;
+  }
+  async toggleDeviceOwner(){
+    if(!this.runtimeReady())return;
+    if(this._busy||this._deviceRequest||Object.keys(this._scaleRequests).length)return;
+    const ownership=deviceOwnershipModel(this.hass,this._config);if(!ownership.known)return;
+    const owner=ownership.state==='automatic'?'manual':'auto';let request;
+    try{request=deviceOwnerRequest(this.hass,this._config,owner);}catch{this._deviceError=true;return;}
+    for(const id of Object.keys(this._scaleLate)){delete this._scaleLate[id];const errors={...this._scaleErrors};delete errors[id];this._scaleErrors=errors;}this._deviceLate=null;request.deadline=Date.now()+90000;
+    this._deviceError=false;this._deviceRequest=request;this._deviceTimer=setTimeout(()=>this.syncDeviceRequest(),90000);
+    try{await perform(this,this.hass,request.action);}catch{if(this._deviceRequest?.request_id!==request.request_id)return;clearTimeout(this._deviceTimer);this._deviceRequest=null;this._deviceError=true;return;}
+    if(this._deviceRequest?.request_id===request.request_id)this.syncDeviceRequest();
+  }
+  deviceOwnerButton(ownership){
+    if(!this._config.device_ownership)return nothing;
+    const ready=this.runtimeReady(),auto=ownership.state==='automatic',ru=locale(this.hass,this._config).startsWith('ru'),label=!ready?this.runtimeWarning():!ownership.known?this.t('unavailable'):auto?(ru?'Зафиксировать текущие настройки вручную':'Keep current settings manually'):(ru?'Передать управление автоматике':'Allow automatic control');
+    return html`<button type="button" class="owner device-owner" data-owner=${!ready||!ownership.known?'unknown':auto?'ha':'manual'} aria-label=${label} aria-busy=${this._deviceRequest?'true':nothing} ?disabled=${!ready||!ownership.known||this._busy||!!this._deviceRequest||Object.keys(this._scaleRequests).length>0} @click=${this.toggleDeviceOwner}><span class="owner-icon">${this._deviceRequest?html`<span class="spinner" aria-hidden="true"></span>`:icon(!ready||!ownership.known?'info':auto?'auto_awesome':'lock')}</span></button>`;
+  }
+  clearScaleHold(){if(this._scaleHold)clearTimeout(this._scaleHold.timer);this._scaleHold=null;}
+  async openSettings(controlId=''){
+    if(!this._config.settings_menu)return;this.clearScaleHold();this._settingsControlId=controlId;await this.updateComplete;
+    await this.renderRoot.querySelector('ha-m3-quick-settings-menu')?.show();
+  }
+  startScaleHold(event,item){
+    if(!this._config.settings_menu||event.isPrimary===false||event.button!==0||event.composedPath().some(node=>node?.tagName==='BUTTON'))return;
+    this.clearScaleHold();const hold={id:event.pointerId,x:event.clientX,y:event.clientY,timer:null};
+    hold.timer=setTimeout(()=>{if(this._scaleHold!==hold)return;this._scaleHold=null;this.renderRoot.querySelector(`[data-control-id="${item.id}"] ha-m3-slider`)?.cancelEdit('hold-menu');this.openSettings(item.id);},600);this._scaleHold=hold;
+  }
+  moveScaleHold(event){const h=this._scaleHold;if(h&&event.pointerId===h.id&&Math.hypot(event.clientX-h.x,event.clientY-h.y)>10)this.clearScaleHold();}
+  scaleValueText(choice,item){if(choice===undefined||choice===null)return this.t('noData');if(choice==='auto')return this.t('automatic');if(choice==='off')return item.mode_scale.kind==='breather-temperature'?(locale(this.hass,this._config).startsWith('ru')?'Без нагрева':'Heating off'):this.t('off');if(choice==='turbo')return locale(this.hass,this._config).startsWith('ru')?'Турбо':'Turbo';return typeof choice==='number'?`${this.n(choice)} ${item.unit||'°C'}`:(item.option_labels?.[choice]||String(choice));}
+  settingsMenu(){const menu=this._config.settings_menu;return menu?html`<ha-m3-quick-settings-menu .hass=${this.hass} .config=${menu} .heading=${this.deviceName()} .motion=${this.motion} .controlId=${this._settingsControlId}></ha-m3-quick-settings-menu>`:nothing;}
+  scaleField(item,operation){
+    const m=quickScaleModel(this.hass,this._config,item),draft=this.runtimeReady()?this._scaleDrafts[item.id]:undefined,position=draft??m.position,choice=position===null?null:m.choices[position],disabled=!m.available||!this.runtimeReady(),process=parameterOperation(operation,item);
+    const waiting=this._scaleRequests[item.id],ru=locale(this.hass,this._config).startsWith('ru');
+    const message=this._scaleErrors[item.id]?this.scaleErrorText():waiting?.saved?(ru?`Цель ${this.n(waiting.intent.value)} °C: ожидается применение`:`Target ${this.n(waiting.intent.value)} °C: awaiting application`):waiting?this.t('pending'):!m.available?this.t('noData'):'';
+    const valueText=m.deviceOff&&draft===undefined?this.t('off'):this.scaleValueText(choice,item);
+    const saved=this.s(item.value_entity),savedValue=typeof saved?.state==='string'&&/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(saved.state)?Number(saved.state):NaN;
+    const savedPermission=automationPermission(this.hass,item),savedOff=item.mode_scale.kind==='breather-temperature'&&m.deviceOff===true&&savedPermission.available&&!savedPermission.automatic&&available(saved)&&Number.isFinite(savedValue),savedSpeedOff=item.mode_scale.kind==='ac-speed'&&m.deviceOff===true&&savedPermission.available&&!savedPermission.automatic&&available(saved)&&m.choices.includes(saved.state);
+    return html`<div class="quick-field" data-control-id=${item.id} data-tone=${process.tone} @pointerdown=${event=>this.startScaleHold(event,item)} @pointermove=${this.moveScaleHold} @pointerup=${this.clearScaleHold} @pointercancel=${this.clearScaleHold}>
+      <div class="field-heading"><div class="field-caption"><label>${item.name}</label></div><div class="scale-head"><output>${valueText}</output>${this._config.settings_menu?html`<button type="button" class="scale-details" aria-label=${`${this.t('details')}: ${item.name}`} @click=${()=>this.openSettings(item.id)}>${icon('more_horiz')}</button>`:nothing}</div></div>
+      ${position!==null?html`<div class="field-control"><ha-m3-slider .label=${item.name} .valueText=${valueText} .value=${Number(position)} .min=${0} .max=${Math.max(1,m.choices.length-1)} .step=${1} .disabled=${disabled} .haptics=${this.hass?.vibrate===true} .segmented=${true} motion=${this.motion} @m3-start=${()=>{this._scaleSnapshots[item.id]=roomSnapshot(this.hass,item);}} @m3-input=${event=>{this._scaleDrafts={...this._scaleDrafts,[item.id]:event.detail.value};}} @m3-change=${event=>this.commitScale(item,event.detail.value)} @m3-cancel=${()=>{const drafts={...this._scaleDrafts};delete drafts[item.id];this._scaleDrafts=drafts;delete this._scaleSnapshots[item.id];}}></ha-m3-slider></div><div class="scale-ticks" aria-hidden="true"><span>${item.mode_scale.kind==='breather-temperature'?this.scaleValueText('off',item):this.t('off')}</span><span>${this.t('automatic')}</span></div>`:nothing}
+      ${!m.available&&m.selectable?html`<select class="scale-choice" aria-label=${`${item.name}: ${ru?'выбрать настройку':'choose setting'}`} .value=${''} ?disabled=${!this.runtimeReady()} @change=${event=>{const position=Number(event.target.value);event.target.value='';if(Number.isInteger(position)){this._scaleSnapshots[item.id]=roomSnapshot(this.hass,item);this.commitScale(item,position);}}}><option value="" disabled selected>${ru?'Выберите настройку':'Choose a setting'}</option>${m.choices.map((v,i)=>html`<option value=${i} ?disabled=${item.mode_scale.kind==='ac-temperature'&&typeof v==='number'&&!m.room}>${this.scaleValueText(v,item)}</option>`)}</select>`:!m.available?html`<ha-m3-button kind="text" .disabled=${!this.runtimeReady()||!available(this.s(item.mode_scale.revision_entity))||!available(this.s(item.mode_scale.completed_entity))} @click=${()=>this.commitScale(item,'force-off')}>${item.mode_scale.kind==='breather-temperature'?(ru?'Выключить нагрев':'Turn off heating'):(ru?'Выключить устройство':'Turn off device')}</ha-m3-button>`:nothing}
+      ${savedOff?html`<div class="saved-hint">${ru?'Сохранено для включения':'Saved for startup'}: ${this.scaleValueText(savedValue===5?'off':savedValue,item)}</div>`:nothing}
+      ${savedSpeedOff?html`<div class="saved-hint">${ru?'Сохранено для включения':'Saved for startup'}: ${this.scaleValueText(saved.state,item)}</div>`:nothing}
+      ${message?html`<div class="${this._scaleErrors[item.id]?'scale-error':'saved-hint'}" role=${this._scaleErrors[item.id]?'alert':'status'}>${message}</div>`:nothing}
+    </div>`;
+  }
   finishOwnerRequest(id){clearTimeout(this._ownerTimers.get(id));this._ownerTimers.delete(id);const requests={...this._ownerRequests};delete requests[id];this._ownerRequests=requests;}
   syncOwnerRequest(item){
     const request=this._ownerRequests[item.id],status=ownerRequestStatus(this.hass,item,request);
@@ -55,7 +188,7 @@ export class M3QuickDeviceCard extends M3DeviceCard{
     else if(status==='timeout'){this.finishOwnerRequest(item.id);this._ownerErrors={...this._ownerErrors,[item.id]:{owner:request.owner,key:'ownerConfirmationTimeout'}};}
   }
   async requestOwner(item,requested){
-    if(this._busy||this._ownerRequests[item.id])return;
+    if(!this.runtimeReady()||this._busy||this._ownerRequests[item.id])return;
     let request;try{request=ownerRequest(this.hass,item,requested);}catch{this._ownerErrors={...this._ownerErrors,[item.id]:{owner:requested,key:'unavailable'}};return;}
     const errors={...this._ownerErrors};delete errors[item.id];this._ownerErrors=errors;if(!request)return;
     this._ownerRequests={...this._ownerRequests,[item.id]:request};
@@ -67,7 +200,7 @@ export class M3QuickDeviceCard extends M3DeviceCard{
   }
   ownerFeedback(item){const error=this._ownerErrors[item.id];return error?html`<div class="owner-error" role="alert"><span>${this.t(error.key)}</span><ha-m3-button kind="text" .disabled=${this._busy||!ownerModel(this.hass,item).available} @click=${()=>this.requestOwner(item,error.owner)}>${this.t('retry')}</ha-m3-button></div>`:nothing;}
   async commit(item,position){
-    if(this._busy||this._ownerRequests[item.id])return;
+    if(!this.runtimeReady()||this._busy||this._ownerRequests[item.id])return;
     const m=controlModel(this.hass,item);let action;
     try{action=valueAction(item.set_action,controlValue(m,position));}catch{this._error=true;return;}
     this._drafts={...this._drafts,[item.id]:position};await this.run(action,item.id);
@@ -75,7 +208,7 @@ export class M3QuickDeviceCard extends M3DeviceCard{
     clearTimeout(this._draftTimers.get(item.id));this._draftTimers.set(item.id,setTimeout(()=>{delete this._drafts[item.id];this.requestUpdate();},8000));
   }
   cancelDraft(item){clearTimeout(this._draftTimers.get(item.id));this._draftTimers.delete(item.id);const drafts={...this._drafts};delete drafts[item.id];this._drafts=drafts;}
-  changePower(item,selected){if(this._busy||this._ownerRequests.power)return;return this.run(valueAction(item.action,selected),'power');}
+  changePower(item,selected){if(!this.runtimeReady()||this._busy||this._ownerRequests.power)return;return this.run(valueAction(item.action,selected),'power');}
   ownerLabel(item){
     if(!item.lock_entity)return nothing;
     const actual=ownerModel(this.hass,item),owner=actual.available?actual.owner:'unknown',pending=!!this._ownerRequests[item.id];
@@ -83,25 +216,27 @@ export class M3QuickDeviceCard extends M3DeviceCard{
   }
   permission(item,name,unavailable=false){
     if(!item.lock_entity)return nothing;
-    const m=ownerModel(this.hass,item),request=this._ownerRequests[item.id],disabled=unavailable||!m.available||this._busy||!!request,next=m.available?nextOwner(this.hass,item):null,owner=m.available?m.owner:'unknown';
+    const m=ownerModel(this.hass,item),request=this._ownerRequests[item.id],disabled=!this.runtimeReady()||unavailable||!m.available||this._busy||!!request,next=m.available?nextOwner(this.hass,item):null,owner=m.available?m.owner:'unknown';
     const presentation=ownerPresentation(owner),label=this.t(presentation.labelKey),accessibleLabel=this.t(presentation.accessibleKey),requestLabel=request?this.t(ownerPresentation(request.owner).accessibleKey):null,nextLabel=next?this.t(ownerPresentation(next).accessibleKey):null,description=`${name}: ${accessibleLabel}. ${request?this.t('pending')+': '+requestLabel:next?this.t('ownerNext')+': '+nextLabel:this.t('unavailable')}`;
     const help={heading:name,body:`${description}\n\n${this.t(presentation.helpKey)}\n\n${this.t('holdHelpHint')}`,motion:this.motion,language:locale(this.hass,this._config)};
     return html`<button type="button" class="owner" data-owner=${owner} data-next-owner=${next||nothing} data-requested-owner=${request?.owner||nothing} aria-busy=${request?'true':nothing} aria-label=${description} title=${description} aria-description=${`${this.t(presentation.helpKey)} ${this.t('holdHelpHint')}`} ?disabled=${disabled} ${holdHelp(help)} @click=${()=>this.requestOwner(item)}><span class="owner-icon">${request?html`<span class="spinner" aria-hidden="true"></span>`:icon(presentation.icon)}</span><span class="owner-copy">${label}</span></button>`;
   }
   async setAutomatic(item,automatic){
+    if(!this.runtimeReady())return;
     this._permissionDrafts={...this._permissionDrafts,[item.id]:automatic};await this.run(automationAction(item,automatic),'permission:'+item.id);
     const key='permission:'+item.id;clearTimeout(this._draftTimers.get(key));
     if(this._error){delete this._permissionDrafts[item.id];this.requestUpdate();}
     else this._draftTimers.set(key,setTimeout(()=>{delete this._permissionDrafts[item.id];this.requestUpdate();},8000));
   }
   field(item,operation){
-    const m=controlModel(this.hass,item),draft=this._drafts[item.id],position=draft??m.position,option=m.options?.[position],value=draft!==undefined?(m.options?option?.label:this.n(position)):m.auto?this.t('automatic'):m.options?m.label:m.value===null?this.t('noData'):this.n(m.value),disabled=!m.available||this._busy||!!this._ownerRequests[item.id];
+    if(item.mode_scale)return this.scaleField(item,operation);
+    const m=controlModel(this.hass,item),draft=this.runtimeReady()?this._drafts[item.id]:undefined,position=draft??m.position,option=m.options?.[position],value=draft!==undefined?(m.options?option?.label:this.n(position)):m.auto?this.t('automatic'):m.options?m.label:m.value===null?this.t('noData'):this.n(m.value),disabled=!this.runtimeReady()||!m.available||this._busy||!!this._ownerRequests[item.id];
     const process=parameterOperation(operation,item);
     return html`<div class="quick-field" data-control-id=${item.id} data-tone=${process.tone}><div class="field-heading"><div class="field-caption"><label>${item.name}</label>${this.ownerLabel(item)}</div><output aria-live="off">${value}${!m.options&&m.unit?html`<span> ${m.unit}</span>`:nothing}</output></div><div class="field-control"><ha-m3-slider .label=${item.name} .value=${Number(position)} .min=${m.min??0} .max=${m.max??1} .step=${m.step??1} .disabled=${disabled} motion=${this.motion} @m3-input=${event=>{this._drafts={...this._drafts,[item.id]:event.detail.value};}} @m3-change=${event=>this.commit(item,event.detail.value)} @m3-cancel=${()=>this.cancelDraft(item)}></ha-m3-slider>${this.permission(item,item.name,!m.available)}</div><small class="saved-hint">${!m.available?this.t('unavailable'):m.locked&&this.entityState()?.state==='off'?this.t('savedUntilOn'):nothing}</small>${this.ownerFeedback(item)}${renderHistory(this,item.history_sources||[{entity:item.entity,attribute:item.attribute,name:item.name,unit:m.unit||"",kind:"setting",...(m.options?{value_map:Object.fromEntries(m.options.map((o,i)=>[o.value,i+1]))}:{})}])}</div>`;
   }
   render(){
     const c=this._config,s=this.entityState(),ok=available(s),p=c.power,power=p?.on_when?matches(this.hass,p.on_when):ok&&!['off','idle'].includes(s.state),operation=operationModel(this.hass,c),powerItem={...p,id:'power'},ownership=deviceOwnershipModel(this.hass,c),motion=operationMotion(operation),operationLabel=c.operation?[this.t(operation.labelKey),operation.activityKey?this.t(operation.activityKey):null].filter(Boolean).join(' - '):this.deviceValue();
-    return html`<section class="surface ${c.grouped?'grouped':''}" data-operation=${operation.mode} data-tone=${operation.tone} data-ownership=${ownership.state} data-motion=${this.motion} data-operation-visible=${String(this._operationVisible)} data-page-visible=${String(this._pageVisible)} aria-label=${this.deviceName()}><div class="quick-header"><div class="quick-title">${icon(c.icon||'devices')}<h2>${this.deviceName()}</h2></div><div class="quick-operation" data-operation=${operation.mode} data-tone=${operation.tone} role=${c.operation?'img':nothing} aria-label=${c.operation?operationLabel:nothing} title=${operationLabel}>${c.operation?html`<span class="operation-symbol" data-motion=${motion} data-moving=${String(motion!=='none'&&!this._busy)} aria-hidden="true"><span class="operation-glyph">${icon(operation.icon)}</span></span><span class="operation-copy" aria-hidden="true"><span>${this.t(operation.labelKey)}</span>${operation.activityKey?html`<small class="operation-activity">${this.t(operation.activityKey)}</small>`:nothing}</span>`:html`<span>${this.deviceValue()}</span>`}</div></div>${p?html`<div class="power-policy" data-control-id="power"><div class="power-caption"><span>${this.t('power')}</span>${this.ownerLabel(powerItem)}</div><ha-m3-switch .selected=${power} .label=${`${this.deviceName()}: ${this.t('power')}`} .disabled=${!ok||this._busy||!!this._ownerRequests.power} .loading=${this._pending==='power'} motion=${this.motion} @m3-change=${event=>this.changePower(p,event.detail.selected)}></ha-m3-switch>${this.permission(powerItem,this.t('power'),!ok)}</div>${this.ownerFeedback(powerItem)}`:nothing}<div class="quick-fields">${(c.quick_controls||[]).map(item=>this.field(item,operation))}</div>${this.feedback()}${c.actions?.length?html`<div class="footer-actions">${c.actions.map(a=>html`<ha-m3-button kind="text" .icon=${a.icon||'tune'} @click=${()=>this.run(a.action)}>${a.name}</ha-m3-button>`)}</div>`:nothing}</section>`;
+    return html`<section class="surface ${c.grouped?'grouped':''}" data-operation=${operation.mode} data-tone=${operation.tone} data-ownership=${this.runtimeReady()?ownership.state:'unknown'} data-motion=${this.motion} data-operation-visible=${String(this._operationVisible)} data-page-visible=${String(this._pageVisible)} aria-label=${this.deviceName()}><div class="quick-header"><div class="quick-title">${icon(c.icon||'devices')}<h2>${this.deviceName()}</h2></div><div class="quick-operation" data-operation=${operation.mode} data-tone=${operation.tone} role=${c.operation?'img':nothing} aria-label=${c.operation?operationLabel:nothing} title=${operationLabel}>${c.operation?html`<span class="operation-symbol" data-motion=${motion} data-moving=${String(motion!=='none'&&!this._busy)} aria-hidden="true"><span class="operation-glyph">${icon(operation.icon)}</span></span><span class="operation-copy" aria-hidden="true"><span>${this.t(operation.labelKey)}</span>${operation.activityKey?html`<small class="operation-activity">${this.t(operation.activityKey)}</small>`:nothing}</span>`:html`<span>${this.deviceValue()}</span>`}</div>${this.deviceOwnerButton(ownership)}${c.settings_menu?html`<button type="button" class="scale-details" aria-label=${`${this.t('details')}: ${this.deviceName()}`} @click=${()=>this.openSettings()}>${icon('more_horiz')}</button>`:nothing}</div>${!this.runtimeReady()?html`<div class="runtime-warning" role="status">${this.runtimeWarning()}</div>${c.stop_only?html`<ha-m3-button kind="text" .disabled=${!!this._stopRequest?.pending} @click=${this.stopNow}>${locale(this.hass,this._config).startsWith('ru')?'Остановить сейчас':'Stop now'}</ha-m3-button>`:nothing}${c.recovery?html`<ha-m3-button kind="text" .disabled=${!!this._recoveryRequest?.pending} @click=${this.checkRecovery}>${locale(this.hass,this._config).startsWith('ru')?'Проверить управление':'Check control'}</ha-m3-button>`:nothing}`:nothing}${this.stopFeedback()}${this.recoveryFeedback()}${this._deviceError?html`<div class="scale-error" role="alert">${this.deviceErrorText()}</div>`:nothing}${p&&!c.device_ownership?html`<div class="power-policy" data-control-id="power"><div class="power-caption"><span>${this.t('power')}</span>${this.ownerLabel(powerItem)}</div><ha-m3-switch .selected=${power} .label=${`${this.deviceName()}: ${this.t('power')}`} .disabled=${!this.runtimeReady()||!ok||this._busy||!!this._ownerRequests.power} .loading=${this._pending==='power'} motion=${this.motion} @m3-change=${event=>this.changePower(p,event.detail.selected)}></ha-m3-switch>${this.permission(powerItem,this.t('power'),!ok)}</div>${this.ownerFeedback(powerItem)}`:nothing}<div class="quick-fields">${(c.quick_controls||[]).map(item=>this.field(item,operation))}</div>${this.feedback()}${c.actions?.length&&!c.settings_menu?html`<div class="footer-actions">${c.actions.map(a=>html`<ha-m3-button kind="text" .icon=${a.icon||'tune'} @click=${()=>this.run(a.action)}>${a.name}</ha-m3-button>`)}</div>`:nothing}${this.settingsMenu()}</section>`;
   }
 }
 customElements.define('ha-m3-quick-device-card',M3QuickDeviceCard);

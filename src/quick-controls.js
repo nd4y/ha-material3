@@ -1,8 +1,10 @@
-import {available,finite,stateOf,matches,validateAction} from './ha.js';
+import {available,finite,stateOf,matches,validateAction,runtimeSafetyReady} from './ha.js';
 import {validateOperation} from './operation-colors.js';
 
 const read=(state,attribute)=>attribute?state?.attributes?.[attribute]:state?.state;
+export function automationTrustReady(hass,config){const reset=config.automation_reset,id=reset?.runtime_ready_entity;return (id===undefined||stateOf(hass,id)?.state==='on')&&runtimeSafetyReady(hass,reset?.runtime_safety);}
 export function automationTrustState(hass,config){
+  if(!automationTrustReady(hass,config))return 'unknown';
   const locks=config.automation_reset?.lock_entities??(config.automation_groups||[]).flatMap(group=>(group.controls||[]).map(item=>item.lock_entity));
   const enabled=[config.entities?.enabled,...(config.automation_reset?.enabled_entities||[])].map(entity=>stateOf(hass,entity));
   if(enabled.some(state=>state?.state==='off'))return 'partial';
@@ -10,6 +12,14 @@ export function automationTrustState(hass,config){
   const values=locks.map(entity=>stateOf(hass,entity));
   if(values.some(state=>state?.state==='on'))return 'partial';
   return values.every(state=>available(state)&&state.state==='off')?'all':'unknown';
+}
+export function automationTrustScope(reset,state,language='ru',ready=true,safetyReady=true){
+  if(!reset.scope)return null;
+  const ru=language.startsWith('ru'),scope=reset.scope,name=ru?'Передать управление автоматике':'Use automatic control';
+  const details=ru?`Входят: ${scope.included.join(', ')}. Не входят: ${scope.excluded.join(', ')||'нет'}.`:`Includes: ${scope.included.join(', ')}. Excludes: ${scope.excluded.join(', ')||'none'}.`;
+  const status=!safetyReady?(ru?'Защита недоступна':'Protection is unavailable'):!ready?(ru?'Управление временно недоступно':'Control is temporarily unavailable'):state==='all'?(ru?`Автоматика включена: ${scope.label}`:`Automatic control enabled: ${scope.label}`):state==='partial'?(ru?`Есть ручные настройки или автоматика выключена: ${scope.label}`:`Manual settings remain or automation is off: ${scope.label}`):(ru?`Состояние автоматики неизвестно: ${scope.label}`:`Automation state is unknown: ${scope.label}`);
+  const help=ru?'Нажатие включает автоматику и снимает ручные ограничения только для указанной группы. Цвет показывает состояние этой группы.':'Tap to enable automation and release manual restrictions only for the listed group. The color represents this group.';
+  return {name,status,details,help,label:scope.label};
 }
 export function automationPermission(hass,item){
   const state=stateOf(hass,item.lock_entity),known=available(state)&&['on','off'].includes(state.state);
@@ -61,7 +71,7 @@ export function validateControls(config){
     ids.add(item.id);
     if(item.lock_entity&&!/^input_boolean\.[a-z0-9_]+$/.test(item.lock_entity))throw new Error('Lock must be input_boolean');
     for(const action of [item.set_action,item.lock_action].filter(Boolean)){validateAction(action);valueAction(action,0);}
-    if(item.auto)validateAction(item.auto.action);
+    if(item.auto){validateAction(item.auto.action);if(item.auto.effective_readback!==undefined&&typeof item.auto.effective_readback!=='boolean')throw new Error('effective_readback must be boolean');}
   }
   if(config.power){validateAction(config.power.action);valueAction(config.power.action,true);if(config.power.lock_action){validateAction(config.power.lock_action);valueAction(config.power.lock_action,true);}if(config.power.lock_entity&&!/^input_boolean\.[a-z0-9_]+$/.test(config.power.lock_entity))throw new Error('Power lock must be input_boolean');}
 }

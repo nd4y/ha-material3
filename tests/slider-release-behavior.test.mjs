@@ -1,0 +1,14 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';
+function create(){
+ const events=[],ticks=[],input={value:'0'},clock={now:0},style={setProperty(){}};
+ class Base{constructor(){this.ownerDocument={hidden:false,defaultView:{dispatchEvent:e=>ticks.push(e.detail)},addEventListener(){},removeEventListener(){}};this.renderRoot={querySelector:()=>input};this.isConnected=true;}dispatchEvent(e){events.push({type:e.type,detail:e.detail});}}
+ class Motion{number(){}stop(){}}
+ const registry={},context={LitElement:Base,html:()=>'',css:()=>'',nothing:null,common:{},Motion,CustomEvent,Event,performance:{now:()=>clock.now},document:{},customElements:{define:(name,klass)=>registry[name]=klass}};
+ let source=fs.readFileSync(new URL('../src/slider.js',import.meta.url),'utf8');source=source.replace(/^import .*;\s*$/gm,'').replace('export class M3Slider','class M3Slider');vm.runInNewContext(source,context);
+ const slider=new registry['ha-m3-slider']();slider.value=2;slider.haptics=true;return {slider,events,ticks,clock,input,style};
+}
+const ev=(value)=>({target:{value:String(value)},isTrusted:true});
+test('pointer applies once on release, even when change fires before or after pointerup',()=>{const {slider,events}=create();slider.pointerDown({button:0,isPrimary:true});slider.input(ev(3));slider.change(ev(3));assert.equal(events.filter(e=>e.type==='m3-change').length,0);slider.pointerUp();slider.change(ev(3));assert.deepEqual(events.filter(e=>e.type==='m3-change').map(e=>e.detail.value),[3]);});
+test('keyboard repeat applies once on key release',()=>{const {slider,events}=create();slider.keyDown({key:'ArrowRight'});slider.input(ev(3));slider.change(ev(3));slider.keyDown({key:'ArrowRight'});slider.input(ev(4));slider.change(ev(4));assert.equal(events.filter(e=>e.type==='m3-change').length,0);slider.keyUp({key:'ArrowRight'});assert.deepEqual(events.filter(e=>e.type==='m3-change').map(e=>e.detail.value),[4]);});
+test('cancel never applies a preview and returns gesture baseline',()=>{const {slider,events,input}=create();slider.pointerDown({button:0,isPrimary:true});slider.input(ev(7));slider.cancelEdit('pointercancel');slider.pointerUp();slider.change(ev(7));assert.equal(events.filter(e=>e.type==='m3-change').length,0);assert.equal(input.value,'2');assert.equal(events.find(e=>e.type==='m3-cancel').detail.reason,'pointercancel');});
+test('haptics are user-generated, rate-limited, and never occur for readback or cancellation',()=>{const {slider,ticks,clock}=create();slider.pointerDown({button:0,isPrimary:true});slider.input(ev(3));clock.now=10;slider.input(ev(4));clock.now=50;slider.input(ev(5));assert.deepEqual(ticks,['selection','selection']);slider.cancelEdit('escape');slider.value=6;assert.equal(ticks.length,2);slider.pointerDown({button:0,isPrimary:true});clock.now=100;slider.input({target:{value:'8'},isTrusted:false});assert.equal(ticks.length,2);});

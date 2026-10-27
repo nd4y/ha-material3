@@ -106,8 +106,12 @@ try{
     await button.click();await page.waitForFunction(()=>window.unifiedFixture.states['climate.ac'].attributes.fan_mode==='auto');check(await button.getAttribute('data-owner')==='device','Manual -> device failed');
     check((await button.getAttribute('aria-label')).includes('Автоматика прибора'),'Native Auto accessible name is ambiguous');
     await button.click();await page.waitForFunction(()=>window.unifiedFixture.states['input_boolean.lock_ac_speed'].state==='off');check(await button.getAttribute('data-owner')==='ha','Device -> HA failed');
-    // Returning from native Auto through HA then manual preserves the existing valid-manual-value model.
-    await button.click();await page.waitForFunction(()=>window.unifiedFixture.states['climate.ac'].attributes.fan_mode!=='auto');
+    // Native Auto alone is not evidence of a manual speed. The cycle must
+    // remain in HA mode and avoid a write until a genuine value is available.
+    const beforeUnknown=await writes();await button.click();await field(ac,'speed').locator('.owner-error').waitFor();
+    check(await writes()===beforeUnknown,'Unknown native speed sent a command');check(await page.evaluate(()=>window.unifiedFixture.states['input_boolean.lock_ac_speed'].state==='off'&&window.unifiedFixture.states['climate.ac'].attributes.fan_mode==='auto'),'Unknown speed was presented as manual');
+    await page.evaluate(()=>{window.unifiedFixture.states['climate.ac'].attributes.fan_mode='low';window.unifiedFixture.update();});await button.click();
+    await page.waitForFunction(()=>window.unifiedFixture.states['input_boolean.lock_ac_speed'].state==='on'&&window.unifiedFixture.states['climate.ac'].attributes.fan_mode==='low');
     check(await button.getAttribute('data-owner')==='manual','Native Auto -> manual not resolved');
     check(await page.evaluate(()=>window.unifiedFixture.states['input_boolean.lock_ac_temperature'].state==='off'),'Speed changed temperature permission');
   });

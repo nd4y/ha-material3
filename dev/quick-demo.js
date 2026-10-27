@@ -20,7 +20,17 @@ const hass={language:'ru',locale:{language:'ru'},states,formatEntityState:s=>s.s
   if(domain==='script'&&service==='trust'){for(const [e,s]of Object.entries(states))if(e.startsWith('input_boolean.lock_'))s.state='off';states['input_boolean.master'].state='on';update();return;}
   if(domain==='input_boolean'){states[target.entity_id].state=service==='turn_on'?'on':'off';update();return;}
   const {device:d,parameter:p,value,operation}=data,e=entities[d],v=states[e],lk=states[lock(d,p)];
-  if(operation==='lock')lk.state=value?'on':'off';else{
+  if(operation==='lock'){
+    if(value){
+      // Favorite is a saved manual setting, not the purifier's effective
+      // speed while its native Auto program is running.
+      if(d==='purifier'&&p==='speed'&&['Авто','auto'].includes(v.attributes.preset_mode))throw new Error('Current setting is unavailable');
+      const actual=p==='power'?v.state!=='off':p==='temperature'?v.attributes.temperature:d==='purifier'?states['select.level'].state:v.attributes.fan_mode;
+      if(actual===undefined||actual===null||actual===''||actual==='auto'||actual==='Авто')throw new Error('Current setting is unavailable');
+      states[saved(d,p)].state=String(typeof actual==='boolean'?(actual?'on':'off'):actual);
+    }
+    lk.state=value?'on':'off';
+  }else{
     lk.state='on';states[saved(d,p)].state=String(typeof value==='boolean'?(value?'on':'off'):value);
     if(p==='temperature'){if(d==='ac')states['input_number.manual_ac'].state=String(value);else v.attributes.temperature=value;}
     if(p==='power')v.state=value?(d==='purifier'?'on':'fan_only'):'off';
