@@ -25,6 +25,7 @@ export function validateQuickScale(item){
   if(s.effective_attribute!==undefined&&(typeof s.effective_attribute!=='string'||!s.effective_attribute||!s.effective_entity))throw new Error('Invalid effective attribute');
   if(s.automatic_mode!==undefined&&!['ha','native','none'].includes(s.automatic_mode))throw new Error('Invalid automatic mode');
   if(s.freeze_allowed!==undefined&&typeof s.freeze_allowed!=='boolean')throw new Error('Invalid freeze capability');
+  if(s.freeze_setting!==undefined&&(!s.freeze_setting||typeof s.freeze_setting.enabled!=='boolean'||(s.freeze_setting.enabled&&(!s.ha_auto?.enabled||!s.numeric_start?.enabled||!/^input_number\.[a-z0-9_]+$/.test(s.freeze_setting.ttl_entity||'')||!/^select\.[a-z0-9_]+$/.test(s.freeze_setting.setting_entity||'')||s.freeze_setting.setting_entity!==item.entity||typeof s.freeze_setting.manual_preset!=='string'||!s.freeze_setting.manual_preset||s.freeze_setting.manual_preset===s.native_auto_preset||!s.confirmation?.manual_checks?.some(c=>c.attribute==='preset_mode'&&c.value===s.freeze_setting.manual_preset)))))throw new Error('Invalid setting freeze capability');
   if(s.native_auto_preset!==undefined&&(s.kind!=='purifier-speed'||typeof s.native_auto_preset!=='string'||!s.native_auto_preset||!item.auto||!Array.isArray(item.auto.active_when)||!item.auto.active_when.length||item.auto.value!=='native_auto'||!/^input_text\.[a-z0-9_]+$/.test(item.value_entity||'')))throw new Error('Native Auto needs preset, readback and saved marker');
   if(s.automatic_mode==='native'&&!s.native_auto_preset)throw new Error('Native Auto needs preset');
   if(s.numeric_start!==undefined){
@@ -50,6 +51,20 @@ export function requestId(source=globalThis.crypto){
   }else throw new Error('Secure request ID unavailable');
   if(!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id))throw new Error('Invalid request ID');return id;
 }
+export function deviceOwnerManualReady(hass,card){
+  try{return card.quick_controls.every(item=>!item.mode_scale?.ha_auto||numericStartPrerequisites(hass,card,item.mode_scale.numeric_start,false))&&!!deviceOwnerSnapshot(hass,card);}catch{return false;}
+}
+function freezeSettingSnapshot(hass,card,item,now=Date.now()){
+  const f=item.mode_scale?.freeze_setting;if(!f?.enabled||!haAutoReady(hass,card,item))return null;
+  if(!item.mode_scale.confirmation?.manual_checks?.some(c=>c.entity===card.entity&&c.attribute==='preset_mode'&&c.value===f.manual_preset))return null;
+  const device=stateOf(hass,card.entity),setting=stateOf(hass,f.setting_entity),ttlState=stateOf(hass,f.ttl_entity),saved=stateOf(hass,item.value_entity);
+  // last_updated is a conservative lower bound on HA state freshness when the
+  // websocket omits last_reported; it is not a physical measurement or radio report.
+  const freshnessTime=state=>Date.parse(state?.last_reported??state?.last_updated);
+  const ttl=decimal(ttlState?.state),fanFreshness=freshnessTime(device),levelFreshness=freshnessTime(setting);
+  if(![device,setting,ttlState,saved].every(available)||device.state!=='on'||device.attributes?.preset_mode!==f.manual_preset||!Array.isArray(setting.attributes?.options)||!setting.attributes.options.includes(setting.state)||!/^(?:[0-9]|1[01])$/.test(setting.state)||ttl===null||ttl<=0||!Number.isFinite(now)||![fanFreshness,levelFreshness].every(t=>Number.isFinite(t)&&t<=now&&(now-t)/1000<=ttl))return null;
+  return {setting:setting.state};
+}
 export function deviceOwnerRequest(hass,card,owner){
   validateDeviceOwner(card);if(!['manual','auto'].includes(owner)||![card.device_ownership.revision_entity,card.device_ownership.completed_entity].every(id=>available(stateOf(hass,id))))throw new Error('Device ownership unavailable');
   if(owner==='auto'&&card.quick_controls.some(item=>['native','none'].includes(item.mode_scale?.automatic_mode)||(item.mode_scale?.ha_auto&&!haAutoReady(hass,card,item))))throw new Error('HA automatic control unavailable');
@@ -63,7 +78,11 @@ export function deviceOwnerSnapshot(hass,card){
   if(!available(device)||!power.available||!['on','off','heat','cool','dry','fan_only','auto'].includes(device.state))return null;
   const values={};
   for(const item of card.quick_controls){
-    if(item.mode_scale?.freeze_allowed===false){if(device.state==='off'&&item.mode_scale?.ha_auto&&card.quick_controls.length===1)return {power:false,values:{},deviceOffOnly:true};return null;}
+    if(item.mode_scale?.freeze_allowed===false){
+      if(device.state==='off'&&item.mode_scale?.ha_auto&&card.quick_controls.length===1)return {power:false,values:{},deviceOffOnly:true};
+      const frozen=card.quick_controls.length===1?freezeSettingSnapshot(hass,card,item):null;
+      return frozen?{power:true,values:{[item.id]:frozen.setting},settingOnly:true}:null;
+    }
     const m=quickScaleModel(hass,card,item);
     if(!m.available||m.effective===null||m.effective===undefined)return null;
     values[item.id]=m.effective;
@@ -81,6 +100,10 @@ export function deviceOwnerConfirmed(hass,card,request){
   const savedPower=stateOf(hass,card.power.value_entity);
   if(!available(savedPower)||!['on','off'].includes(savedPower.state)||(savedPower.state==='on')!==request.snapshot.power)return false;
   if(request.snapshot.deviceOffOnly){const n=card.quick_controls[0]?.mode_scale?.numeric_start;return !!n&&numericStartPrerequisites(hass,card,n,false)&&stateOf(hass,n.independent_lock_entity)?.state==='on'&&stateOf(hass,n.origin_entity)?.state===`device_lock:${request.request_id}`;}
+  if(request.snapshot.settingOnly){
+    const item=card.quick_controls[0],n=item?.mode_scale?.numeric_start,frozen=item&&freezeSettingSnapshot(hass,card,item),saved=item&&stateOf(hass,item.value_entity);
+    return !!n&&!!frozen&&available(saved)&&frozen.setting===request.snapshot.values[item.id]&&saved.state===frozen.setting&&stateOf(hass,n.independent_lock_entity)?.state==='on'&&stateOf(hass,n.origin_entity)?.state===`device_lock:${request.request_id}`;
+  }
   const same=(a,b)=>{const x=decimal(a),y=decimal(b);return x!==null&&y!==null?x===y:typeof a==='string'&&typeof b==='string'&&a===b;};
   return card.quick_controls.every(item=>{const saved=stateOf(hass,item.value_entity),current=quickScaleModel(hass,card,item),actual=request.snapshot.values[item.id];return available(saved)&&same(saved.state,actual)&&current.effective!==null&&current.effective!==undefined&&same(current.effective,actual);});
 }

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {scaleChoices,scaleSelection} from '../src/climate-scale.js';
-import {quickScaleModel,quickScaleRequest,quickScaleNativeAvailable,quickScaleNativeRequest,quickScaleConfirmed,deviceOwnerSnapshot,deviceOwnerRequest,deviceOwnerConfirmed,validateQuickScale} from '../src/quick-scale.js';
+import {quickScaleModel,quickScaleRequest,quickScaleNativeAvailable,quickScaleNativeRequest,quickScaleConfirmed,deviceOwnerSnapshot,deviceOwnerRequest,deviceOwnerConfirmed,deviceOwnerManualReady,validateQuickScale} from '../src/quick-scale.js';
 import {ownerAction,ownerModel,deviceOwnershipModel} from '../src/ownership.js';
 import {validateAction} from '../src/ha.js';
 
@@ -78,6 +78,27 @@ test('numeric start rechecks admission immediately before request',()=>{
 });
 const haAuto={enabled:true,controller_entity_source:'input_text.controller',controller_id:'p2_controller'};
 function haFixture(){const {h,p}=startFixture();p.mode_scale={...p.mode_scale,automatic_mode:'ha',ha_auto:haAuto};const c={...card,quick_controls:[p]};h.states['input_text.controller']=s('automation.p2_controller');h.states['automation.p2_controller']=s('on',{id:'p2_controller'});return {h,p,c};}
+function freezeFixture(){const {h,p,c}=haFixture();p.mode_scale.freeze_setting={enabled:true,ttl_entity:'input_number.ttl',setting_entity:'select.favorite',manual_preset:'Ручной'};h.states['input_number.ttl']=s('60');h.states['fan.p2'].state='on';h.states['fan.p2'].last_reported=new Date().toISOString();h.states['select.favorite'].last_reported=new Date().toISOString();h.states['input_boolean.power_lock'].state='off';h.states['input_boolean.speed_lock'].state='off';return {h,p,c};}
+test('freeze is opt-in and captures a fresh manual setting without claiming physical speed',()=>{
+ const {h,p,c}=freezeFixture();assert.doesNotThrow(()=>validateQuickScale(p));assert.equal(deviceOwnerManualReady(h,c),true);const snapshot=deviceOwnerSnapshot(h,c);assert.deepEqual(snapshot,{power:true,values:{speed:'5'},settingOnly:true});const r=deviceOwnerRequest(h,c,'manual');assert.equal(r.action.data.owner,'manual');assert.match(r.request_id,/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);assert.equal(deviceOwnerConfirmed(h,c,r),false);
+ h.states['input_text.request'].state=r.request_id;h.states['input_text.completed'].state=r.request_id;h.states['input_boolean.speed_lock'].state='on';h.states['input_boolean.power_lock'].state='on';h.states['input_boolean.independent'].state='on';h.states['input_boolean.saved_power'].state='on';h.states['input_text.saved_speed'].state='5';h.states['input_text.origin'].state=`device_lock:${r.request_id}`;assert.equal(deviceOwnerConfirmed(h,c,r),true);
+ for(const [id,bad] of [['input_text.completed','other'],['input_text.request','other'],['input_boolean.independent','off'],['input_text.origin','bad'],['input_boolean.speed_lock','off'],['input_boolean.power_lock','off'],['input_boolean.saved_power','off'],['input_text.saved_speed','7'],['select.favorite','7'],['binary_sensor.health','off']]){const before=h.states[id].state;h.states[id].state=bad;assert.equal(deviceOwnerConfirmed(h,c,r),false,id);h.states[id].state=before;}
+});
+test('freeze fails closed on missing, stale, future, invalid, native-auto and unready inputs',()=>{
+ const {h,p,c}=freezeFixture();const cases=[['fan.p2','last_reported',undefined],['fan.p2','last_reported',new Date(Date.now()-61000).toISOString()],['select.favorite','last_reported',new Date(Date.now()+60000).toISOString()],['input_number.ttl','state','0'],['input_number.ttl','state','unknown'],['select.favorite','state','99'],['input_text.saved_speed','state','unavailable'],['binary_sensor.health','state','off'],['input_text.backend_hash','state','bad']];for(const [id,key,value] of cases){const before=h.states[id][key];h.states[id][key]=value;assert.equal(deviceOwnerManualReady(h,c),false,id+':'+key);assert.throws(()=>deviceOwnerRequest(h,c,'manual'));h.states[id][key]=before;}
+ h.states['fan.p2'].attributes.preset_mode='Авто';assert.equal(deviceOwnerManualReady(h,c),false);assert.throws(()=>deviceOwnerRequest(h,c,'manual'));h.states['fan.p2'].attributes.preset_mode='unknown';assert.equal(deviceOwnerManualReady(h,c),false);h.states['fan.p2'].attributes.preset_mode='Ручной';p.mode_scale.freeze_setting.enabled=false;assert.equal(deviceOwnerManualReady(h,c),false);
+});
+test('websocket last_updated is a conservative freshness fallback, never a radio report',()=>{
+ const {h,c}=freezeFixture(),fan=h.states['fan.p2'],level=h.states['select.favorite'];delete fan.last_reported;delete level.last_reported;fan.last_updated=new Date().toISOString();level.last_updated=new Date().toISOString();assert.equal(deviceOwnerManualReady(h,c),true);assert.equal(deviceOwnerSnapshot(h,c).values.speed,'5');
+ for(const [state,value] of [[fan,undefined],[fan,'invalid'],[fan,new Date(Date.now()-61000).toISOString()],[level,new Date(Date.now()+60000).toISOString()]]){const old=state.last_updated;state.last_updated=value;assert.equal(deviceOwnerManualReady(h,c),false);state.last_updated=old;}
+ fan.last_reported='invalid';assert.equal(deviceOwnerManualReady(h,c),false);fan.last_reported=new Date(Date.now()-61000).toISOString();assert.equal(deviceOwnerManualReady(h,c),false);
+});
+test('setting zero is a legitimate manual setting and Off-lock remains separately available',()=>{
+ const {h,c}=freezeFixture();h.states['select.favorite'].state='0';assert.equal(deviceOwnerSnapshot(h,c).values.speed,'0');h.states['fan.p2'].state='off';assert.equal(deviceOwnerSnapshot(h,c).deviceOffOnly,true);const r=deviceOwnerRequest(h,c,'manual');h.states['input_text.request'].state=r.request_id;h.states['input_text.completed'].state=r.request_id;h.states['input_boolean.speed_lock'].state='on';h.states['input_boolean.power_lock'].state='on';h.states['input_boolean.saved_power'].state='off';h.states['input_boolean.independent'].state='on';h.states['input_text.origin'].state=`device_lock:${r.request_id}`;assert.equal(deviceOwnerConfirmed(h,c,r),true);
+});
+test('freeze rejects unsupported or malformed setting even if options claim it is supported',()=>{
+ const {h,c}=freezeFixture();for(const v of ['oops','12','-1','1.5','Infinity','']){h.states['select.favorite'].state=v;h.states['select.favorite'].attributes.options=[v];assert.equal(deviceOwnerManualReady(h,c),false,v);assert.throws(()=>deviceOwnerRequest(h,c,'manual'));}for(const v of ['0','11']){h.states['select.favorite'].state=v;h.states['select.favorite'].attributes.options=[v];assert.equal(deviceOwnerManualReady(h,c),true,v);}
+});
 test('HA Auto is right endpoint only when actual controller and protection are ready; native Auto stays out of scale',()=>{
  const {h,p,c}=haFixture();let m=quickScaleModel(h,c,p);assert.equal(m.choices.at(-1),'auto');assert(!m.choices.includes('native_auto'));
  const r=quickScaleRequest(h,c,p,m.choices.indexOf('auto'));assert.equal(r.action.perform_action,'script.owner');assert.equal(r.action.data.owner,'auto');assert.equal(r.action.data.choice,undefined);

@@ -8,7 +8,7 @@ import {M3DeviceCard} from './cards.js';
 import {common,icon} from './components.js';
 import {available,matches,perform,validateRuntimeSafety,runtimeSafetyReady} from './ha.js';
 import {controlModel,controlValue,valueAction,validateControls,automationPermission,automationAction} from './quick-controls.js';
-import {validateQuickScale,quickScaleModel,quickScaleRequest,quickScaleOffRequest,quickScaleNativeAvailable,quickScaleNativeRequest,quickScaleConfirmed,quickScaleSaved,roomSnapshot,validateDeviceOwner,deviceOwnerRequest,deviceOwnerConfirmed,haAutoReady,requestId} from './quick-scale.js';
+import {validateQuickScale,quickScaleModel,quickScaleRequest,quickScaleOffRequest,quickScaleNativeAvailable,quickScaleNativeRequest,quickScaleConfirmed,quickScaleSaved,roomSnapshot,validateDeviceOwner,deviceOwnerRequest,deviceOwnerConfirmed,deviceOwnerManualReady,haAutoReady,requestId} from './quick-scale.js';
 import {validateQuickSettings} from './quick-settings-model.js';
 import './quick-settings-menu.js';
 
@@ -148,7 +148,7 @@ export class M3QuickDeviceCard extends M3DeviceCard{
   deviceOwnerButton(ownership){
     if(!this._config.device_ownership)return nothing;
     const ready=this.runtimeReady(),auto=ownership.state==='automatic',ru=locale(this.hass,this._config).startsWith('ru');
-    const unsupported=(this._config.quick_controls||[]).some(item=>auto?(item.mode_scale?.freeze_allowed===false&&this.entityState()?.state!=='off'):(['native','none'].includes(item.mode_scale?.automatic_mode)||(item.mode_scale?.ha_auto&&!haAutoReady(this.hass,this._config,item))));
+    const unsupported=auto?!deviceOwnerManualReady(this.hass,this._config):(this._config.quick_controls||[]).some(item=>['native','none'].includes(item.mode_scale?.automatic_mode)||(item.mode_scale?.ha_auto&&!haAutoReady(this.hass,this._config,item)));
     const label=!ready?this.runtimeWarning():!ownership.known?this.t('unavailable'):unsupported?(ru?'Общий режим управления недоступен':'Device ownership unavailable'):auto?(ru?'Зафиксировать текущие настройки вручную':'Keep current settings manually'):(ru?'Передать управление автоматике':'Allow automatic control');
     return html`<button type="button" class="owner device-owner" data-owner=${!ready||!ownership.known?'unknown':auto?'ha':'manual'} aria-label=${label} title=${label} aria-busy=${this._deviceRequest?'true':nothing} ?disabled=${unsupported||!ready||!ownership.known||this._busy||!!this._deviceRequest||Object.keys(this._scaleRequests).length>0} @click=${this.toggleDeviceOwner}><span class="owner-icon">${this._deviceRequest?html`<span class="spinner" aria-hidden="true"></span>`:icon(!ready||!ownership.known?'info':auto?'auto_awesome':'lock')}</span></button>`;
   }
