@@ -3,6 +3,7 @@ import {automationPermission,controlModel,automationAction,controlValue,valueAct
 // Selecting a visible owner never silently transfers another parameter.
 export function ownerModel(hass,item){
   const p=automationPermission(hass,item),m=controlModel(hass,item);
+  if(p.automatic&&['native','none'].includes(item.mode_scale?.automatic_mode))return {available:false,owner:'unknown',choices:[]};
   return {available:p.available,owner:p.automatic?'ha':m.auto?'device':'manual',
     choices:item.auto?['ha','manual','device']:['ha','manual']};
 }
@@ -20,12 +21,16 @@ export function ownerPresentation(owner){
 export function deviceOwnershipModel(hass,config){
   const items=[config.power,...(config.quick_controls||[])].filter(item=>item?.lock_entity),permissions=[...new Map(items.map(item=>[item.lock_entity,item])).values()].map(item=>automationPermission(hass,item));
   const automatic=permissions.filter(item=>item.automatic).length,restricted=permissions.filter(item=>item.available&&!item.automatic).length,total=permissions.length,known=total>0&&permissions.every(item=>item.available);
+  if((config.quick_controls||[]).some(item=>['native','none'].includes(item.mode_scale?.automatic_mode)&&automationPermission(hass,item).automatic))return {state:'unknown',known:false,automatic,restricted,total};
   return {state:!known?'unknown':restricted===total?'blocked':automatic===total?'automatic':'mixed',known,automatic,restricted,total};
 }
 export function ownerAction(hass,item,owner){
   const m=ownerModel(hass,item);
   if(!m.available||!m.choices.includes(owner))throw new Error('Unavailable ownership');
   if(m.owner===owner)return null;
+  if(owner==='manual'&&item.mode_scale?.freeze_allowed===false)throw new Error('Current device setting unavailable');
+  if(owner==='ha'&&['native','none'].includes(item.mode_scale?.automatic_mode))throw new Error('HA automatic control unavailable');
+  if(owner==='device'&&item.mode_scale?.automatic_mode==='native')throw new Error('Use the guarded scale for Device Auto');
   if(owner==='manual'&&controlModel(hass,item).auto){
     const field=controlModel(hass,item);
     // A native program may expose only "auto", not its current manual

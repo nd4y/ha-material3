@@ -8,7 +8,9 @@ const integerRange=(min,max,step)=>{
   if(Math.abs(count-Math.round(count))>1e-7||count>500)throw new Error('Invalid steps');
   return Array.from({length:Math.round(count)+1},(_,i)=>Number((min+i*step).toFixed(6)));
 };
-export function scaleChoices({kind,min,max,step=1,options=[],turbo=false}){
+export function scaleChoices({kind,min,max,step=1,options=[],turbo=false,automatic='ha'}){
+  if(!['ha','native','none'].includes(automatic))throw new Error('Invalid automatic mode');
+  if(automatic==='native'&&kind!=='purifier-speed')throw new Error('Native Auto requires purifier speed');
   let values;
   if(kind==='breather-temperature'){
     if(min!==5)throw new Error('Breather minimum must be confirmed as 5 °C');
@@ -17,13 +19,14 @@ export function scaleChoices({kind,min,max,step=1,options=[],turbo=false}){
   else if(['breather-speed','ac-speed','purifier-speed'].includes(kind)){
     if(!Array.isArray(options)||!options.length)throw new Error('No supported speeds');
     values=options.map(String);
-    if(values.some(x=>!x||[OFF,AUTO,'turbo'].includes(x.toLowerCase()))||new Set(values).size!==values.length)throw new Error('Invalid speeds');
+    if(values.some(x=>!x||[OFF,AUTO,'native_auto','turbo'].includes(x.toLowerCase()))||new Set(values).size!==values.length)throw new Error('Invalid speeds');
     if(turbo){if(kind!=='breather-speed')throw new Error('Turbo unsupported');values.push('turbo');}
   }else throw new Error('Unsupported scale');
-  return [OFF,...values,AUTO];
+  return [OFF,...values,...(automatic==='ha'?[AUTO]:automatic==='native'?['native_auto']:[])];
 }
 function scaleIntent(kind,choice,{roomTemperature,roomQualified,roomAgeSeconds}={}){
   if(choice===AUTO)return {type:'automatic'};
+  if(choice==='native_auto')return {type:'native-automatic'};
   if(choice===OFF)return kind==='breather-temperature'?{type:'manual',parameter:'temperature',value:5,heatOff:true}:{type:'power-off'};
   if(kind==='ac-temperature'){
     const decimal=typeof roomTemperature==='number'||typeof roomTemperature==='string'&&/^-?\d+(?:\.\d+)?$/.test(roomTemperature);

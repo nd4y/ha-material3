@@ -6,11 +6,11 @@ import {validateQuickSettings,settingsState,settingsAction} from './quick-settin
 // No service is called by opening this component. Switch/select changes are
 // explicit user actions and remain pending until the exact entity readback.
 export class M3QuickSettingsMenu extends LitElement{
-  static properties={hass:{attribute:false},config:{attribute:false},heading:{},motion:{},controlId:{},_pending:{state:true},_errors:{state:true},_messages:{state:true},_confirmItem:{state:true}};
+  static properties={hass:{attribute:false},config:{attribute:false},heading:{},motion:{},controlId:{},nativeActions:{attribute:false},_pending:{state:true},_errors:{state:true},_messages:{state:true},_confirmItem:{state:true}};
   static styles=[common,css`
     :host{display:block}.group{margin:0 0 18px}.group h3{font-size:14px;line-height:20px;font-weight:500;color:var(--md-sys-color-primary);margin:0 0 4px}.row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;border-bottom:1px solid var(--md-sys-color-outline-variant)}.row label,.row .name{flex:1;min-width:0}.row select{max-width:60%;min-height:44px;background:var(--md-sys-color-surface-container);color:var(--md-sys-color-on-surface);border:1px solid var(--md-sys-color-outline);border-radius:12px;padding:4px 10px}.link{background:transparent;border:0;text-align:left;min-height:48px;width:100%;color:var(--md-sys-color-primary)}.error{font-size:12px;line-height:16px;margin:4px 0}.status{font-size:12px;color:var(--md-sys-color-on-surface-variant)}
   `];
-  constructor(){super();this.heading='';this.controlId='';this.config={groups:[]};this._pending={};this._errors={};this._messages={};this._confirmItem=null;this._timers=new Map();}
+  constructor(){super();this.heading='';this.controlId='';this.nativeActions={};this.config={groups:[]};this._pending={};this._errors={};this._messages={};this._confirmItem=null;this._timers=new Map();}
   async show(){validateQuickSettings(this.config);await this.updateComplete;return this.renderRoot.querySelector('ha-m3-dialog.main').show();}
   close(){this.renderRoot.querySelector('ha-m3-dialog.confirm')?.close();this.renderRoot.querySelector('ha-m3-dialog.main')?.close();}
   disconnectedCallback(){for(const timer of this._timers.values())clearTimeout(timer);this._timers.clear();super.disconnectedCallback();}
@@ -48,6 +48,10 @@ export class M3QuickSettingsMenu extends LitElement{
     try{await this.hass.callService('button','press',{},action.target);if(this._pending[item.id]===request){this.finish(item.id,request,false);this._messages={...this._messages,[item.id]:true};}}catch{this.finish(item.id,request,true);}
   }
   item(item){
+    if(item.type==='scale-native-auto'){
+      const action=this.nativeActions?.[item.control_id],disabled=!action?.available||action.pending||action.selected;
+      return html`<div class="row" data-item=${item.id}><span class="name">${item.name}</span><ha-m3-button kind="text" .disabled=${disabled} @click=${()=>this.dispatchEvent(new CustomEvent('m3-native-auto',{detail:{controlId:item.control_id},bubbles:true,composed:true}))}>${action?.pending?'Ожидание':action?.selected?'Включено':'Включить'}</ha-m3-button></div>${!action?.available?html`<div class="status">Недоступно</div>`:nothing}`;
+    }
     const state=settingsState(this.hass,item),pending=this._pending[item.id]!==undefined,disabled=!state.available||pending;
     return html`<div class="row" data-item=${item.id}>${item.type==='link'?html`<button type="button" class="link" @click=${()=>this.choose(item)}>${item.name}</button>`:html`<span class="name">${item.name}</span>${item.type==='reading'?html`<span>${state.available?`${state.value}${state.unit?' '+state.unit:''}`:'—'}</span>`:item.type==='filter-reset'?html`<ha-m3-button kind="text" .disabled=${disabled} @click=${()=>this.askReset(item)}>Сбросить</ha-m3-button>`:item.type==='switch'?html`<ha-m3-switch .label=${item.name} .selected=${state.value==='on'} .disabled=${disabled} .loading=${pending} motion=${this.motion||'expressive'} @m3-change=${event=>this.choose(item,event.detail.selected)}></ha-m3-switch>`:html`<select aria-label=${item.name} .value=${state.value||''} ?disabled=${disabled} @change=${event=>this.choose(item,event.target.value)}>${(state.options||[]).map(value=>html`<option value=${value}>${item.option_labels?.[value]||value}</option>`)}</select>`}`}</div>${this._errors[item.id]?html`<div class="error" role="alert">Не удалось подтвердить изменение.</div>`:nothing}${this._messages[item.id]?html`<div class="status" role="status">Команда отправлена. Проверьте ресурс фильтра.</div>`:nothing}${!state.available?html`<div class="status">Нет данных</div>`:nothing}`;
   }
