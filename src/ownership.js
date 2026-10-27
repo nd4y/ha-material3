@@ -28,9 +28,12 @@ export function ownerAction(hass,item,owner){
   if(m.owner===owner)return null;
   if(owner==='manual'&&controlModel(hass,item).auto){
     const field=controlModel(hass,item);
-    // Native Auto may not expose its actual fan speed. In that case position
-    // resolves to the first supported manual step, also shown by the slider.
-    return valueAction(item.set_action,controlValue(field,field.position));
+    // A native program may expose only "auto", not its current manual
+    // speed. A saved favourite can be valid but is not effective readback.
+    // The integration must explicitly identify an actual value in Auto.
+    if(item.auto.effective_readback!==true||!field.available||field.actual===null||field.actual===undefined||field.actual==='')throw new Error('Current device setting unavailable');
+    const position=field.options?field.options.findIndex(option=>option.value===String(field.actual)):Number(field.actual);
+    return valueAction(item.set_action,controlValue(field,position));
   }
   // The configured device-auto action must acquire the manual permission in
   // the server adapter, just like the configured slider action.

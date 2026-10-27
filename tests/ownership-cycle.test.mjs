@@ -22,16 +22,18 @@ test('cycle never touches power or temperature permissions',()=>{
 test('unavailable permission does not produce a cycle action',()=>{
   for(const value of ['unknown','unavailable','missing']){const h=structuredClone(hass);h.states[item.lock_entity]=s(value);assert.throws(()=>nextOwner(h,item));assert.throws(()=>ownerCycleAction(h,item));}
 });
-test('full service effects preserve every owner after device -> HA -> manual',()=>{
+test('device -> HA -> manual waits for a real manual-speed readback',()=>{
   const h=structuredClone(hass),seen=[];
   function execute(action){
     if(action.perform_action==='script.native_auto'){h.states[item.lock_entity]=s('on');h.states[item.entity].attributes.preset_mode='auto';}
     else if(action.perform_action==='script.manual_speed'){h.states[item.lock_entity]=s('on');h.states[item.entity].attributes.preset_mode=action.data.value;}
     else h.states[item.lock_entity]=s(action.perform_action==='input_boolean.turn_on'?'on':'off');
   }
-  for(let i=0;i<7;i++){seen.push(ownerModel(h,item).owner);execute(ownerCycleAction(h,item));}
-  assert.deepEqual(seen,['ha','manual','device','ha','manual','device','ha']);
-  assert.equal(h.states[item.entity].attributes.preset_mode,'low');
+  for(let i=0;i<3;i++){seen.push(ownerModel(h,item).owner);execute(ownerCycleAction(h,item));}
+  assert.deepEqual(seen,['ha','manual','device']);assert.equal(ownerModel(h,item).owner,'ha');
+  assert.throws(()=>ownerCycleAction(h,item));assert.equal(h.states[item.lock_entity].state,'off');
+  h.states[item.entity].attributes.preset_mode='high';execute(ownerCycleAction(h,item));
+  assert.equal(ownerModel(h,item).owner,'manual');assert.equal(h.states[item.entity].attributes.preset_mode,'high');
   assert.equal(h.states['input_boolean.power_lock'].state,'off');assert.equal(h.states['input_boolean.temperature_lock'].state,'on');
 });
 test('native Auto without a supported manual value fails safely instead of claiming manual',()=>{

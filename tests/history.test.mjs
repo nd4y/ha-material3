@@ -1,8 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {historyNumber,historyPoints,smoothValue,sampleAt,smoothPath,segments,displayPoints,validateHistory,validateHistorySources} from '../src/history-model.js';
-import {loadHistory} from '../src/history-data.js';
+import {loadHistory,historyUpdatedAt} from '../src/history-data.js';
 const point=(t,v)=>({t,v}),record=(t,state,attributes={})=>({entity_id:'sensor.generic',last_updated:new Date(t).toISOString(),state,attributes});
+test('separate HA state update times remain explicit and missing times stay unknown',()=>{
+  assert.equal(historyUpdatedAt(null),null);assert.equal(historyUpdatedAt({last_updated:'bad'}),null);
+  assert.equal(historyUpdatedAt({last_updated:123}),null);
+  assert.notEqual(historyUpdatedAt({last_updated:'2026-10-27T10:00:00Z'},'ru-RU'),historyUpdatedAt({last_updated:'2026-10-27T11:00:00Z'},'ru-RU'));
+});
 
 test('numeric sources fail closed and use configured attributes, enums and inversion',()=>{
   for(const state of ['unknown','unavailable','', ' ', '0x10','NaN','Infinity'])assert.equal(historyNumber({state}),null);

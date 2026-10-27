@@ -7,6 +7,13 @@ const now=1800000000000;
 const state=(value,attributes={},age=0)=>({state:value,attributes,last_reported:new Date(now-age*1000).toISOString(),last_updated:new Date(now-age*1000).toISOString(),last_changed:new Date(now-age*1000).toISOString()});
 const metric=(extra={})=>({id:'co2',name:'CO₂',entity:'sensor.room_co2',unit:'ppm',freshness:{max_age:300,timestamp:'last_reported'},color:{ranges:[{min:0,max:800,tone:'good',label:'Low'},{min:800,max:1200,tone:'notice',label:'Raised'},{min:1200,tone:'high',label:'High'}]},...extra});
 
+test('metric detail sources are validated independently for each purifier',()=>{
+  const one=metric({details:[{entity:'sensor.purifier1_pm1',name:'PM1',unit:'µg/m³'},{entity:'sensor.purifier1_pm10',name:'PM10',unit:'µg/m³'}]});
+  assert.doesNotThrow(()=>validateRoomMetrics({room_metrics:[one]}));
+  assert.throws(()=>validateRoomMetrics({room_metrics:[{...one,details:'invalid'}]}));
+  assert.throws(()=>validateRoomMetrics({room_metrics:[{...one,details:[{entity:'bad',name:'PM1'}]}]}));
+});
+
 test('numeric readings preserve measured zero and reject malformed coercions',()=>{
   for(const [value,want]of [[0,0],[-0,0],['0',0],['0.0',0],[' 24.5 ',24.5],['1e2',100],['-.5',-.5],['',null],['  ',null],['unknown',null],['unavailable',null],['0x10',null],['NaN',null],['Infinity',null],[NaN,null],[Infinity,null],[true,null],[false,null],[null,null],[undefined,null],[{},null],[[],null]])assert.equal(readingNumber(value),want);
 });

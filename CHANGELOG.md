@@ -1,3 +1,10 @@
+## 0.18.0 - 2026-10-27
+
+- Add optional climate mode scales with release-to-apply, observed Auto positions and device-specific Off semantics.
+- Add compact device ownership, contextual settings, confirmed filter maintenance and scoped automation controls.
+- Distinguish admitted, saved and completed requests; show unavailable protection and retain a separate stop action where configured.
+- Add configurable particle history with individual update timestamps and optional companion-app haptic feedback.
+
 ## 0.17.3 - 2026-10-26
 
 - Open contextual help by holding automation-owner, trust and preset buttons, or by using F1 or a context click. A short tap keeps its existing action.
