@@ -162,7 +162,28 @@ export class M3QuickDeviceCard extends M3DeviceCard{
   }
   moveScaleHold(event){const h=this._scaleHold;if(h&&event.pointerId===h.id&&Math.hypot(event.clientX-h.x,event.clientY-h.y)>10)this.clearScaleHold();}
   scaleValueText(choice,item){if(choice===undefined||choice===null)return this.t('noData');if(choice==='auto')return this.t('automatic');if(choice==='off')return item.mode_scale.kind==='breather-temperature'?(locale(this.hass,this._config).startsWith('ru')?'Без нагрева':'Heating off'):this.t('off');if(choice==='turbo')return locale(this.hass,this._config).startsWith('ru')?'Турбо':'Turbo';return typeof choice==='number'?`${this.n(choice)} ${item.unit||'°C'}`:(item.option_labels?.[choice]||String(choice));}
-  settingsMenu(){const menu=this._config.settings_menu;return menu?html`<ha-m3-quick-settings-menu .hass=${this.hass} .config=${menu} .heading=${this.deviceName()} .motion=${this.motion} .controlId=${this._settingsControlId}></ha-m3-quick-settings-menu>`:nothing;}
+  parameterSettings(item){
+    const m=quickScaleModel(this.hass,this._config,item),permission=automationPermission(this.hass,item),ru=locale(this.hass,this._config).startsWith('ru');
+    const ready=this.runtimeReady()&&!!(m.available||m.selectable)&&!this._busy&&!this._deviceRequest&&!this._scaleRequests[item.id];
+    const value=m.deviceOff?this.t('off'):this.scaleValueText(m.position===null?null:m.choices[m.position],item);
+    const off=item.mode_scale.kind==='breather-temperature'?(ru?'«Без нагрева» задаёт 5 °C и не выключает приток воздуха.':'Heating off sets 5 °C without switching off airflow.'):(ru?'«Выключен» останавливает устройство.':'Off stops the device.');
+    return html`<section class="parameter-settings" aria-label=${item.name}>
+      <p>${ru?'Текущее значение':'Current value'}: <strong>${value}</strong></p>
+      <p>${ru?'Управление':'Control'}: ${permission.available?(permission.automatic?this.t('automatic'):(ru?'Вручную':'Manual')):this.t('noData')}</p>
+      <label for="parameter-choice">${ru?'Выбрать настройку':'Choose a setting'}</label>
+      <select id="parameter-choice" class="scale-choice" aria-label=${item.name} .value=${''} ?disabled=${!ready} @change=${event=>{const raw=event.target.value;event.target.value='';if(!raw)return;const position=Number(raw);if(Number.isInteger(position)&&position>=0&&position<m.choices.length){this._scaleSnapshots[item.id]=roomSnapshot(this.hass,item);this.commitScale(item,position);}}}>
+        <option value="" disabled selected>${ru?'Выберите значение':'Select a value'}</option>
+        ${m.choices.map((v,i)=>html`<option value=${i} ?disabled=${item.mode_scale.kind==='ac-temperature'&&typeof v==='number'&&!m.room}>${this.scaleValueText(v,item)}</option>`)}
+      </select>
+      <p>${off} ${ru?'«Авто» передаёт этот параметр автоматике. Выбор применяется сразу.':'Auto delegates this parameter to automation. Selection applies immediately.'}</p>
+      ${this._scaleRequests[item.id]?html`<p role="status">${this.t('pending')}</p>`:this._scaleErrors[item.id]?html`<p class="scale-error" role="alert">${this.scaleErrorText()}</p>`:nothing}
+      <ha-m3-button kind="text" @click=${()=>{this._settingsControlId='';}}>${ru?'Все настройки устройства':'All device settings'}</ha-m3-button>
+    </section>`;
+  }
+  settingsMenu(){
+    const menu=this._config.settings_menu,item=this._config.quick_controls?.find(i=>i.id===this._settingsControlId&&i.mode_scale);
+    return menu?html`<ha-m3-quick-settings-menu .hass=${this.hass} .config=${menu} .heading=${item?`${this.deviceName()}: ${item.name}`:this.deviceName()} .motion=${this.motion} .controlId=${this._settingsControlId}>${item?this.parameterSettings(item):nothing}</ha-m3-quick-settings-menu>`:nothing;
+  }
   scaleField(item,operation){
     const m=quickScaleModel(this.hass,this._config,item),draft=this.runtimeReady()?this._scaleDrafts[item.id]:undefined,position=draft??m.position,choice=position===null?null:m.choices[position],disabled=!m.available||!this.runtimeReady(),process=parameterOperation(operation,item);
     const waiting=this._scaleRequests[item.id],ru=locale(this.hass,this._config).startsWith('ru');

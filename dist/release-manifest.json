@@ -1,6 +1,6 @@
 {
   "name": "ha-material3",
-  "version": "0.18.5",
+  "version": "0.18.6",
   "files": [
     {
       "path": "ha-material3-theme.yaml",
@@ -9,8 +9,8 @@
     },
     {
       "path": "ha-material3.js",
-      "bytes": 530246,
-      "sha256": "7180d1f0c1b28454949b9639d7f1ad8705a5e63880ffff2d3b4bb988bd3fe5f2"
+      "bytes": 533487,
+      "sha256": "fb26c6cd972aafa2bd8ba2064004117e32d1ed6e451ecd74682de8baa728b6b2"
     },
     {
       "path": "LICENSE",
@@ -102,8 +102,8 @@
     "controller/intent-transition.jinja": "7e099608ae77316d25c16542d3f8d7a6934b3417aeb1c722cddf382ee903a688",
     "controller/legacy-policy.jinja": "9ed7b5a0a403eb02762054f587dcea4cb01ee88c0c8e7e0f9aad8066e46912a1",
     "controller/thermal-environment.jinja": "6d6c7c5cc077e6595033d164ec346bf2f653a5fa61da27a70edc52453b8c2493",
-    "package-lock.json": "1eda695ebaaa77b0e31de3003fea13afc153049e292e701ca52ec6ab71259585",
-    "package.json": "d93cb3111a08bca1adccddf6d5aeaf131546f428f20a33bfaa150605f0446a8e",
+    "package-lock.json": "24f44cc89c2090e9a218c14db80b28769d2a16e6d15030e8bcc956421fda5053",
+    "package.json": "53432a10c3e1c0c3eed0a52cb9a596d4c7d13e378fc4009363b6d29cc0452fc1",
     "scripts/audit-release.mjs": "ca5fbff89ef1c15a3844746208aaad340f13219dda338bf8b537b52ffb649118",
     "scripts/build.mjs": "ba715c54ed44408e583a14ffcc8d77b046d943b894691137019f9f3722ffd29f",
     "scripts/dev-server.mjs": "9a708517056f40cf7fdd778b0c8a8627137c48ebe59ad47a81b518a459900bb2",
@@ -120,7 +120,7 @@
     "scripts/test-hold-help-browser.mjs": "b708ec33d8b94b466a2e4eb079e51308d10d20bc58bf48ee3d6c6fe6833d207c",
     "scripts/test-journal-browser.mjs": "c0d7e328926bbf3f2ad4cf08f688c67c60394f90edcb3a903543d71ffd821a82",
     "scripts/test-mobile-browser.mjs": "b4cbeb371598572806f4f7d08c7b49f8aaf38c7f314d4646e0cf3d58526fa39c",
-    "scripts/test-mobile-polish-browser.mjs": "894331bc90c8b63cc367e8c19c75370d64b8cad8f0e8afc764f6b1cab5a42aa8",
+    "scripts/test-mobile-polish-browser.mjs": "fc1e9f2b6cd94810ae0d5886b78495834138057a39ea925d2ab893e6fd3e1e8c",
     "scripts/test-sensors-browser.mjs": "a03af641e71bd6696af314a64bce7b85dc8590fa58c742fa958942fdb9d77375",
     "scripts/test-unified-browser.mjs": "c06e9dc71ca46de4ed1a3d9aa0007b6c2044ccd669660abdb3acb6c6bf453d0c",
     "scripts/theme.mjs": "5b420fdb40cd38a5412666d32fa5332f07328e72aac0c8b86ef5caf6eafa33b5",
@@ -156,10 +156,10 @@
     "src/panel.js": "09760aa39972be12adec7b7fc432591576201ad96895c5221576fafbb75d18ac",
     "src/popover.js": "75851895f057ec87202ec4164f7fd3f390e36dbce4f660b3656f4db607892173",
     "src/preset-controls.js": "952059eb7809157b8911c29998c99d2418c7aca7df7e413ea319e6e2cbe8729e",
-    "src/quick-card.js": "82fd0623acca301261aa02c210ddc2d0fe3778c3b08f6f0fa5b5c2773d7cdf37",
+    "src/quick-card.js": "8701f6098a884f91511584ffb698d56e7a3aaa3915dda59c6b6bbb23e3c713f3",
     "src/quick-controls.js": "345f20b52cc587d514f84810e024101b0cea7e68f9c7e8da268d53fd6e5fd471",
     "src/quick-scale.js": "ff0b917a7f224bc903e2abf0fb82e79bb00f0c6ec8a6d3d6c74b5dc88ae79f3f",
-    "src/quick-settings-menu.js": "25a8e96373efa45b8ce927610ee05a13b3039234899bd5e81b35dfb4a984229e",
+    "src/quick-settings-menu.js": "d5821ab27dfd7fe591288c076daa6fb934c498f9ff025d4f4f04d00211e887ab",
     "src/quick-settings-model.js": "73a400389af4e5718611b600734c8c712d474eb10f0824ad97ff839de2de3628",
     "src/reading-colors.js": "e8f2d89bdfaaaeee904845d4166262a12c3500a8fbca1777ab407123e011b724",
     "src/room-controls.js": "f8ff91ed1a9e88b59cd7c963141f18d4dac4de71c614f64b006a9902ca14e908",

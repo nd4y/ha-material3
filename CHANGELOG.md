@@ -77,6 +77,11 @@
 - Exactly 100 named climate acceptance scenarios and new mobile browser checks run in CI.
 # Changelog
 
+## 0.18.6
+
+- Give each climate scale a focused settings menu with its observed value, ownership, guarded selection and clear Off/Auto behavior. Keep general device settings separate.
+
+
 ## 0.18.5
 
 - Use the bundled expand icon for compact history buttons; prevent the fallback device glyph.

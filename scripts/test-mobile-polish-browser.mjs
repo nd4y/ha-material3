@@ -231,6 +231,43 @@ try{
     const hold=page.locator('ha-m3-action-bar ha-m3-hold-button'),button=hold.getByRole('button'),before=await writes();await button.click();await button.dblclick();expect(await writes()===before,'Tap bypassed intentional door hold');
     const bounds=await button.boundingBox();await page.mouse.move(bounds.x+bounds.width/2,bounds.y+bounds.height/2);await page.mouse.down();await hold.locator('#hold-feedback').waitFor({state:'visible'});await button.dispatchEvent('pointercancel');await page.mouse.up();expect(await writes()===before,'Cancelled door hold emitted a service');expect(await page.evaluate(()=>location.pathname)==='/demo/home','Door cancellation triggered navigation');
   });
+  await scenario('parameter-menu-context-and-guarded-selection',async()=>{
+    await page.evaluate(async()=>{
+      const state=(value,attributes={})=>({state:String(value),attributes,last_changed:new Date().toISOString()});
+      const card=document.createElement('ha-m3-quick-device-card');card.id='parameter-menu-test';
+      const gateway={action:'perform-action',perform_action:'script.scale_gateway',data:{device:'breather',parameter:'temperature'},value_field:'choice'};
+      card.setConfig({entity:'climate.test_breather',name:'Бризер',appearance:{motion:'reduced'},
+        power:{lock_entity:'input_boolean.power',value_entity:'input_boolean.saved_power',action:{action:'perform-action',perform_action:'script.power',value_field:'value'}},
+        quick_controls:[{id:'temperature',name:'Уставка нагрева',entity:'climate.test_breather',attribute:'temperature',bounds:{min:'min_temp',max:'max_temp',step:'target_temp_step'},lock_entity:'input_boolean.temp',value_entity:'input_number.saved',set_action:{action:'perform-action',perform_action:'script.manual',value_field:'value'},mode_scale:{kind:'breather-temperature',gateway,revision_entity:'input_text.rev',completed_entity:'input_text.done'}}],
+        settings_menu:{groups:[{name:'Общие настройки',items:[{id:'filter',name:'Фильтр',type:'reading',entity:'sensor.filter'}]},{name:'Параметр',controls:['temperature'],items:[{id:'inlet',name:'Воздух на входе',type:'reading',entity:'sensor.inlet'}]}]}});
+      window.parameterMenuCalls=[];
+      card.hass={language:'ru',states:{'climate.test_breather':state('fan_only',{temperature:22,min_temp:5,max_temp:25,target_temp_step:1}),'input_boolean.power':state('off'),'input_boolean.saved_power':state('on'),'input_boolean.temp':state('off'),'input_number.saved':state('22'),'input_text.rev':state('prior'),'input_text.done':state('prior'),'sensor.filter':state(46),'sensor.inlet':state(5)},callService:async(...args)=>{window.parameterMenuCalls.push(args);}};
+      document.body.append(card);await card.updateComplete;
+    });
+    const card=page.locator('#parameter-menu-test'),menu=card.locator('ha-m3-quick-settings-menu');
+    await card.locator('[data-control-id="temperature"] .scale-details').click();
+    await menu.getByText('Текущее значение:',{exact:false}).waitFor();
+    expect(await menu.locator('ha-m3-dialog.main').evaluate(e=>e.heading)==='Бризер: Уставка нагрева','Parameter heading lost');
+    expect(await menu.getByText('Общие настройки',{exact:true}).count()===0,'Unrelated device group leaked into parameter menu');
+    expect(await menu.getByText('Воздух на входе',{exact:true}).isVisible(),'Scoped setting hidden');
+    expect((await menu.innerText()).includes('не выключает приток воздуха'),'Breather heat-off distinction missing');
+    expect(await page.evaluate(()=>window.parameterMenuCalls.length)===0,'Opening parameter menu sent a command');
+    const choice=menu.locator('select#parameter-choice');
+    await choice.selectOption({label:'Без нагрева'});
+    const command=await page.evaluate(()=>window.parameterMenuCalls);
+    expect(command.length===1&&command[0][0]==='script'&&command[0][1]==='scale_gateway','Menu bypassed the scale gateway');
+    expect(command[0][2].choice==='off'&&command[0][2].parameter==='temperature','Heating-off became device power-off');
+    expect(await choice.isDisabled(),'Pending parameter accepted duplicate selection');
+    await menu.getByRole('button',{name:'Все настройки устройства',exact:true}).click();
+    expect(await menu.getByText('Общие настройки',{exact:true}).isVisible(),'All settings link lost general controls');
+    await menu.evaluate(e=>e.close());await card.evaluate(e=>e.clearScaleRequests());
+    const label=card.locator('[data-control-id="temperature"] label');await label.scrollIntoViewIfNeeded();
+    await label.dispatchEvent('pointerdown',{pointerId:91,button:0,isPrimary:true,clientX:50,clientY:50});
+    await menu.getByText('Текущее значение:',{exact:false}).waitFor();
+    await label.dispatchEvent('pointerup',{pointerId:91,button:0,isPrimary:true});
+    expect(await page.evaluate(()=>window.parameterMenuCalls.length)===1,'Long hold sent a command');
+    await menu.evaluate(e=>e.close());await card.evaluate(e=>e.remove());
+  });
   await scenario('runtime-and-network-isolation',async()=>{expect(report.errors.length===0,JSON.stringify(report.errors));expect(report.external_requests.length===0,'Unexpected external requests');});
   report.passed=true;
 }catch(error){report.passed=false;report.error=error.message;process.exitCode=1;}
