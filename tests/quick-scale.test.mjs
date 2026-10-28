@@ -8,6 +8,21 @@ const item={id:'temp',name:'Temp',entity:'climate.breather',attribute:'temperatu
 const make=()=>({states:{'climate.breather':state('fan_only',{temperature:22,min_temp:5,max_temp:25,target_temp_step:1,fan_mode:'3'}),'input_boolean.temp':state('off'),'input_boolean.power':state('off'),'input_boolean.saved_power':state('on'),'input_number.saved':state('23'),[revision]:state('prior'),[completed]:state('prior')}});
 const roomFixture=(h,now=Date.now())=>{h.states['sensor.room']=state(20);h.states['sensor.source']=state(20);h.states['input_text.primary']=state('sensor.source');h.states['input_number.ttl']=state(60);h.states['input_datetime.epoch']=state('2026-01-01',{timestamp:Math.floor(now/1000)-100});};
 const acItem=()=>({...item,mode_scale:{kind:'ac-temperature',gateway,revision_entity:revision,completed_entity:completed,room_entity:'sensor.room',room_freshness:freshness,confirmation:{mode_entity:'input_select.mode',writing_entity:'input_boolean.writing',pending_entity:'input_boolean.pending'}}});
+test('AC freshness follows qualified source measurement even when HA value did not change',()=>{
+  const now=Date.now(),h=make(),ac=acItem();roomFixture(h,now);
+  const old=new Date(now-7200_000).toISOString();h.states['sensor.room'].last_changed=old;h.states['sensor.source'].last_changed=old;
+  h.states['input_number.ttl'].state='5400';
+  assert.equal(roomSnapshot(h,ac,now),null);
+  ac.mode_scale.room_freshness={...freshness,qualifier_entity:'sensor.coordinator'};
+  const measurement={source:'sensor.source',value:20,origin:'zigbee_report',received_at:new Date(now-10_000).toISOString()};
+  h.states['sensor.coordinator']=state('active',{planning:{source_quality:'valid',room_measurement:measurement}});
+  assert.equal(roomSnapshot(h,ac,now).value,20);
+  measurement.origin='zigbee_cached_attribute';assert.equal(roomSnapshot(h,ac,now).value,20);
+  for(const [field,bad] of [['value',21],['source','sensor.other'],['origin','entity_state'],['received_at',new Date(now-5401_000).toISOString()]]){
+    const before=measurement[field];measurement[field]=bad;assert.equal(roomSnapshot(h,ac,now),null);measurement[field]=before;
+  }
+  h.states['sensor.coordinator'].attributes.planning.source_quality='stale';assert.equal(roomSnapshot(h,ac,now),null);
+});
 const speedItem=()=>({...item,id:'speed',attribute:'fan_mode',options_attribute:'fan_modes',value_entity:'input_text.speed',mode_scale:{kind:'breather-speed',revision_entity:revision,completed_entity:completed,confirmation:{manual_checks:[{entity:'climate.breather',attribute:'preset_mode',value:'manual'}]},gateway:{...gateway,data:{device:'breather',parameter:'speed'}}}});
 const turboItem=()=>{const speed=speedItem();return {...speed,mode_scale:{...speed.mode_scale,turbo:true,confirmation:{...speed.mode_scale.confirmation,turbo_temperature_lock_entity:'input_boolean.heat',turbo_temperature_value_entity:'input_number.saved'}}};};
 const turboFixture=(off=false,heatLock='off')=>{const h=make(),s=turboItem();Object.assign(h.states['climate.breather'].attributes,{fan_modes:['1','2','3','4','5','6','7'],preset_modes:['manual','turbo'],preset_mode:'manual'});h.states['climate.breather'].state=off?'off':'fan_only';h.states['input_text.speed']=state('3');h.states['input_text.completed']=state('prior');h.states['input_boolean.heat']=state(heatLock);h.states['input_number.saved']=state(heatLock==='on'?5:22);return {h,s};};
