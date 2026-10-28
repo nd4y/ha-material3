@@ -30,6 +30,7 @@ export function smoothPath(points,x,y){return segments(points).map(part=>{let pa
 export function validateHistory(config){
   if(config===undefined||config===false||config===true)return;
   if(!config||typeof config!=='object'||Array.isArray(config))throw Error('history must be boolean or an object');
+  if(config.presentation!==undefined&&!['inline','button'].includes(config.presentation))throw Error('Invalid history presentation');
   if(config.hours!==undefined&&(!Number.isFinite(config.hours)||config.hours<1||config.hours>168))throw Error('history.hours must be between 1 and 168');
 }
 export function validateHistorySources(sources,limit=2){if(![2,3].includes(limit)||!Array.isArray(sources)||!sources.length||sources.length>limit)throw Error(`History requires 1..${limit} sources`);for(const s of sources){if(!s||!/^\w+\.[a-z0-9_]+$/.test(s.entity||'')||typeof s.name!=='string'||!s.name.trim()||s.attribute!==undefined&&typeof s.attribute!=='string'||s.invert!==undefined&&typeof s.invert!=='boolean')throw Error('Invalid history source');if(s.value_map&&Object.values(s.value_map).some(v=>!Number.isFinite(v)))throw Error('Invalid history value map');}}
