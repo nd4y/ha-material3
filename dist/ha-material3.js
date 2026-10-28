@@ -541,7 +541,7 @@ const __m3ModuleUrl = import.meta.url; if (!customElements.get("ha-m3-panel")) {
     .surface[data-ownership=blocked]{background:var(--ha-m3-owner-manual-surface,color-mix(in srgb,var(--md-sys-color-tertiary-container) 35%,var(--md-sys-color-surface-container)));box-shadow:none}
     .surface[data-ownership=mixed]{background:var(--md-sys-color-surface-container)}
     .quick-header{min-height:50px;margin:0 4px 4px;gap:8px}.quick-title{gap:12px}.device-state{display:grid;place-items:center;width:32px;height:32px;min-width:32px;min-height:32px;background:transparent;color:var(--quick-tone);transition:color 220ms}
-    
+
     .quick-field{padding:12px 14px;transition:background-color 220ms,color 220ms;--ha-m3-slider-active-color:var(--quick-tone);--ha-m3-slider-handle-color:var(--quick-tone)}
     .quick-field[data-tone=auto]{--quick-tone:var(--md-sys-color-primary);--quick-container:var(--md-sys-color-secondary-container)}
     .quick-field output{color:var(--quick-tone);font-size:18px;line-height:24px;transition:color 200ms}

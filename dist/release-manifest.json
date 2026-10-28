@@ -9,8 +9,8 @@
     },
     {
       "path": "ha-material3.js",
-      "bytes": 550283,
-      "sha256": "503dac26d882ce86cebd2e6de8f8b7e795841a9b23da222aa88444821be7c2a3"
+      "bytes": 550279,
+      "sha256": "6f4f3f36d595f9dfd8465fb0ffacaff1a02d74e5cd4a4de360fa07be690e6369"
     },
     {
       "path": "LICENSE",
@@ -157,7 +157,7 @@
     "src/panel.js": "09760aa39972be12adec7b7fc432591576201ad96895c5221576fafbb75d18ac",
     "src/popover.js": "75851895f057ec87202ec4164f7fd3f390e36dbce4f660b3656f4db607892173",
     "src/preset-controls.js": "952059eb7809157b8911c29998c99d2418c7aca7df7e413ea319e6e2cbe8729e",
-    "src/quick-card.js": "306f44f2a400583017f23c0e1eed3e6fcd504c25936d48ea7f59326958234d0e",
+    "src/quick-card.js": "510c6a8c439dceeb3f20994ea1179c2a3bf4dbe400134525b03936782cd7af53",
     "src/quick-controls.js": "345f20b52cc587d514f84810e024101b0cea7e68f9c7e8da268d53fd6e5fd471",
     "src/quick-scale.js": "ff0b917a7f224bc903e2abf0fb82e79bb00f0c6ec8a6d3d6c74b5dc88ae79f3f",
     "src/quick-settings-menu.js": "d5821ab27dfd7fe591288c076daa6fb934c498f9ff025d4f4f04d00211e887ab",
