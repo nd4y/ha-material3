@@ -1,3 +1,9 @@
+## 0.18.4 - 2026-10-28
+
+- Add compact history buttons that open full graphs without loading every chart on the main climate page.
+- Keep room metrics and controls in connected panels; secondary sensor readings expand on demand.
+- Preserve all actions, error messages, touch targets and precise release-to-apply controls.
+
 ## 0.18.3 - 2026-10-28
 
 - Allow an optional controller-qualified room reading to establish AC slider freshness, including equal repeated reports and timestamped cached measurements.

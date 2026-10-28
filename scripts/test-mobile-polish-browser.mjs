@@ -58,6 +58,30 @@ try{
     expect(await page.evaluate(()=>Object.entries(window.unifiedFixture.states).filter(([entity])=>entity.startsWith('input_boolean.lock_')).every(([,state])=>state.state==='off')),'CTA did not release configured manual permissions');
     for(const card of [home,climate])expect(await card.locator('.trust-automation').isVisible(),'CTA disappears when all permissions are automatic');
   });
+  await scenario('compact-climate-keeps-history-available-without-consuming-control-space',async()=>{
+    const before=await writes();
+    await page.evaluate(()=>{const c=window.polishFixture.climate||window.unifiedFixture.summary;c.setConfig({...c._config,history:{hours:24,presentation:'button'}});});
+    const compact=page.locator('#polish-climate');
+    await compact.locator('ha-m3-history').first().waitFor();
+    for(const width of [320,390,768,1440]){
+      await page.setViewportSize({width,height:1000});
+      const dimensions=await compact.evaluate(c=>{
+        const root=c.renderRoot,b=root.querySelector('.surface').getBoundingClientRect();
+        return {overflow:c.scrollWidth>c.clientWidth+1,metrics:root.querySelector('.room-metrics')?.getBoundingClientRect().height,
+          plots:[...root.querySelectorAll('ha-m3-history')].filter(h=>h.renderRoot.querySelector('.plot')).length,
+          buttons:[...root.querySelectorAll('ha-m3-history')].map(h=>h.renderRoot.querySelector('.history-button')?.getBoundingClientRect().width)};
+      });
+      expect(!dimensions.overflow,'Compact climate overflows '+width);
+      expect(dimensions.metrics<210,'Metrics push controls down '+width);
+      expect(dimensions.plots===0,'Collapsed histories render plots');
+      expect(dimensions.buttons.every(w=>w>=44),'History tap area too small');
+    }
+    const history=compact.locator('ha-m3-history').first();
+    await history.locator('.history-button').click();
+    expect(await history.locator('.detail').evaluate(e=>e.matches(':popover-open')),'History did not open');
+    await history.locator('.close').click();
+    expect(await writes()===before,'History view changed climate');
+  });
   await scenario('climate-and-device-controls-share-segmented-visual-language',async()=>{
     const before=await writes();
     const sliders=climate.locator('.room-target ha-m3-slider, .air-goal ha-m3-slider');

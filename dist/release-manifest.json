@@ -1,6 +1,6 @@
 {
   "name": "ha-material3",
-  "version": "0.18.3",
+  "version": "0.18.4",
   "files": [
     {
       "path": "ha-material3-theme.yaml",
@@ -9,8 +9,8 @@
     },
     {
       "path": "ha-material3.js",
-      "bytes": 527636,
-      "sha256": "cb6aa96cf28ad35dd6755074e1107717f5a9b50b21cdc5a607584a14031c9f27"
+      "bytes": 530244,
+      "sha256": "585dd74e0d042dddc67c8d43a485bae71c6e74a4da8e40a2dc256f6474dfa29d"
     },
     {
       "path": "LICENSE",
@@ -102,8 +102,8 @@
     "controller/intent-transition.jinja": "7e099608ae77316d25c16542d3f8d7a6934b3417aeb1c722cddf382ee903a688",
     "controller/legacy-policy.jinja": "9ed7b5a0a403eb02762054f587dcea4cb01ee88c0c8e7e0f9aad8066e46912a1",
     "controller/thermal-environment.jinja": "6d6c7c5cc077e6595033d164ec346bf2f653a5fa61da27a70edc52453b8c2493",
-    "package-lock.json": "48dbc5eb773669afeb651d7a420975b7630b705a9606ced120ed7d923dd2ff79",
-    "package.json": "6bbab957d70d3ce7fbea131f577a336bfa8be6d984e399397a1b245dd01a94cb",
+    "package-lock.json": "05a0d3fa58e6783f28c849470cb121cec30691115b3c2b3daa5effd4fa61fd87",
+    "package.json": "83a0e1e2f0f330f16124ace5674f20c129197d173e5e5804dad297c73a3c2b3e",
     "scripts/audit-release.mjs": "ca5fbff89ef1c15a3844746208aaad340f13219dda338bf8b537b52ffb649118",
     "scripts/build.mjs": "ba715c54ed44408e583a14ffcc8d77b046d943b894691137019f9f3722ffd29f",
     "scripts/dev-server.mjs": "9a708517056f40cf7fdd778b0c8a8627137c48ebe59ad47a81b518a459900bb2",
@@ -120,14 +120,14 @@
     "scripts/test-hold-help-browser.mjs": "b708ec33d8b94b466a2e4eb079e51308d10d20bc58bf48ee3d6c6fe6833d207c",
     "scripts/test-journal-browser.mjs": "c0d7e328926bbf3f2ad4cf08f688c67c60394f90edcb3a903543d71ffd821a82",
     "scripts/test-mobile-browser.mjs": "b4cbeb371598572806f4f7d08c7b49f8aaf38c7f314d4646e0cf3d58526fa39c",
-    "scripts/test-mobile-polish-browser.mjs": "d3ecd3842d933ab9df9314986d095746598b9556c56b28525d4d8c4882811861",
+    "scripts/test-mobile-polish-browser.mjs": "4fbbe5eb01cd7efcbb4c0d646f00a3a10bc8bded36d731f4526c537897c84561",
     "scripts/test-sensors-browser.mjs": "a03af641e71bd6696af314a64bce7b85dc8590fa58c742fa958942fdb9d77375",
     "scripts/test-unified-browser.mjs": "c06e9dc71ca46de4ed1a3d9aa0007b6c2044ccd669660abdb3acb6c6bf453d0c",
     "scripts/theme.mjs": "5b420fdb40cd38a5412666d32fa5332f07328e72aac0c8b86ef5caf6eafa33b5",
     "src/action-bar.js": "dff0c704791133fdcb0b73b147855380e878ff22ca80c8c47282a7a40547249c",
     "src/air-goals.js": "c8218db05d375fad9d8779fea2101790c9473ee3102ad89041626c3a032eb32e",
     "src/asset-url.js": "033c8020367ab43ce04061bb2196f2b866ca0b891fae019cd612a3223a256c9b",
-    "src/calm-room.js": "8e46185ba8b9d8a2db433b0613d8c90437453e047753fcd252e8c2a2ddb02c21",
+    "src/calm-room.js": "d062169e8d64db252072a8a0cb1ef6df9942a4d2e11282a82d03c3bb0acf14ac",
     "src/cards.js": "f8afc43582dc24d307f069285a6f6973253d9aae225e6ea757bd47d0494ccbf6",
     "src/climate-scale.js": "99e20475e048d462793657e06fa3c1dfe95aa1065aa99f4582d78a6ea6a11bb2",
     "src/color-scheme.js": "16b6d291d27ad9bcd3e0b747a5c94cd3dedeb2bd740bcf409c0b570b30c0c0f9",
@@ -139,8 +139,8 @@
     "src/fields.js": "b9bb1fa3c2943ba0b3645931494c26c0814c45548ba99e057b26d33ce5b8790a",
     "src/ha.js": "61b5a008953734b01323b21741b757aa7d8945f83783fcd4f35ed33735175ce3",
     "src/history-data.js": "e9e4060fe6a79296c6d4f7f46f393e72a18ab933acdaf63ff7f59bcb48cb6408",
-    "src/history-model.js": "9149f97be4e08c12d29c6bea59e1b8fd2136db55fd3218792624d52a2cd9bb5b",
-    "src/history.js": "ff06ea20a7085ee8e28bb68e937ab2ebf0f1557472cdfb11b4a5efd20612a2db",
+    "src/history-model.js": "243bd4fcade67ab0483a05132ef4e87ddb8360b482b0d98c7726839d044a5f2c",
+    "src/history.js": "cc8674e2e2710bba4d8d8ca92b44502343a2aaa8c3bf6f134d4c298b40cc0164",
     "src/hold-button.js": "e9a94cd93bc3ee38433b99651d002f0d600a8cd3b52e8aeecd2992453588f0ae",
     "src/hold-help.js": "fae155718820c66337cb5f3986be842b35606e513e2eac824944e2fe1d0bf0ef",
     "src/hold-session.js": "89c967ca4d9c91a70de892f3cfcb0f92c923356a78b90235379bdc82dbdab3b1",
