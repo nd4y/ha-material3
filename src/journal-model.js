@@ -1,4 +1,13 @@
 const text=(value,max=300)=>String(value??'').slice(0,max);
+// Keep raw diagnostics in expandable details; summarize only the controller's
+// bounded tuple format here. This is parsing, never evaluation of server text.
+export function journalCause(value,language='ru'){
+  const raw=text(value,600),ru=language.startsWith('ru');
+  if(!/^\((?:\('[a-z_]+', '[a-z_]+'\),?\s*)+\)$/.test(raw))return raw;
+  const names=ru?{ac:'Кондиционер',breather:'Бризер',heater:'Обогреватель',purifier:'Очиститель воздуха'}:{ac:'Air conditioner',breather:'Ventilator',heater:'Heater',purifier:'Air purifier'};
+  const reasons=ru?{health_not_qualified:'состояние не подтверждено, автоматика недоступна',unavailable:'нет связи',pending_or_unapplied_manual_intent:'ожидается применение ручной настройки'}:{health_not_qualified:'health is not confirmed; automatic control is unavailable',unavailable:'unavailable',pending_or_unapplied_manual_intent:'manual setting is pending'};
+  return [...raw.matchAll(/\('([a-z_]+)', '([a-z_]+)'\)/g)].map(([,device,reason])=>`${Object.hasOwn(names,device)?names[device]:(ru?'Устройство':'Device')}: ${Object.hasOwn(reasons,reason)?reasons[reason]:(ru?'требуется проверка состояния':'status needs review')}`).join('. ');
+}
 export function journalValue(value,max=240){
   if(value===null||value===undefined)return '';
   if(typeof value==='object')return text(JSON.stringify(value),max);

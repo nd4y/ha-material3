@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {journalEntries} from '../src/journal-model.js';
+import {journalEntries,journalCause} from '../src/journal-model.js';
 test('journal displays server records in server order and never invents a confirmation',()=>{
   const record={id:'backend-1',timestamp:'2026-10-20T10:00:00Z',title:'Command',status:'requested',flow:[{name:'Demand',value:4}]};
   const state={attributes:{events:[record,{...record,id:'backend-2',status:'confirmed'}]}};
@@ -37,4 +37,14 @@ test('newest server status remains authoritative; structured data stays bounded'
   const [row]=journalActivity(input);
   assert.equal(row.status,'requested');assert.equal(row.action.changes.length,8);assert.equal(row.action.changes[0].from,'0');assert.equal(row.action.changes[0].unit.length,30);assert.equal(row.action.device,'<script>');assert.equal(row.inputs[0].value,'{"present":"unknown"}');assert.equal(journalValue(false),'false');assert.equal(journalValue(null),'');
   assert.equal(input.attributes.entries[0].action.changes.length,20);
+});
+
+test('controller blockers have public labels without changing raw evidence',()=>{
+ const raw="(('ac', 'health_not_qualified'), ('heater', 'unavailable'))";
+ assert.equal(journalCause(raw),'Кондиционер: состояние не подтверждено, автоматика недоступна. Обогреватель: нет связи');
+ assert.match(journalCause(raw,'en'),/Air conditioner: health is not confirmed/);
+ assert.equal(journalCause('Настройка пользователя'),'Настройка пользователя');
+ assert.equal(journalCause("(('ac', 'future_reason'),)"),'Кондиционер: требуется проверка состояния');
+ const code="__import__('os')";assert.equal(journalCause(code),code);
+ const e=journalEntries({attributes:{entries:[{id:'1',timestamp:'2026-10-28T00:00:00Z',reason:raw}]}})[0];assert.equal(e.reason,raw);
 });
