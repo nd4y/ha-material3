@@ -16,6 +16,8 @@
 | 2 boosts | Every duration and explicit cancellation |
 | 5 presets and maximum mode | Exact preset action and every return-mode option |
 | 4 stop/recovery pairs | Runtime guards, explicit stop, matching observation and recovery receipt |
+| 3 fault acknowledgements | Unavailable/allowed admission and exact device action |
+| Parameter menus | Details button, long hold, all-settings navigation, no commands on opening |
 | History and metrics | Drawer/filter/close, four metric detail actions, no service calls |
 | Reconnection/failure | Menu and room-request deadlines survive detach/reconnect; no automatic retry |
 | Layout | Mobile/desktop overflow, inline metrics, compact target, ownership surface colors |
