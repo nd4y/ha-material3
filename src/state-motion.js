@@ -7,7 +7,7 @@ export class M3StateIcon extends LitElement {
   static properties={name:{},motion:{},_previous:{state:true}};
   static styles=[common,css`
     :host{display:inline-grid;position:relative;width:1em;height:1em;font-size:22px;flex:none;vertical-align:middle;color:inherit}
-    .glyph{grid-area:1/1;display:grid;place-items:center;width:100%;height:100%;pointer-events:none;color:inherit}.symbol{font-size:inherit;line-height:1}
+    .glyph{grid-area:1/1;display:grid;place-items:center;width:100%;height:100%;pointer-events:none;color:inherit;font-size:inherit;line-height:1}.symbol{font-size:inherit;line-height:1}
     .old{position:absolute;inset:0}
   `];
   constructor(){super();this.name='';this.motion='expressive';this._previous='';this._animations=[];this._generation=0;this._reduce=()=>{if(this.reduced())this.stop();};this._visible=()=>{if(document.hidden)this.stop();};}

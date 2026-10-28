@@ -87,6 +87,7 @@ try{
     await page.evaluate(()=>{const {f}=window.motionFixture;f.states['climate.ac'].state='heat';f.states['climate.ac'].attributes.hvac_action='heating';f.update();});
     await page.waitForFunction(()=>window.motionFixture.ac.renderRoot.querySelector('.device-state ha-m3-state-icon').name==='thermostat');
     expect(await ac.locator('.device-state ha-m3-state-icon').evaluate(e=>getComputedStyle(e).color===getComputedStyle(e.renderRoot.querySelector('.live')).color),'Icon inherits semantic color');
+    expect(await ac.locator('.device-state ha-m3-state-icon').evaluate(e=>getComputedStyle(e).fontSize===getComputedStyle(e.renderRoot.querySelector('.live .symbol')).fontSize),'Icon inherits intended glyph size');
     await page.emulateMedia({reducedMotion:'reduce'});await page.evaluate(()=>{const {f}=window.motionFixture;f.states['climate.ac'].state='cool';f.update();});await page.waitForTimeout(30);
     expect(await ac.locator('.device-state ha-m3-state-icon').evaluate(e=>e.renderRoot.querySelectorAll('.old').length===0&&e._animations.length===0),'Reduced motion skips transition');
     await page.emulateMedia({reducedMotion:'no-preference'});
