@@ -7,7 +7,7 @@ import {deviceGroupConfig} from './device-group-config.js';
 // busy guards and state; the group never sends or combines service calls.
 export class M3DeviceGroupCard extends M3BaseCard{
   static styles=[M3BaseCard.styles,css`
-    .surface{padding:12px;overflow:visible}.group-title{font-size:18px;line-height:24px;font-weight:500;margin:0 4px 12px}.devices{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;min-width:0}.device{display:block;min-width:0}
+    .surface{padding:0;overflow:visible;background:transparent}.group-title{font-size:18px;line-height:24px;font-weight:500;margin:0 4px 12px}.devices{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;min-width:0}.device{display:block;min-width:0}
     @container(min-width:850px){.devices{grid-template-columns:repeat(var(--device-columns,3),minmax(0,1fr));gap:16px}}
     @container(max-width:350px){.surface{padding:8px}.devices{gap:10px}}
   `];

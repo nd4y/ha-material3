@@ -1,4 +1,5 @@
 import {LitElement,html,css,nothing} from 'lit';
+import {StateMotion} from './state-motion.js';
 import {common,icon} from './components.js';
 import {selectField,sliderField} from './fields.js';
 import {applyTheme} from './theme.js';
@@ -21,10 +22,11 @@ const cardStyles=css`
 export class M3BaseCard extends LitElement{
   static properties={hass:{attribute:false},_config:{state:true},_busy:{state:true},_error:{state:true},_pending:{state:true}};
   static styles=[common,cardStyles];
-  constructor(){super();this._config={};this._busy=false;this._error=false;this._pending='';}
+  constructor(){super();this._config={};this._busy=false;this._error=false;this._pending='';this.stateMotion=new StateMotion(this);}
   setConfig(config){validateSwipeNavigation(config?.swipe_navigation);this._config=validateConfig(config,this.kind||'panel');this._disposeSwipe?.();if(this.isConnected)this._disposeSwipe=bindSwipeNavigation(this,this._config.swipe_navigation);}
   connectedCallback(){super.connectedCallback();this._disposeSwipe=bindSwipeNavigation(this,this._config.swipe_navigation);}
-  disconnectedCallback(){this._disposeSwipe?.();super.disconnectedCallback();}
+  updated(){this.stateMotion.sync();}
+  disconnectedCallback(){this.stateMotion.stop();this._disposeSwipe?.();super.disconnectedCallback();}
   get hass(){return this._hass;}
   set hass(value){const old=this._hass;this._hass=value;this.requestUpdate('hass',old);}
   willUpdate(){applyTheme(this,this._config,this.hass);}

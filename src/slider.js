@@ -13,6 +13,9 @@ export class M3Slider extends LitElement{
     .segments{display:flex;position:absolute;inset:0;gap:2px}.segment{flex:1;min-width:0;background:var(--ha-m3-slider-inactive-color,var(--md-sys-color-secondary-container));border-radius:3px}.segment.active-step{background:var(--ha-m3-slider-active-color,var(--md-sys-color-primary))}.segment:first-child{border-radius:999px 3px 3px 999px}.segment:last-child{border-radius:3px 999px 999px 3px}.root:not(.disabled) .segments.accent-end .segment:last-child{background:var(--md-sys-color-primary)}.disabled .segment{background:color-mix(in srgb,var(--md-sys-color-on-surface) 12%,transparent)}.disabled .segment.active-step{background:color-mix(in srgb,var(--md-sys-color-on-surface) 38%,transparent)}
     input{appearance:none;-webkit-appearance:none;position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;opacity:0;cursor:pointer;touch-action:pan-y}input::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:0;height:48px}input::-moz-range-thumb{width:0;height:48px;border:0}
     .disabled .active{background:color-mix(in srgb,var(--md-sys-color-on-surface) 38%,transparent)}.disabled .inactive{background:color-mix(in srgb,var(--md-sys-color-on-surface) 12%,transparent)}.disabled .handle,.disabled .stop{background:color-mix(in srgb,var(--md-sys-color-on-surface) 38%,transparent)}.disabled input{cursor:default}
+    .active,.inactive,.handle,.segment{transition:background-color 220ms}
+    @media(prefers-reduced-motion:reduce){.active,.inactive,.handle,.segment,.halo{transition:none}}
+    :host([motion=reduced]) .active,:host([motion=reduced]) .inactive,:host([motion=reduced]) .handle,:host([motion=reduced]) .segment{transition:none}
     @media(forced-colors:active){.active,.handle,.stop{background:Highlight}.inactive{background:GrayText}input{opacity:1;appearance:auto}}
     :host([motion=reduced]) .halo{transition:none}
   `];
