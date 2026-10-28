@@ -79,6 +79,8 @@
 
 ## 0.18.6
 
+- Summarize controller blockers and on/off values in readable journal text while keeping original diagnostics in details.
+
 - Give each climate scale a focused settings menu with its observed value, ownership, guarded selection and clear Off/Auto behavior. Keep general device settings separate.
 
 

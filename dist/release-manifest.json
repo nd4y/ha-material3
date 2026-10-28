@@ -9,8 +9,8 @@
     },
     {
       "path": "ha-material3.js",
-      "bytes": 533487,
-      "sha256": "fb26c6cd972aafa2bd8ba2064004117e32d1ed6e451ecd74682de8baa728b6b2"
+      "bytes": 535275,
+      "sha256": "e134cb451fc991c16e748854bfac98806f1a0586ad9b378ce99485652456668b"
     },
     {
       "path": "LICENSE",
@@ -120,7 +120,7 @@
     "scripts/test-hold-help-browser.mjs": "b708ec33d8b94b466a2e4eb079e51308d10d20bc58bf48ee3d6c6fe6833d207c",
     "scripts/test-journal-browser.mjs": "c0d7e328926bbf3f2ad4cf08f688c67c60394f90edcb3a903543d71ffd821a82",
     "scripts/test-mobile-browser.mjs": "b4cbeb371598572806f4f7d08c7b49f8aaf38c7f314d4646e0cf3d58526fa39c",
-    "scripts/test-mobile-polish-browser.mjs": "fc1e9f2b6cd94810ae0d5886b78495834138057a39ea925d2ab893e6fd3e1e8c",
+    "scripts/test-mobile-polish-browser.mjs": "aabd16d7a505a1915596799a2173453921974d5e553b8aea9c18d9fb6472f05f",
     "scripts/test-sensors-browser.mjs": "a03af641e71bd6696af314a64bce7b85dc8590fa58c742fa958942fdb9d77375",
     "scripts/test-unified-browser.mjs": "c06e9dc71ca46de4ed1a3d9aa0007b6c2044ccd669660abdb3acb6c6bf453d0c",
     "scripts/theme.mjs": "5b420fdb40cd38a5412666d32fa5332f07328e72aac0c8b86ef5caf6eafa33b5",
@@ -146,8 +146,8 @@
     "src/hold-session.js": "89c967ca4d9c91a70de892f3cfcb0f92c923356a78b90235379bdc82dbdab3b1",
     "src/icons.js": "f7805d4b165397d44d5e502f3e45bb441cb8ce76874514e0d693d3a4180c4922",
     "src/index.js": "689542353b8243bab5d3342949572abd3748a6ae3458f036df9a11591a5b783f",
-    "src/journal-card.js": "e327297c525d0fddb7c73700372388c6a2a07960c32bc67c86f98183c5e40511",
-    "src/journal-model.js": "214fbd279384ba44ac81d2d5b6362587bde01422114e1cc4267a97cd34aaf43c",
+    "src/journal-card.js": "09a7ecdcbf78ea8a58f23259f4c7f902b75009a0ce9240391d8b9a31e7a5790d",
+    "src/journal-model.js": "64e9a61f42eede1d9caae03d7b5fb4b8cf0e9d98be3854af15b30f0ff7edf0b9",
     "src/localize.js": "1d568bd05f050a5b1a93aec07afb0b7af7418bf857b5d33f14516d32062c6085",
     "src/motion.js": "08e3eea7ce0006823ea4877d7f83bb75ec46603581c9a8872351ce413ac8bbb3",
     "src/native-dashboard.js": "27e298b20e8568009f14c244997c36a3c2a5c2576c1d67f900526ef8405383e7",
