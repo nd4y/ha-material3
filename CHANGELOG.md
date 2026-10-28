@@ -77,6 +77,10 @@
 - Exactly 100 named climate acceptance scenarios and new mobile browser checks run in CI.
 # Changelog
 
+## 0.18.5
+
+- Use the bundled expand icon for compact history buttons; prevent the fallback device glyph.
+
 ## 0.13.1 - 2026-10-22
 - Expose strong heating demand when a qualified cold intake and a large room deficit require AC assistance before the supply target has finished ramping. Preserve compressor and manual protections.
 - Explain breather-first heating waits instead of reporting an out-of-deadband room as within tolerance; add demand-boundary and restart-delay tests.

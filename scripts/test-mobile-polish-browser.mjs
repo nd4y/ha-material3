@@ -77,6 +77,7 @@ try{
       expect(dimensions.buttons.every(w=>w>=44),'History tap area too small');
     }
     const history=compact.locator('ha-m3-history').first();
+    expect((await history.locator('.history-button .symbol').innerText()).trim()==='open_in_full','History button fell back to an unrelated icon');
     await history.locator('.history-button').click();
     expect(await history.locator('.detail').evaluate(e=>e.matches(':popover-open')),'History did not open');
     await history.locator('.close').click();
