@@ -1,0 +1,2939 @@
+{
+  "synthetic": true,
+  "config": {
+    "main": {
+      "title": "Климат",
+      "entities": {
+        "room_temperature": "sensor.office_room_temperature",
+        "target_temperature": "input_number.office_room_target_temperature",
+        "enabled": "input_boolean.office_room_temperature_control"
+      },
+      "presets": [
+        {
+          "id": "auto",
+          "name": "Автоматически",
+          "return_value": "Автоматически",
+          "action": {
+            "action": "perform-action",
+            "perform_action": "script.office_air_mode",
+            "data": {
+              "mode": "auto"
+            }
+          },
+          "active_when": [
+            {
+              "entity": "input_select.office_air_level",
+              "value": "Автоматически"
+            }
+          ],
+          "icon": "auto_awesome"
+        },
+        {
+          "id": "full",
+          "name": "Полностью автоматически",
+          "return_value": "Полностью автоматически",
+          "action": {
+            "action": "perform-action",
+            "perform_action": "script.office_air_mode",
+            "data": {
+              "mode": "full"
+            }
+          },
+          "active_when": [
+            {
+              "entity": "input_select.office_air_level",
+              "value": "Полностью автоматически"
+            }
+          ],
+          "icon": "tune"
+        },
+        {
+          "id": "off",
+          "name": "Отключено",
+          "return_value": "Отключено",
+          "action": {
+            "action": "perform-action",
+            "perform_action": "script.office_air_mode",
+            "data": {
+              "mode": "off"
+            }
+          },
+          "active_when": [
+            {
+              "entity": "input_select.office_air_level",
+              "value": "Отключено"
+            }
+          ],
+          "icon": "power_settings_new"
+        },
+        {
+          "id": "quiet",
+          "name": "Тихий",
+          "return_value": "Тихий",
+          "action": {
+            "action": "perform-action",
+            "perform_action": "script.office_air_mode",
+            "data": {
+              "mode": "quiet"
+            }
+          },
+          "active_when": [
+            {
+              "entity": "input_select.office_air_level",
+              "value": "Тихий"
+            }
+          ],
+          "icon": "eco"
+        },
+        {
+          "id": "standard",
+          "name": "Стандартный",
+          "return_value": "Стандартный",
+          "action": {
+            "action": "perform-action",
+            "perform_action": "script.office_air_mode",
+            "data": {
+              "mode": "standard"
+            }
+          },
+          "active_when": [
+            {
+              "entity": "input_select.office_air_level",
+              "value": "Стандартный"
+            }
+          ],
+          "icon": "mode_fan"
+        },
+        {
+          "id": "maximum",
+          "name": "Максимум",
+          "return_value": "Максимум",
+          "action": {
+            "action": "perform-action",
+            "perform_action": "script.office_air_mode",
+            "data": {
+              "mode": "maximum"
+            }
+          },
+          "active_when": [
+            {
+              "entity": "input_select.office_air_level",
+              "value": "Максимум"
+            }
+          ],
+          "icon": "air"
+        }
+      ],
+      "maximum": {
+        "active_entity": "input_boolean.office_air_maximum_active",
+        "timer": "timer.office_air_maximum",
+        "preset_id": "maximum",
+        "cancel_action": {
+          "action": "perform-action",
+          "perform_action": "script.office_air_return"
+        },
+        "return_entity": "input_text.office_air_previous_level",
+        "duration_name": "15 минут",
+        "start_action": {
+          "action": "perform-action",
+          "perform_action": "script.office_air_maximum_select",
+          "value_field": "return_mode"
+        },
+        "return_options": [
+          {
+            "name": "Автоматически",
+            "value": "Автоматически"
+          },
+          {
+            "name": "Полностью автоматически",
+            "value": "Полностью автоматически"
+          },
+          {
+            "name": "Отключено",
+            "value": "Отключено"
+          },
+          {
+            "name": "Тихий",
+            "value": "Тихий"
+          },
+          {
+            "name": "Стандартный",
+            "value": "Стандартный"
+          }
+        ]
+      },
+      "details_title": "Правила управления",
+      "details": [
+        {
+          "name": "Источник температуры",
+          "entity": "sensor.office_room_temperature_source"
+        },
+        {
+          "name": "Состояние",
+          "entity": "input_text.office_room_temperature_control_status"
+        },
+        {
+          "name": "Уставка нагрева бризера",
+          "entity": "climate.fixture_1",
+          "attribute": "temperature"
+        },
+        {
+          "name": "Уставка кондиционера",
+          "entity": "climate.fixture_2",
+          "attribute": "temperature"
+        },
+        {
+          "name": "Управление очистителем",
+          "entity": "input_text.office_purifier_status"
+        },
+        {
+          "name": "Температура очистителя - сверка",
+          "entity": "sensor.fixture_12"
+        },
+        {
+          "name": "Улица (север)",
+          "entity": "sensor.office_outdoor_temperature"
+        },
+        {
+          "name": "Допустимый возраст показания (сек.)",
+          "entity": "input_number.office_room_primary_ttl"
+        },
+        {
+          "name": "Состояние обогревателя",
+          "entity": "input_text.office_heater_status"
+        }
+      ],
+      "description": "Автоматика учитывает вручную заданные параметры при подборе остальных настроек.",
+      "type": "custom:ha-m3-climate-card",
+      "config_version": 1,
+      "language": "ru",
+      "appearance": {
+        "motion": "expressive",
+        "protect_colors": true
+      },
+      "grid_options": {
+        "columns": "full",
+        "rows": "auto"
+      },
+      "actuators": [
+        {
+          "id": "breather",
+          "name": "Бризер",
+          "entity": "input_boolean.office_room_use_breather",
+          "icon": "air"
+        },
+        {
+          "id": "ac",
+          "name": "Кондиционер",
+          "entity": "input_boolean.office_room_use_ac",
+          "icon": "ac_unit"
+        },
+        {
+          "id": "heater",
+          "name": "Обогреватель",
+          "entity": "input_boolean.office_room_use_heater",
+          "icon": "thermostat"
+        }
+      ],
+      "preset_status_entity": "input_text.office_air_mode_status",
+      "target_slider": true,
+      "target_action": {
+        "action": "perform-action",
+        "perform_action": "script.office_room_goal",
+        "value_field": "value"
+      },
+      "target_name": "Температура в комнате",
+      "context_sensors": [
+        {
+          "name": "CO₂",
+          "entity": "sensor.fixture_1"
+        },
+        {
+          "name": "PM2.5",
+          "entity": "sensor.fixture_10",
+          "details_title": "Качество воздуха",
+          "details": [
+            {
+              "entity": "sensor.fixture_9",
+              "name": "PM1",
+              "unit": "μg/m³"
+            }
+          ]
+        },
+        {
+          "name": "Очиститель · влажность",
+          "entity": "sensor.fixture_11"
+        },
+        {
+          "name": "Очиститель · температура",
+          "entity": "sensor.fixture_12",
+          "details_title": "Температура - сверка датчиков",
+          "details": [
+            {
+              "entity": "sensor.fixture_3",
+              "name": "Кабинет · датчик 2",
+              "unit": "°C"
+            }
+          ]
+        },
+        {
+          "name": "Улица (север) · температура",
+          "entity": "sensor.fixture_4",
+          "details_title": "Улица · датчик перед бризером"
+        },
+        {
+          "name": "Кабинет · влажность",
+          "entity": "sensor.fixture_5"
+        },
+        {
+          "name": "Улица (север) · влажность",
+          "entity": "sensor.fixture_6"
+        }
+      ],
+      "automation_groups": [
+        {
+          "name": "Кондиционер",
+          "entity": "climate.fixture_2",
+          "controls": [
+            {
+              "name": "Температура и режим",
+              "lock_entity": "input_boolean.office_lock_ac_temperature",
+              "lock_action": {
+                "action": "perform-action",
+                "perform_action": "script.office_manual_control",
+                "data": {
+                  "device": "ac",
+                  "parameter": "temperature",
+                  "operation": "lock"
+                },
+                "value_field": "value"
+              }
+            },
+            {
+              "name": "Скорость",
+              "lock_entity": "input_boolean.office_lock_ac_speed",
+              "lock_action": {
+                "action": "perform-action",
+                "perform_action": "script.office_manual_control",
+                "data": {
+                  "device": "ac",
+                  "parameter": "speed",
+                  "operation": "lock"
+                },
+                "value_field": "value"
+              }
+            },
+            {
+              "name": "Питание",
+              "lock_entity": "input_boolean.office_lock_ac_power",
+              "lock_action": {
+                "action": "perform-action",
+                "perform_action": "script.office_manual_control",
+                "data": {
+                  "device": "ac",
+                  "parameter": "power",
+                  "operation": "lock"
+                },
+                "value_field": "value"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Бризер",
+          "entity": "climate.fixture_1",
+          "controls": [
+            {
+              "name": "Температура притока",
+              "lock_entity": "input_boolean.office_lock_breather_temperature",
+              "lock_action": {
+                "action": "perform-action",
+                "perform_action": "script.office_manual_control",
+                "data": {
+                  "device": "breather",
+                  "parameter": "temperature",
+                  "operation": "lock"
+                },
+                "value_field": "value"
+              }
+            },
+            {
+              "name": "Скорость",
+              "lock_entity": "input_boolean.office_lock_breather_speed",
+              "lock_action": {
+                "action": "perform-action",
+                "perform_action": "script.office_manual_control",
+                "data": {
+                  "device": "breather",
+                  "parameter": "speed",
+                  "operation": "lock"
+                },
+                "value_field": "value"
+              }
+            },
+            {
+              "name": "Питание",
+              "lock_entity": "input_boolean.office_lock_breather_power",
+              "lock_action": {
+                "action": "perform-action",
+                "perform_action": "script.office_manual_control",
+                "data": {
+                  "device": "breather",
+                  "parameter": "power",
+                  "operation": "lock"
+                },
+                "value_field": "value"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Очиститель",
+          "entity": "fan.fixture_1",
+          "controls": [
+            {
+              "name": "Мощность",
+              "lock_entity": "input_boolean.office_lock_purifier_speed",
+              "lock_action": {
+                "action": "perform-action",
+                "perform_action": "script.office_manual_control",
+                "data": {
+                  "device": "purifier",
+                  "parameter": "speed",
+                  "operation": "lock"
+                },
+                "value_field": "value"
+              }
+            },
+            {
+              "name": "Питание",
+              "lock_entity": "input_boolean.office_lock_purifier_power",
+              "lock_action": {
+                "action": "perform-action",
+                "perform_action": "script.office_manual_control",
+                "data": {
+                  "device": "purifier",
+                  "parameter": "power",
+                  "operation": "lock"
+                },
+                "value_field": "value"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Обогреватель",
+          "entity": "climate.fixture_3",
+          "controls": [
+            {
+              "name": "Температура",
+              "lock_entity": "input_boolean.office_lock_heater_temperature",
+              "lock_action": {
+                "action": "perform-action",
+                "perform_action": "script.office_heater_manual",
+                "data": {
+                  "parameter": "temperature",
+                  "operation": "lock"
+                },
+                "value_field": "value"
+              }
+            },
+            {
+              "name": "Питание",
+              "lock_entity": "input_boolean.office_lock_heater_power",
+              "lock_action": {
+                "action": "perform-action",
+                "perform_action": "script.office_heater_manual",
+                "data": {
+                  "parameter": "power",
+                  "operation": "lock"
+                },
+                "value_field": "value"
+              }
+            }
+          ]
+        }
+      ],
+      "automation_reset": {
+        "name": "Доверить всё автоматике",
+        "action": {
+          "action": "perform-action",
+          "perform_action": "script.office_climate_trust_all"
+        },
+        "lock_entities": [
+          "input_boolean.office_lock_ac_temperature",
+          "input_boolean.office_lock_ac_speed",
+          "input_boolean.office_lock_ac_power",
+          "input_boolean.office_lock_breather_temperature",
+          "input_boolean.office_lock_breather_speed",
+          "input_boolean.office_lock_breather_power",
+          "input_boolean.office_lock_purifier_speed",
+          "input_boolean.office_lock_purifier_power",
+          "input_boolean.office_ac_manual_pending",
+          "input_boolean.office_lock_heater_power",
+          "input_boolean.office_lock_heater_temperature"
+        ],
+        "enabled_entities": [
+          "input_boolean.office_room_use_breather",
+          "input_boolean.office_room_use_ac",
+          "input_boolean.office_room_use_heater"
+        ],
+        "scope": {
+          "label": "4 прибора",
+          "included": [
+            "Бризер",
+            "Кондиционер",
+            "Очиститель 1",
+            "Обогреватель"
+          ],
+          "excluded": [
+            "Очиститель 2"
+          ]
+        },
+        "runtime_ready_entity": "input_boolean.office_climate_runtime_ready"
+      },
+      "layout": "calm",
+      "air_goals": [
+        {
+          "id": "fresh",
+          "semantics": "preference",
+          "name": "Свежесть воздуха",
+          "entity": "input_number.office_comfort_fresh",
+          "neutral_value": 50,
+          "preference_note": "Предпочтение",
+          "value_labels": [
+            {
+              "value": 0,
+              "label": "Минимальная"
+            },
+            {
+              "value": 25,
+              "label": "Умеренная"
+            },
+            {
+              "value": 50,
+              "label": "Стандартная"
+            },
+            {
+              "value": 75,
+              "label": "Повышенная"
+            },
+            {
+              "value": 100,
+              "label": "Максимальная"
+            }
+          ],
+          "set_action": {
+            "action": "perform-action",
+            "perform_action": "script.office_comfort_goal",
+            "value_field": "value",
+            "data": {
+              "axis": "fresh"
+            }
+          },
+          "availability_entity": "binary_sensor.office_fresh_goal_available",
+          "boost": {
+            "active_entity": "input_boolean.office_fresh_boost_active",
+            "deadline_entity": "input_datetime.office_fresh_boost_until",
+            "start_action": {
+              "action": "perform-action",
+              "perform_action": "script.office_air_boost",
+              "value_field": "duration",
+              "data": {
+                "axis": "fresh"
+              }
+            },
+            "cancel_action": {
+              "action": "perform-action",
+              "perform_action": "script.office_air_boost",
+              "data": {
+                "axis": "fresh",
+                "operation": "cancel"
+              }
+            },
+            "durations": [
+              10,
+              15
+            ],
+            "default_duration": 15,
+            "action_name": "Освежить",
+            "availability_entity": "binary_sensor.office_fresh_boost_available"
+          },
+          "low_label": "Минимум",
+          "high_label": "Максимум"
+        },
+        {
+          "id": "clean",
+          "semantics": "preference",
+          "name": "Очистка воздуха",
+          "entity": "input_number.office_comfort_clean",
+          "neutral_value": 50,
+          "preference_note": "Предпочтение",
+          "value_labels": [
+            {
+              "value": 0,
+              "label": "Минимальная"
+            },
+            {
+              "value": 25,
+              "label": "Умеренная"
+            },
+            {
+              "value": 50,
+              "label": "Стандартная"
+            },
+            {
+              "value": 75,
+              "label": "Усиленная"
+            },
+            {
+              "value": 100,
+              "label": "Максимальная"
+            }
+          ],
+          "set_action": {
+            "action": "perform-action",
+            "perform_action": "script.office_comfort_goal",
+            "value_field": "value",
+            "data": {
+              "axis": "clean"
+            }
+          },
+          "availability_entity": "binary_sensor.office_clean_goal_available",
+          "boost": {
+            "active_entity": "input_boolean.office_clean_boost_active",
+            "deadline_entity": "input_datetime.office_clean_boost_until",
+            "start_action": {
+              "action": "perform-action",
+              "perform_action": "script.office_air_boost",
+              "value_field": "duration",
+              "data": {
+                "axis": "clean"
+              }
+            },
+            "cancel_action": {
+              "action": "perform-action",
+              "perform_action": "script.office_air_boost",
+              "data": {
+                "axis": "clean",
+                "operation": "cancel"
+              }
+            },
+            "durations": [
+              10,
+              15
+            ],
+            "default_duration": 15,
+            "action_name": "Очистить",
+            "availability_entity": "binary_sensor.office_clean_boost_available"
+          }
+        },
+        {
+          "id": "noise",
+          "semantics": "preference",
+          "name": "Допустимый шум",
+          "entity": "input_number.office_comfort_quiet",
+          "neutral_value": 50,
+          "preference_note": "Предпочтение",
+          "value_labels": [
+            {
+              "value": 0,
+              "label": "Минимальный"
+            },
+            {
+              "value": 25,
+              "label": "Низкий"
+            },
+            {
+              "value": 50,
+              "label": "Средний"
+            },
+            {
+              "value": 75,
+              "label": "Повышенный"
+            },
+            {
+              "value": 100,
+              "label": "Без ограничения"
+            }
+          ],
+          "set_action": {
+            "action": "perform-action",
+            "perform_action": "script.office_comfort_goal",
+            "value_field": "value",
+            "data": {
+              "axis": "quiet"
+            }
+          },
+          "invert": true,
+          "low_label": "Минимум",
+          "high_label": "Без ограничения"
+        }
+      ],
+      "health_alerts": [
+        {
+          "id": "breather",
+          "name": "Бризер",
+          "status_entity": "sensor.office_breather_health",
+          "message_entity": "input_text.office_breather_health_message",
+          "acknowledgement_entity": "binary_sensor.office_breather_health_acknowledged_allowed",
+          "acknowledge_action": {
+            "action": "perform-action",
+            "perform_action": "script.office_device_health",
+            "data": {
+              "device": "breather",
+              "operation": "acknowledge"
+            }
+          }
+        },
+        {
+          "id": "ac",
+          "name": "Кондиционер",
+          "status_entity": "sensor.office_ac_health",
+          "message_entity": "input_text.office_ac_health_message",
+          "acknowledgement_entity": "binary_sensor.office_ac_health_acknowledged_allowed",
+          "acknowledge_action": {
+            "action": "perform-action",
+            "perform_action": "script.office_device_health",
+            "data": {
+              "device": "ac",
+              "operation": "acknowledge"
+            }
+          }
+        },
+        {
+          "id": "purifier",
+          "name": "Очиститель",
+          "status_entity": "sensor.office_purifier_health",
+          "message_entity": "input_text.office_purifier_health_message",
+          "acknowledgement_entity": "binary_sensor.office_purifier_health_acknowledged_allowed",
+          "acknowledge_action": {
+            "action": "perform-action",
+            "perform_action": "script.office_device_health",
+            "data": {
+              "device": "purifier",
+              "operation": "acknowledge"
+            }
+          }
+        }
+      ],
+      "preset_style": "icons",
+      "history": {
+        "hours": 24,
+        "presentation": "button"
+      },
+      "temperature_display": {
+        "entity": "sensor.fixture_3",
+        "max_age": 86400
+      },
+      "room_metrics": [
+        {
+          "id": "temperature",
+          "name": "Температура",
+          "entity": "sensor.office_room_temperature",
+          "unit": "°C",
+          "icon": "thermostat",
+          "freshness": {
+            "timestamp": "last_updated",
+            "max_age": 5400,
+            "clock_tolerance": 60
+          },
+          "color": {
+            "target_entity": "input_number.office_room_target_temperature",
+            "tolerance": 1,
+            "below_label": "Ниже заданной",
+            "within_label": "Близко к заданной",
+            "above_label": "Выше заданной"
+          }
+        },
+        {
+          "id": "humidity",
+          "name": "Влажность",
+          "entity": "sensor.fixture_5",
+          "unit": "%",
+          "icon": "humidity_percentage",
+          "freshness": {
+            "timestamp": "last_updated",
+            "max_age": 5400,
+            "clock_tolerance": 60
+          },
+          "color": {
+            "ranges": [
+              {
+                "min": 0,
+                "max": 30,
+                "tone": "high",
+                "label": "Сухой воздух"
+              },
+              {
+                "min": 30,
+                "max": 35,
+                "tone": "notice",
+                "label": "Сухой воздух"
+              },
+              {
+                "min": 35,
+                "max": 60,
+                "max_inclusive": true,
+                "tone": "good",
+                "label": "В заданном диапазоне"
+              },
+              {
+                "min": 60,
+                "min_inclusive": false,
+                "max": 70,
+                "max_inclusive": true,
+                "tone": "notice",
+                "label": "Влажный воздух"
+              },
+              {
+                "min": 70,
+                "min_inclusive": false,
+                "max": 101,
+                "tone": "high",
+                "label": "Влажный воздух"
+              }
+            ]
+          }
+        },
+        {
+          "id": "co2",
+          "name": "CO₂",
+          "entity": "sensor.fixture_1",
+          "unit": "ppm",
+          "icon": "air",
+          "freshness": {
+            "timestamp": "last_updated",
+            "max_age": 900,
+            "clock_tolerance": 60
+          },
+          "color": {
+            "ranges": [
+              {
+                "min": 0,
+                "max": 800,
+                "tone": "good",
+                "label": "Низкий уровень"
+              },
+              {
+                "min": 800,
+                "max": 1200,
+                "tone": "notice",
+                "label": "Умеренный уровень"
+              },
+              {
+                "min": 1200,
+                "tone": "high",
+                "label": "Высокий уровень"
+              }
+            ]
+          }
+        },
+        {
+          "id": "pm25",
+          "name": "PM2.5",
+          "entity": "sensor.fixture_10",
+          "unit": "мкг/м³",
+          "icon": "eco",
+          "freshness": {
+            "timestamp": "last_updated",
+            "max_age": 900,
+            "clock_tolerance": 60
+          },
+          "color": {
+            "ranges": [
+              {
+                "min": 0,
+                "max": 15,
+                "max_inclusive": true,
+                "tone": "good",
+                "label": "Низкий уровень"
+              },
+              {
+                "min": 15,
+                "min_inclusive": false,
+                "max": 35,
+                "max_inclusive": true,
+                "tone": "notice",
+                "label": "Умеренный уровень"
+              },
+              {
+                "min": 35,
+                "min_inclusive": false,
+                "tone": "high",
+                "label": "Высокий уровень"
+              }
+            ]
+          },
+          "details": [
+            {
+              "entity": "sensor.fixture_9",
+              "name": "PM1 - Очиститель 1",
+              "unit": "мкг/м³"
+            },
+            {
+              "entity": "sensor.fixture_8",
+              "name": "PM10 - Очиститель 1",
+              "unit": "мкг/м³"
+            }
+          ]
+        }
+      ],
+      "presentation": "unified",
+      "room_name": "Кабинет",
+      "journal": {
+        "type": "custom:ha-m3-journal-card",
+        "config_version": 1,
+        "language": "ru",
+        "entity": "sensor.office_climate_journal",
+        "title": "История автоматики",
+        "limit": 20,
+        "appearance": {
+          "motion": "expressive"
+        },
+        "grid_options": {
+          "columns": "full",
+          "rows": "auto"
+        },
+        "history_action": {
+          "action": "navigate",
+          "navigation_path": "/logbook?entity_id=sensor.office_climate_journal"
+        },
+        "presentation": "drawer"
+      }
+    },
+    "cards": [
+      {
+        "type": "custom:ha-m3-quick-device-card",
+        "config_version": 1,
+        "language": "ru",
+        "appearance": {
+          "motion": "expressive",
+          "protect_colors": true
+        },
+        "grid_options": {
+          "columns": "full",
+          "rows": "auto"
+        },
+        "entity": "sensor.office_climate_breather",
+        "name": "Бризер",
+        "icon": "air",
+        "quick_controls": [
+          {
+            "id": "temperature",
+            "name": "Уставка нагрева",
+            "entity": "sensor.office_climate_breather",
+            "attribute": "temperature",
+            "bounds": {
+              "min": "min_temp",
+              "max": "max_temp",
+              "step": "target_temp_step"
+            },
+            "unit": "°C",
+            "lock_entity": "input_boolean.office_lock_breather_temperature",
+            "value_entity": "input_number.office_manual_breather_temperature",
+            "set_action": {
+              "action": "perform-action",
+              "perform_action": "script.office_manual_control",
+              "data": {
+                "device": "breather",
+                "parameter": "temperature"
+              },
+              "value_field": "value"
+            },
+            "lock_action": {
+              "action": "perform-action",
+              "perform_action": "script.office_manual_control",
+              "data": {
+                "device": "breather",
+                "parameter": "temperature",
+                "operation": "lock"
+              },
+              "value_field": "value"
+            },
+            "mode_scale": {
+              "kind": "breather-temperature",
+              "revision_entity": "input_text.office_breather_scale_request_id",
+              "completed_entity": "input_text.office_breather_scale_completed_id",
+              "gateway": {
+                "action": "perform-action",
+                "perform_action": "script.office_climate_scale_gateway",
+                "data": {
+                  "device": "breather",
+                  "parameter": "temperature"
+                },
+                "value_field": "choice"
+              }
+            }
+          },
+          {
+            "id": "speed",
+            "name": "Скорость",
+            "entity": "sensor.office_climate_breather",
+            "attribute": "fan_mode",
+            "options_attribute": "fan_modes",
+            "option_labels": {},
+            "lock_entity": "input_boolean.office_lock_breather_speed",
+            "value_entity": "input_text.office_manual_breather_speed",
+            "set_action": {
+              "action": "perform-action",
+              "perform_action": "script.office_manual_control",
+              "data": {
+                "device": "breather",
+                "parameter": "speed"
+              },
+              "value_field": "value"
+            },
+            "lock_action": {
+              "action": "perform-action",
+              "perform_action": "script.office_manual_control",
+              "data": {
+                "device": "breather",
+                "parameter": "speed",
+                "operation": "lock"
+              },
+              "value_field": "value"
+            },
+            "auto": {
+              "value": "auto",
+              "active_when": [
+                {
+                  "entity": "sensor.office_climate_breather",
+                  "attribute": "preset_mode",
+                  "value": "auto"
+                }
+              ],
+              "action": {
+                "action": "perform-action",
+                "perform_action": "script.office_manual_control",
+                "data": {
+                  "device": "breather",
+                  "parameter": "speed",
+                  "value": "auto"
+                }
+              }
+            },
+            "operation": "airflow",
+            "mode_scale": {
+              "kind": "breather-speed",
+              "revision_entity": "input_text.office_breather_scale_request_id",
+              "completed_entity": "input_text.office_breather_scale_completed_id",
+              "gateway": {
+                "action": "perform-action",
+                "perform_action": "script.office_climate_scale_gateway",
+                "data": {
+                  "device": "breather",
+                  "parameter": "speed"
+                },
+                "value_field": "choice"
+              },
+              "turbo": true,
+              "confirmation": {
+                "manual_checks": [
+                  {
+                    "entity": "sensor.office_climate_breather",
+                    "attribute": "preset_mode",
+                    "value": "manual"
+                  }
+                ],
+                "turbo_temperature_lock_entity": "input_boolean.office_lock_breather_temperature",
+                "turbo_temperature_value_entity": "input_number.office_manual_breather_temperature"
+              }
+            }
+          }
+        ],
+        "power": {
+          "action": {
+            "action": "perform-action",
+            "perform_action": "script.office_manual_control",
+            "data": {
+              "device": "breather",
+              "parameter": "power"
+            },
+            "value_field": "value"
+          },
+          "lock_entity": "input_boolean.office_lock_breather_power",
+          "lock_action": {
+            "action": "perform-action",
+            "perform_action": "script.office_manual_control",
+            "data": {
+              "device": "breather",
+              "parameter": "power",
+              "operation": "lock"
+            },
+            "value_field": "value"
+          },
+          "value_entity": "input_boolean.office_manual_breather_power"
+        },
+        "actions": [
+          {
+            "name": "Все настройки устройства",
+            "icon": "tune",
+            "action": {
+              "action": "navigate",
+              "navigation_path": "/home-control/breather"
+            }
+          }
+        ],
+        "history": {
+          "hours": 24
+        },
+        "operation": {
+          "kind": "breather"
+        },
+        "settings_menu": {
+          "groups": [
+            {
+              "name": "Индикация и звук",
+              "items": [
+                {
+                  "id": "sound",
+                  "name": "Звук",
+                  "type": "switch",
+                  "entity": "switch.fixture_2",
+                  "on_action": {
+                    "action": "perform-action",
+                    "perform_action": "switch.turn_on",
+                    "target": {
+                      "entity_id": "switch.fixture_2"
+                    }
+                  },
+                  "off_action": {
+                    "action": "perform-action",
+                    "perform_action": "switch.turn_off",
+                    "target": {
+                      "entity_id": "switch.fixture_2"
+                    }
+                  }
+                },
+                {
+                  "id": "backlight",
+                  "name": "Автоотключение подсветки",
+                  "type": "switch",
+                  "entity": "switch.fixture_1",
+                  "on_action": {
+                    "action": "perform-action",
+                    "perform_action": "switch.turn_on",
+                    "target": {
+                      "entity_id": "switch.fixture_1"
+                    }
+                  },
+                  "off_action": {
+                    "action": "perform-action",
+                    "perform_action": "switch.turn_off",
+                    "target": {
+                      "entity_id": "switch.fixture_1"
+                    }
+                  }
+                },
+                {
+                  "id": "melody",
+                  "name": "Мелодия",
+                  "type": "select",
+                  "entity": "select.fixture_1",
+                  "option_labels": {
+                    "off": "Выключена",
+                    "melody_rain_sound": "Дождь",
+                    "melody_sea_sound": "Море",
+                    "melody_forest_sound": "Лес",
+                    "melody_birds_singing": "Пение птиц",
+                    "melody_fireplace_sound": "Камин"
+                  },
+                  "action": {
+                    "action": "perform-action",
+                    "perform_action": "select.select_option",
+                    "target": {
+                      "entity_id": "select.fixture_1"
+                    },
+                    "value_field": "option"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Фильтр",
+              "items": [
+                {
+                  "id": "filter",
+                  "name": "Ресурс фильтра",
+                  "type": "reading",
+                  "entity": "sensor.fixture_2"
+                },
+                {
+                  "id": "filter_reset",
+                  "name": "Сбросить ресурс фильтра",
+                  "type": "filter-reset",
+                  "entity": "button.fixture_1",
+                  "action": {
+                    "action": "perform-action",
+                    "perform_action": "button.press",
+                    "target": {
+                      "entity_id": "button.fixture_1"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "runtime_ready_entity": "input_boolean.office_climate_runtime_ready",
+        "stop_only": {
+          "completed_entity": "input_text.office_breather_stop_completed_id",
+          "gateway": {
+            "action": "perform-action",
+            "perform_action": "script.office_stop_only",
+            "data": {
+              "device": "breather"
+            }
+          }
+        },
+        "recovery": {
+          "gateway": {
+            "action": "perform-action",
+            "perform_action": "script.office_climate_check_recovery"
+          },
+          "request_entity": "input_text.office_climate_recovery_request_id",
+          "completed_entity": "input_text.office_climate_recovery_completed_id",
+          "status_entity": "input_text.office_climate_recovery_status",
+          "transition_entity": "input_text.office_climate_transition_state"
+        },
+        "device_ownership": {
+          "revision_entity": "input_text.office_breather_scale_request_id",
+          "completed_entity": "input_text.office_breather_scale_completed_id",
+          "gateway": {
+            "action": "perform-action",
+            "perform_action": "script.office_device_ownership_gateway",
+            "data": {
+              "device": "breather"
+            },
+            "value_field": "owner"
+          }
+        }
+      },
+      {
+        "type": "custom:ha-m3-quick-device-card",
+        "config_version": 1,
+        "language": "ru",
+        "appearance": {
+          "motion": "expressive",
+          "protect_colors": true
+        },
+        "grid_options": {
+          "columns": "full",
+          "rows": "auto"
+        },
+        "entity": "sensor.office_climate_ac",
+        "name": "Кондиционер",
+        "icon": "ac_unit",
+        "quick_controls": [
+          {
+            "id": "temperature",
+            "name": "Температура и режим",
+            "entity": "sensor.office_climate_ac",
+            "unit": "°C",
+            "lock_entity": "input_boolean.office_lock_ac_temperature",
+            "value_entity": "input_number.office_manual_ac_temperature",
+            "set_action": {
+              "action": "perform-action",
+              "perform_action": "script.office_manual_control",
+              "data": {
+                "device": "ac",
+                "parameter": "temperature"
+              },
+              "value_field": "value"
+            },
+            "lock_action": {
+              "action": "perform-action",
+              "perform_action": "script.office_manual_control",
+              "data": {
+                "device": "ac",
+                "parameter": "temperature",
+                "operation": "lock"
+              },
+              "value_field": "value"
+            },
+            "attribute": "temperature",
+            "bounds": {
+              "entity": "input_number.office_manual_ac_temperature",
+              "min": "min",
+              "max": "max",
+              "step": "step"
+            },
+            "mode_scale": {
+              "kind": "ac-temperature",
+              "revision_entity": "input_text.office_ac_scale_request_id",
+              "completed_entity": "input_text.office_ac_scale_completed_id",
+              "gateway": {
+                "action": "perform-action",
+                "perform_action": "script.office_climate_scale_gateway",
+                "data": {
+                  "device": "ac",
+                  "parameter": "temperature"
+                },
+                "value_field": "choice"
+              },
+              "room_entity": "sensor.office_room_temperature",
+              "room_freshness": {
+                "source_entity": "input_text.office_room_primary_source",
+                "ttl_entity": "input_number.office_room_primary_ttl",
+                "epoch_entity": "input_datetime.office_room_sensor_epoch",
+                "expected_source": "sensor.fixture_3",
+                "qualifier_entity": "sensor.klimat_kabineta_kontroller"
+              },
+              "confirmation": {
+                "mode_entity": "input_select.office_manual_ac_mode",
+                "writing_entity": "input_boolean.office_manual_ac_intent_writing",
+                "pending_entity": "input_boolean.office_ac_manual_pending"
+              }
+            }
+          },
+          {
+            "id": "speed",
+            "name": "Скорость",
+            "entity": "sensor.office_climate_ac",
+            "attribute": "fan_mode",
+            "options_attribute": "fan_modes",
+            "option_labels": {
+              "low": "Тихая",
+              "medium": "Средняя",
+              "high": "Высокая"
+            },
+            "lock_entity": "input_boolean.office_lock_ac_speed",
+            "value_entity": "input_text.office_manual_ac_speed",
+            "set_action": {
+              "action": "perform-action",
+              "perform_action": "script.office_manual_control",
+              "data": {
+                "device": "ac",
+                "parameter": "speed"
+              },
+              "value_field": "value"
+            },
+            "lock_action": {
+              "action": "perform-action",
+              "perform_action": "script.office_manual_control",
+              "data": {
+                "device": "ac",
+                "parameter": "speed",
+                "operation": "lock"
+              },
+              "value_field": "value"
+            },
+            "auto": {
+              "value": "auto",
+              "active_when": [
+                {
+                  "entity": "sensor.office_climate_ac",
+                  "attribute": "fan_mode",
+                  "value": "auto"
+                }
+              ],
+              "action": {
+                "action": "perform-action",
+                "perform_action": "script.office_manual_control",
+                "data": {
+                  "device": "ac",
+                  "parameter": "speed",
+                  "value": "auto"
+                }
+              }
+            },
+            "mode_scale": {
+              "kind": "ac-speed",
+              "revision_entity": "input_text.office_ac_scale_request_id",
+              "completed_entity": "input_text.office_ac_scale_completed_id",
+              "gateway": {
+                "action": "perform-action",
+                "perform_action": "script.office_climate_scale_gateway",
+                "data": {
+                  "device": "ac",
+                  "parameter": "speed"
+                },
+                "value_field": "choice"
+              },
+              "saved_entity": "input_text.office_ac_scale_saved_id"
+            }
+          }
+        ],
+        "power": {
+          "action": {
+            "action": "perform-action",
+            "perform_action": "script.office_manual_control",
+            "data": {
+              "device": "ac",
+              "parameter": "power"
+            },
+            "value_field": "value"
+          },
+          "lock_entity": "input_boolean.office_lock_ac_power",
+          "lock_action": {
+            "action": "perform-action",
+            "perform_action": "script.office_manual_control",
+            "data": {
+              "device": "ac",
+              "parameter": "power",
+              "operation": "lock"
+            },
+            "value_field": "value"
+          },
+          "value_entity": "input_boolean.office_manual_ac_power"
+        },
+        "actions": [
+          {
+            "name": "Все настройки устройства",
+            "icon": "tune",
+            "action": {
+              "action": "navigate",
+              "navigation_path": "/home-control/air-conditioner"
+            }
+          }
+        ],
+        "status_entity": "input_text.office_room_cooling_status",
+        "history": {
+          "hours": 24
+        },
+        "operation": {
+          "kind": "climate"
+        },
+        "settings_menu": {
+          "groups": [
+            {
+              "name": "Комфорт",
+              "items": [
+                {
+                  "id": "ion",
+                  "name": "Ионизация",
+                  "type": "switch",
+                  "entity": "switch.fixture_4",
+                  "on_action": {
+                    "action": "perform-action",
+                    "perform_action": "switch.turn_on",
+                    "target": {
+                      "entity_id": "switch.fixture_4"
+                    }
+                  },
+                  "off_action": {
+                    "action": "perform-action",
+                    "perform_action": "switch.turn_off",
+                    "target": {
+                      "entity_id": "switch.fixture_4"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Индикация",
+              "items": [
+                {
+                  "id": "light",
+                  "name": "Подсветка",
+                  "type": "switch",
+                  "entity": "switch.fixture_3",
+                  "on_action": {
+                    "action": "perform-action",
+                    "perform_action": "switch.turn_on",
+                    "target": {
+                      "entity_id": "switch.fixture_3"
+                    }
+                  },
+                  "off_action": {
+                    "action": "perform-action",
+                    "perform_action": "switch.turn_off",
+                    "target": {
+                      "entity_id": "switch.fixture_3"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "runtime_ready_entity": "input_boolean.office_climate_runtime_ready",
+        "stop_only": {
+          "completed_entity": "input_text.office_ac_stop_completed_id",
+          "gateway": {
+            "action": "perform-action",
+            "perform_action": "script.office_stop_only",
+            "data": {
+              "device": "ac"
+            }
+          }
+        },
+        "recovery": {
+          "gateway": {
+            "action": "perform-action",
+            "perform_action": "script.office_climate_check_recovery"
+          },
+          "request_entity": "input_text.office_climate_recovery_request_id",
+          "completed_entity": "input_text.office_climate_recovery_completed_id",
+          "status_entity": "input_text.office_climate_recovery_status",
+          "transition_entity": "input_text.office_climate_transition_state"
+        },
+        "device_ownership": {
+          "revision_entity": "input_text.office_ac_scale_request_id",
+          "completed_entity": "input_text.office_ac_scale_completed_id",
+          "gateway": {
+            "action": "perform-action",
+            "perform_action": "script.office_device_ownership_gateway",
+            "data": {
+              "device": "ac"
+            },
+            "value_field": "owner"
+          }
+        }
+      },
+      {
+        "type": "custom:ha-m3-quick-device-card",
+        "config_version": 1,
+        "language": "ru",
+        "appearance": {
+          "motion": "expressive",
+          "protect_colors": true
+        },
+        "grid_options": {
+          "columns": "full",
+          "rows": "auto"
+        },
+        "entity": "sensor.office_climate_purifier",
+        "name": "Очиститель воздуха",
+        "icon": "mode_fan",
+        "quick_controls": [
+          {
+            "id": "speed",
+            "name": "Заданный уровень",
+            "entity": "sensor.office_climate_purifier",
+            "options_attribute": "fan_modes",
+            "option_labels": {},
+            "lock_entity": "input_boolean.office_lock_purifier_speed",
+            "value_entity": "input_text.office_manual_purifier_speed",
+            "set_action": {
+              "action": "perform-action",
+              "perform_action": "script.office_manual_control",
+              "data": {
+                "device": "purifier",
+                "parameter": "speed"
+              },
+              "value_field": "value"
+            },
+            "lock_action": {
+              "action": "perform-action",
+              "perform_action": "script.office_manual_control",
+              "data": {
+                "device": "purifier",
+                "parameter": "speed",
+                "operation": "lock"
+              },
+              "value_field": "value"
+            },
+            "auto": {
+              "value": "auto",
+              "active_when": [
+                {
+                  "entity": "sensor.office_climate_purifier",
+                  "attribute": "preset_mode",
+                  "value": "Авто"
+                }
+              ],
+              "action": {
+                "action": "perform-action",
+                "perform_action": "script.office_manual_control",
+                "data": {
+                  "device": "purifier",
+                  "parameter": "speed",
+                  "value": "auto"
+                }
+              },
+              "name": "Авто устройства"
+            },
+            "mode_scale": {
+              "kind": "purifier-speed",
+              "revision_entity": "input_text.office_purifier_scale_request_id",
+              "completed_entity": "input_text.office_purifier_scale_completed_id",
+              "gateway": {
+                "action": "perform-action",
+                "perform_action": "script.office_climate_scale_gateway",
+                "data": {
+                  "device": "purifier",
+                  "parameter": "speed"
+                },
+                "value_field": "choice"
+              },
+              "confirmation": {
+                "manual_checks": [
+                  {
+                    "entity": "sensor.office_climate_purifier",
+                    "attribute": "preset_mode",
+                    "value": "Ручной"
+                  }
+                ]
+              }
+            },
+            "attribute": "fan_mode"
+          }
+        ],
+        "power": {
+          "action": {
+            "action": "perform-action",
+            "perform_action": "script.office_manual_control",
+            "data": {
+              "device": "purifier",
+              "parameter": "power"
+            },
+            "value_field": "value"
+          },
+          "lock_entity": "input_boolean.office_lock_purifier_power",
+          "lock_action": {
+            "action": "perform-action",
+            "perform_action": "script.office_manual_control",
+            "data": {
+              "device": "purifier",
+              "parameter": "power",
+              "operation": "lock"
+            },
+            "value_field": "value"
+          },
+          "value_entity": "input_boolean.office_manual_purifier_power"
+        },
+        "actions": [
+          {
+            "name": "Все настройки устройства",
+            "icon": "tune",
+            "action": {
+              "action": "navigate",
+              "navigation_path": "/home-control/purifier-office"
+            }
+          }
+        ],
+        "status_entity": "input_text.office_purifier_status",
+        "history": {
+          "hours": 24
+        },
+        "operation": {
+          "kind": "purifier"
+        },
+        "settings_menu": {
+          "groups": [
+            {
+              "name": "Обработка воздуха",
+              "items": [
+                {
+                  "id": "ion",
+                  "name": "Ионизация",
+                  "type": "switch",
+                  "entity": "switch.fixture_6",
+                  "on_action": {
+                    "action": "perform-action",
+                    "perform_action": "switch.turn_on",
+                    "target": {
+                      "entity_id": "switch.fixture_6"
+                    }
+                  },
+                  "off_action": {
+                    "action": "perform-action",
+                    "perform_action": "switch.turn_off",
+                    "target": {
+                      "entity_id": "switch.fixture_6"
+                    }
+                  }
+                },
+                {
+                  "id": "uv",
+                  "name": "Обеззараживание УФ",
+                  "type": "switch",
+                  "entity": "switch.fixture_9",
+                  "on_action": {
+                    "action": "perform-action",
+                    "perform_action": "switch.turn_on",
+                    "target": {
+                      "entity_id": "switch.fixture_9"
+                    }
+                  },
+                  "off_action": {
+                    "action": "perform-action",
+                    "perform_action": "switch.turn_off",
+                    "target": {
+                      "entity_id": "switch.fixture_9"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Индикация и управление",
+              "items": [
+                {
+                  "id": "screen",
+                  "name": "Экран",
+                  "type": "switch",
+                  "entity": "switch.fixture_7",
+                  "on_action": {
+                    "action": "perform-action",
+                    "perform_action": "switch.turn_on",
+                    "target": {
+                      "entity_id": "switch.fixture_7"
+                    }
+                  },
+                  "off_action": {
+                    "action": "perform-action",
+                    "perform_action": "switch.turn_off",
+                    "target": {
+                      "entity_id": "switch.fixture_7"
+                    }
+                  }
+                },
+                {
+                  "id": "brightness",
+                  "name": "Яркость экрана",
+                  "type": "select",
+                  "entity": "select.fixture_2",
+                  "option_labels": {
+                    "Dim": "Приглушённая",
+                    "Normal": "Обычная",
+                    "Bright": "Яркая"
+                  },
+                  "action": {
+                    "action": "perform-action",
+                    "perform_action": "select.select_option",
+                    "target": {
+                      "entity_id": "select.fixture_2"
+                    },
+                    "value_field": "option"
+                  }
+                },
+                {
+                  "id": "sound",
+                  "name": "Звуки",
+                  "type": "switch",
+                  "entity": "switch.fixture_5",
+                  "on_action": {
+                    "action": "perform-action",
+                    "perform_action": "switch.turn_on",
+                    "target": {
+                      "entity_id": "switch.fixture_5"
+                    }
+                  },
+                  "off_action": {
+                    "action": "perform-action",
+                    "perform_action": "switch.turn_off",
+                    "target": {
+                      "entity_id": "switch.fixture_5"
+                    }
+                  }
+                },
+                {
+                  "id": "physical_lock",
+                  "name": "Блокировка кнопок на корпусе",
+                  "type": "switch",
+                  "entity": "switch.fixture_8",
+                  "on_action": {
+                    "action": "perform-action",
+                    "perform_action": "switch.turn_on",
+                    "target": {
+                      "entity_id": "switch.fixture_8"
+                    }
+                  },
+                  "off_action": {
+                    "action": "perform-action",
+                    "perform_action": "switch.turn_off",
+                    "target": {
+                      "entity_id": "switch.fixture_8"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Фильтр",
+              "items": [
+                {
+                  "id": "filter",
+                  "name": "Ресурс фильтра",
+                  "type": "reading",
+                  "entity": "sensor.fixture_7"
+                },
+                {
+                  "id": "filter_reset",
+                  "name": "Сбросить ресурс фильтра",
+                  "type": "filter-reset",
+                  "entity": "button.fixture_2",
+                  "action": {
+                    "action": "perform-action",
+                    "perform_action": "button.press",
+                    "target": {
+                      "entity_id": "button.fixture_2"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "runtime_ready_entity": "input_boolean.office_climate_runtime_ready",
+        "stop_only": {
+          "completed_entity": "input_text.office_purifier_stop_completed_id",
+          "gateway": {
+            "action": "perform-action",
+            "perform_action": "script.office_stop_only",
+            "data": {
+              "device": "purifier"
+            }
+          }
+        },
+        "recovery": {
+          "gateway": {
+            "action": "perform-action",
+            "perform_action": "script.office_climate_check_recovery"
+          },
+          "request_entity": "input_text.office_climate_recovery_request_id",
+          "completed_entity": "input_text.office_climate_recovery_completed_id",
+          "status_entity": "input_text.office_climate_recovery_status",
+          "transition_entity": "input_text.office_climate_transition_state"
+        },
+        "device_ownership": {
+          "revision_entity": "input_text.office_purifier_scale_request_id",
+          "completed_entity": "input_text.office_purifier_scale_completed_id",
+          "gateway": {
+            "action": "perform-action",
+            "perform_action": "script.office_device_ownership_gateway",
+            "data": {
+              "device": "purifier"
+            },
+            "value_field": "owner"
+          }
+        }
+      },
+      {
+        "type": "custom:ha-m3-quick-device-card",
+        "config_version": 1,
+        "language": "ru",
+        "name": "Обогреватель",
+        "entity": "sensor.office_climate_heater",
+        "icon": "thermostat",
+        "appearance": {
+          "motion": "expressive",
+          "protect_colors": true
+        },
+        "grid_options": {
+          "columns": "full",
+          "rows": "auto"
+        },
+        "operation": {
+          "kind": "climate"
+        },
+        "history": {
+          "hours": 24
+        },
+        "status_entity": "input_text.office_heater_status",
+        "quick_controls": [
+          {
+            "id": "temperature",
+            "name": "Температура",
+            "entity": "sensor.office_climate_heater",
+            "attribute": "temperature",
+            "unit": "°C",
+            "bounds": {
+              "min": "min_temp",
+              "max": "max_temp",
+              "step": "target_temp_step"
+            },
+            "lock_entity": "input_boolean.office_lock_heater_temperature",
+            "value_entity": "input_number.office_manual_heater_temperature",
+            "set_action": {
+              "action": "perform-action",
+              "perform_action": "script.office_heater_manual",
+              "data": {
+                "parameter": "temperature"
+              },
+              "value_field": "value"
+            },
+            "lock_action": {
+              "action": "perform-action",
+              "perform_action": "script.office_heater_manual",
+              "data": {
+                "parameter": "temperature",
+                "operation": "lock"
+              },
+              "value_field": "value"
+            },
+            "mode_scale": {
+              "kind": "heater-temperature",
+              "revision_entity": "input_text.office_heater_scale_request_id",
+              "completed_entity": "input_text.office_heater_scale_completed_id",
+              "gateway": {
+                "action": "perform-action",
+                "perform_action": "script.office_climate_scale_gateway",
+                "data": {
+                  "device": "heater",
+                  "parameter": "temperature"
+                },
+                "value_field": "choice"
+              },
+              "confirmation": {
+                "manual_checks": [
+                  {
+                    "entity": "sensor.office_climate_heater",
+                    "value": "heat"
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "power": {
+          "action": {
+            "action": "perform-action",
+            "perform_action": "script.office_heater_manual",
+            "data": {
+              "parameter": "power"
+            },
+            "value_field": "value"
+          },
+          "lock_entity": "input_boolean.office_lock_heater_power",
+          "lock_action": {
+            "action": "perform-action",
+            "perform_action": "script.office_heater_manual",
+            "data": {
+              "parameter": "power",
+              "operation": "lock"
+            },
+            "value_field": "value"
+          },
+          "value_entity": "input_boolean.office_manual_heater_power"
+        },
+        "actions": [
+          {
+            "name": "Все настройки устройства",
+            "icon": "tune",
+            "action": {
+              "action": "more-info",
+              "entity": "climate.fixture_3"
+            }
+          }
+        ],
+        "settings_menu": {
+          "groups": [
+            {
+              "name": "Индикация и управление",
+              "items": [
+                {
+                  "id": "sound",
+                  "name": "Звуки",
+                  "type": "switch",
+                  "entity": "switch.fixture_10",
+                  "on_action": {
+                    "action": "perform-action",
+                    "perform_action": "switch.turn_on",
+                    "target": {
+                      "entity_id": "switch.fixture_10"
+                    }
+                  },
+                  "off_action": {
+                    "action": "perform-action",
+                    "perform_action": "switch.turn_off",
+                    "target": {
+                      "entity_id": "switch.fixture_10"
+                    }
+                  }
+                },
+                {
+                  "id": "physical_lock",
+                  "name": "Блокировка кнопок на корпусе",
+                  "type": "switch",
+                  "entity": "switch.fixture_11",
+                  "on_action": {
+                    "action": "perform-action",
+                    "perform_action": "switch.turn_on",
+                    "target": {
+                      "entity_id": "switch.fixture_11"
+                    }
+                  },
+                  "off_action": {
+                    "action": "perform-action",
+                    "perform_action": "switch.turn_off",
+                    "target": {
+                      "entity_id": "switch.fixture_11"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "runtime_ready_entity": "input_boolean.office_climate_runtime_ready",
+        "stop_only": {
+          "completed_entity": "input_text.office_heater_stop_completed_id",
+          "gateway": {
+            "action": "perform-action",
+            "perform_action": "script.office_stop_only",
+            "data": {
+              "device": "heater"
+            }
+          }
+        },
+        "recovery": {
+          "gateway": {
+            "action": "perform-action",
+            "perform_action": "script.office_climate_check_recovery"
+          },
+          "request_entity": "input_text.office_climate_recovery_request_id",
+          "completed_entity": "input_text.office_climate_recovery_completed_id",
+          "status_entity": "input_text.office_climate_recovery_status",
+          "transition_entity": "input_text.office_climate_transition_state"
+        },
+        "device_ownership": {
+          "revision_entity": "input_text.office_heater_scale_request_id",
+          "completed_entity": "input_text.office_heater_scale_completed_id",
+          "gateway": {
+            "action": "perform-action",
+            "perform_action": "script.office_device_ownership_gateway",
+            "data": {
+              "device": "heater"
+            },
+            "value_field": "owner"
+          }
+        }
+      }
+    ]
+  },
+  "states": {
+    "binary_sensor.office_ac_health_acknowledged_allowed": {
+      "state": "off",
+      "attributes": {}
+    },
+    "binary_sensor.office_breather_health_acknowledged_allowed": {
+      "state": "off",
+      "attributes": {}
+    },
+    "binary_sensor.office_clean_boost_available": {
+      "state": "on",
+      "attributes": {}
+    },
+    "binary_sensor.office_clean_goal_available": {
+      "state": "on",
+      "attributes": {}
+    },
+    "binary_sensor.office_fresh_boost_available": {
+      "state": "on",
+      "attributes": {}
+    },
+    "binary_sensor.office_fresh_goal_available": {
+      "state": "on",
+      "attributes": {}
+    },
+    "binary_sensor.office_purifier_health_acknowledged_allowed": {
+      "state": "off",
+      "attributes": {}
+    },
+    "button.fixture_1": {
+      "state": "unknown",
+      "attributes": {}
+    },
+    "button.fixture_2": {
+      "state": "unknown",
+      "attributes": {}
+    },
+    "climate.fixture_1": {
+      "state": "fan_only",
+      "attributes": {
+        "hvac_modes": [
+          "off",
+          "fan_only"
+        ],
+        "min_temp": 5,
+        "max_temp": 25,
+        "target_temp_step": 1,
+        "fan_modes": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7"
+        ],
+        "preset_modes": [
+          "manual",
+          "auto",
+          "night",
+          "turbo",
+          "ventilation"
+        ],
+        "current_temperature": 22,
+        "temperature": 24,
+        "fan_mode": "5",
+        "preset_mode": "manual"
+      }
+    },
+    "climate.fixture_2": {
+      "state": "off",
+      "attributes": {
+        "hvac_modes": [
+          "off",
+          "auto",
+          "cool",
+          "dry",
+          "heat",
+          "fan_only"
+        ],
+        "min_temp": 16,
+        "max_temp": 32,
+        "target_temp_step": 1,
+        "fan_modes": [
+          "auto",
+          "low",
+          "medium",
+          "high"
+        ],
+        "current_temperature": 23,
+        "temperature": 18,
+        "fan_mode": "high"
+      }
+    },
+    "climate.fixture_3": {
+      "state": "unavailable",
+      "attributes": {
+        "hvac_modes": [
+          "heat",
+          "off"
+        ],
+        "min_temp": 18,
+        "max_temp": 28,
+        "target_temp_step": 1
+      }
+    },
+    "fan.fixture_1": {
+      "state": "on",
+      "attributes": {
+        "preset_modes": [
+          "Авто",
+          "Сон",
+          "Ручной",
+          "Уровень"
+        ],
+        "percentage": 100,
+        "percentage_step": 33.333333333333336,
+        "preset_mode": "Ручной"
+      }
+    },
+    "input_boolean.office_ac_manual_pending": {
+      "state": "off",
+      "attributes": {}
+    },
+    "input_boolean.office_air_maximum_active": {
+      "state": "off",
+      "attributes": {}
+    },
+    "input_boolean.office_clean_boost_active": {
+      "state": "off",
+      "attributes": {}
+    },
+    "input_boolean.office_climate_runtime_ready": {
+      "state": "on",
+      "attributes": {}
+    },
+    "input_boolean.office_fresh_boost_active": {
+      "state": "off",
+      "attributes": {}
+    },
+    "input_boolean.office_lock_ac_power": {
+      "state": "off",
+      "attributes": {}
+    },
+    "input_boolean.office_lock_ac_speed": {
+      "state": "off",
+      "attributes": {}
+    },
+    "input_boolean.office_lock_ac_temperature": {
+      "state": "off",
+      "attributes": {}
+    },
+    "input_boolean.office_lock_breather_power": {
+      "state": "off",
+      "attributes": {}
+    },
+    "input_boolean.office_lock_breather_speed": {
+      "state": "off",
+      "attributes": {}
+    },
+    "input_boolean.office_lock_breather_temperature": {
+      "state": "on",
+      "attributes": {}
+    },
+    "input_boolean.office_lock_heater_power": {
+      "state": "on",
+      "attributes": {}
+    },
+    "input_boolean.office_lock_heater_temperature": {
+      "state": "off",
+      "attributes": {}
+    },
+    "input_boolean.office_lock_purifier_power": {
+      "state": "off",
+      "attributes": {}
+    },
+    "input_boolean.office_lock_purifier_speed": {
+      "state": "off",
+      "attributes": {}
+    },
+    "input_boolean.office_manual_ac_intent_writing": {
+      "state": "off",
+      "attributes": {}
+    },
+    "input_boolean.office_manual_ac_power": {
+      "state": "on",
+      "attributes": {}
+    },
+    "input_boolean.office_manual_breather_power": {
+      "state": "on",
+      "attributes": {}
+    },
+    "input_boolean.office_manual_heater_power": {
+      "state": "off",
+      "attributes": {}
+    },
+    "input_boolean.office_manual_purifier_power": {
+      "state": "on",
+      "attributes": {}
+    },
+    "input_boolean.office_room_temperature_control": {
+      "state": "on",
+      "attributes": {}
+    },
+    "input_boolean.office_room_use_ac": {
+      "state": "on",
+      "attributes": {}
+    },
+    "input_boolean.office_room_use_breather": {
+      "state": "on",
+      "attributes": {}
+    },
+    "input_boolean.office_room_use_heater": {
+      "state": "on",
+      "attributes": {}
+    },
+    "input_datetime.office_clean_boost_until": {
+      "state": "1970-01-01 03:00:01",
+      "attributes": {
+        "timestamp": 1
+      }
+    },
+    "input_datetime.office_fresh_boost_until": {
+      "state": "1970-01-01 03:00:01",
+      "attributes": {
+        "timestamp": 1
+      }
+    },
+    "input_datetime.office_room_sensor_epoch": {
+      "state": "2026-10-28 17:48:08",
+      "attributes": {
+        "timestamp": 1793198888
+      }
+    },
+    "input_number.office_comfort_clean": {
+      "state": "100.0",
+      "attributes": {
+        "min": 0,
+        "max": 100,
+        "step": 5
+      }
+    },
+    "input_number.office_comfort_fresh": {
+      "state": "100.0",
+      "attributes": {
+        "min": 0,
+        "max": 100,
+        "step": 5
+      }
+    },
+    "input_number.office_comfort_quiet": {
+      "state": "0.0",
+      "attributes": {
+        "min": 0,
+        "max": 100,
+        "step": 5
+      }
+    },
+    "input_number.office_manual_ac_temperature": {
+      "state": "18.0",
+      "attributes": {
+        "min": 16,
+        "max": 30,
+        "step": 0.5,
+        "unit_of_measurement": "°C"
+      }
+    },
+    "input_number.office_manual_breather_temperature": {
+      "state": "24.0",
+      "attributes": {
+        "min": 5,
+        "max": 25,
+        "step": 1,
+        "unit_of_measurement": "°C"
+      }
+    },
+    "input_number.office_manual_heater_temperature": {
+      "state": "24.0",
+      "attributes": {
+        "min": 18,
+        "max": 28,
+        "step": 1,
+        "unit_of_measurement": "°C"
+      }
+    },
+    "input_number.office_room_primary_ttl": {
+      "state": "5400.0",
+      "attributes": {
+        "min": 60,
+        "max": 7200,
+        "step": 60,
+        "unit_of_measurement": "s"
+      }
+    },
+    "input_number.office_room_target_temperature": {
+      "state": "24.0",
+      "attributes": {
+        "min": 16,
+        "max": 30,
+        "step": 0.5,
+        "unit_of_measurement": "°C"
+      }
+    },
+    "input_select.office_air_level": {
+      "state": "Автоматически",
+      "attributes": {
+        "options": [
+          "Автоматически",
+          "Полностью автоматически",
+          "Отключено",
+          "Тихий",
+          "Стандартный",
+          "Максимум"
+        ]
+      }
+    },
+    "input_select.office_manual_ac_mode": {
+      "state": "cool",
+      "attributes": {
+        "options": [
+          "unset",
+          "off",
+          "fan_only",
+          "cool",
+          "heat"
+        ]
+      }
+    },
+    "input_text.office_ac_health_message": {
+      "state": "Состояние устройства проверено.",
+      "attributes": {
+        "min": 0,
+        "max": 255
+      }
+    },
+    "input_text.office_ac_scale_completed_id": {
+      "state": "initial",
+      "attributes": {
+        "min": 0,
+        "max": 64
+      }
+    },
+    "input_text.office_ac_scale_request_id": {
+      "state": "initial",
+      "attributes": {
+        "min": 0,
+        "max": 64
+      }
+    },
+    "input_text.office_ac_scale_saved_id": {
+      "state": "5f5f8980-c0fb-4845-8a9d-1c658726dbd0",
+      "attributes": {
+        "min": 0,
+        "max": 64
+      }
+    },
+    "input_text.office_ac_stop_completed_id": {
+      "state": "initial",
+      "attributes": {
+        "min": 0,
+        "max": 64
+      }
+    },
+    "input_text.office_air_mode_status": {
+      "state": "Автоматически: приток 5; очиститель 5/11, предел 6. Ручные ограничения сохранены.",
+      "attributes": {
+        "min": 0,
+        "max": 255
+      }
+    },
+    "input_text.office_air_previous_level": {
+      "state": "Автоматически",
+      "attributes": {
+        "min": 0,
+        "max": 32
+      }
+    },
+    "input_text.office_breather_health_message": {
+      "state": "Состояние устройства проверено.",
+      "attributes": {
+        "min": 0,
+        "max": 255
+      }
+    },
+    "input_text.office_breather_scale_completed_id": {
+      "state": "initial",
+      "attributes": {
+        "min": 0,
+        "max": 64
+      }
+    },
+    "input_text.office_breather_scale_request_id": {
+      "state": "initial",
+      "attributes": {
+        "min": 0,
+        "max": 64
+      }
+    },
+    "input_text.office_breather_stop_completed_id": {
+      "state": "initial",
+      "attributes": {
+        "min": 0,
+        "max": 64
+      }
+    },
+    "input_text.office_climate_recovery_completed_id": {
+      "state": "initial",
+      "attributes": {
+        "min": 0,
+        "max": 64
+      }
+    },
+    "input_text.office_climate_recovery_request_id": {
+      "state": "initial",
+      "attributes": {
+        "min": 0,
+        "max": 64
+      }
+    },
+    "input_text.office_climate_recovery_status": {
+      "state": "Четыре прибора проверены в Home Assistant; внешние команды не исключены",
+      "attributes": {
+        "min": 0,
+        "max": 255
+      }
+    },
+    "input_text.office_climate_transition_state": {
+      "state": "idle",
+      "attributes": {
+        "min": 0,
+        "max": 32
+      }
+    },
+    "input_text.office_heater_scale_completed_id": {
+      "state": "initial",
+      "attributes": {
+        "min": 0,
+        "max": 64
+      }
+    },
+    "input_text.office_heater_scale_request_id": {
+      "state": "initial",
+      "attributes": {
+        "min": 0,
+        "max": 64
+      }
+    },
+    "input_text.office_heater_status": {
+      "state": "Нет достоверной температуры комнаты",
+      "attributes": {
+        "min": 0,
+        "max": 255
+      }
+    },
+    "input_text.office_heater_stop_completed_id": {
+      "state": "initial",
+      "attributes": {
+        "min": 0,
+        "max": 64
+      }
+    },
+    "input_text.office_manual_ac_speed": {
+      "state": "high",
+      "attributes": {
+        "min": 0,
+        "max": 32
+      }
+    },
+    "input_text.office_manual_breather_speed": {
+      "state": "7",
+      "attributes": {
+        "min": 0,
+        "max": 32
+      }
+    },
+    "input_text.office_manual_purifier_speed": {
+      "state": "10",
+      "attributes": {
+        "min": 0,
+        "max": 32
+      }
+    },
+    "input_text.office_purifier_health_message": {
+      "state": "Состояние устройства проверено.",
+      "attributes": {
+        "min": 0,
+        "max": 255
+      }
+    },
+    "input_text.office_purifier_scale_completed_id": {
+      "state": "initial",
+      "attributes": {
+        "min": 0,
+        "max": 64
+      }
+    },
+    "input_text.office_purifier_scale_request_id": {
+      "state": "initial",
+      "attributes": {
+        "min": 0,
+        "max": 64
+      }
+    },
+    "input_text.office_purifier_status": {
+      "state": "Скоростью управляет HA. Уровень 5/11; предел 6. До датчика шума действует предел профиля.",
+      "attributes": {
+        "min": 0,
+        "max": 255
+      }
+    },
+    "input_text.office_purifier_stop_completed_id": {
+      "state": "initial",
+      "attributes": {
+        "min": 0,
+        "max": 64
+      }
+    },
+    "input_text.office_room_cooling_status": {
+      "state": "Температура и режим кондиционера задаются вручную",
+      "attributes": {
+        "min": 0,
+        "max": 255
+      }
+    },
+    "input_text.office_room_primary_source": {
+      "state": "sensor.fixture_3",
+      "attributes": {
+        "min": 0,
+        "max": 255
+      }
+    },
+    "input_text.office_room_temperature_control_status": {
+      "state": "Нет достоверных согласованных показаний: уставка 5 °C",
+      "attributes": {
+        "min": 0,
+        "max": 255
+      }
+    },
+    "script.office_air_boost": {
+      "state": "off",
+      "attributes": {
+        "max": 10
+      }
+    },
+    "script.office_air_maximum_select": {
+      "state": "off",
+      "attributes": {
+        "max": 10
+      }
+    },
+    "script.office_air_mode": {
+      "state": "off",
+      "attributes": {
+        "max": 10
+      }
+    },
+    "script.office_air_return": {
+      "state": "off",
+      "attributes": {
+        "max": 10
+      }
+    },
+    "script.office_climate_check_recovery": {
+      "state": "off",
+      "attributes": {
+        "max": 10
+      }
+    },
+    "script.office_climate_scale_gateway": {
+      "state": "off",
+      "attributes": {
+        "max": 30
+      }
+    },
+    "script.office_climate_trust_all": {
+      "state": "off",
+      "attributes": {
+        "max": 30
+      }
+    },
+    "script.office_comfort_goal": {
+      "state": "off",
+      "attributes": {
+        "max": 10
+      }
+    },
+    "script.office_device_health": {
+      "state": "off",
+      "attributes": {
+        "max": 10
+      }
+    },
+    "script.office_device_ownership_gateway": {
+      "state": "off",
+      "attributes": {
+        "max": 30
+      }
+    },
+    "script.office_heater_manual": {
+      "state": "off",
+      "attributes": {
+        "max": 30
+      }
+    },
+    "script.office_manual_control": {
+      "state": "off",
+      "attributes": {
+        "max": 30
+      }
+    },
+    "script.office_room_goal": {
+      "state": "off",
+      "attributes": {
+        "max": 10
+      }
+    },
+    "script.office_stop_only": {
+      "state": "off",
+      "attributes": {
+        "max": 10
+      }
+    },
+    "select.fixture_1": {
+      "state": "off",
+      "attributes": {
+        "options": [
+          "off",
+          "melody_rain_sound",
+          "melody_sea_sound",
+          "melody_forest_sound",
+          "melody_birds_singing",
+          "melody_fireplace_sound"
+        ]
+      }
+    },
+    "select.fixture_2": {
+      "state": "Dim",
+      "attributes": {
+        "options": [
+          "Dim",
+          "Normal"
+        ]
+      }
+    },
+    "sensor.fixture_1": {
+      "state": "899",
+      "attributes": {
+        "unit_of_measurement": "ppm"
+      }
+    },
+    "sensor.fixture_2": {
+      "state": "46",
+      "attributes": {
+        "unit_of_measurement": "%"
+      }
+    },
+    "sensor.fixture_3": {
+      "state": "20",
+      "attributes": {
+        "unit_of_measurement": "°C"
+      }
+    },
+    "sensor.fixture_4": {
+      "state": "1.5",
+      "attributes": {
+        "unit_of_measurement": "°C"
+      }
+    },
+    "sensor.fixture_5": {
+      "state": "29.0",
+      "attributes": {
+        "unit_of_measurement": "%"
+      }
+    },
+    "sensor.fixture_6": {
+      "state": "69.0",
+      "attributes": {
+        "unit_of_measurement": "%"
+      }
+    },
+    "sensor.klimat_kabineta_kontroller": {
+      "state": "active",
+      "attributes": {
+        "planning": {
+          "source_quality": "valid",
+          "room_measurement": {
+            "value": 23.4,
+            "received_at": "2026-10-28T21:55:17.153015+00:00",
+            "origin": "zigbee_report",
+            "generation": 332,
+            "source": "sensor.fixture_3"
+          }
+        }
+      }
+    },
+    "sensor.office_ac_health": {
+      "state": "healthy",
+      "attributes": {}
+    },
+    "sensor.office_breather_health": {
+      "state": "healthy",
+      "attributes": {}
+    },
+    "sensor.office_climate_ac": {
+      "state": "off",
+      "attributes": {
+        "health": "unknown",
+        "quality_reasons": [
+          "fault:no_source_report"
+        ],
+        "source_qualified": true,
+        "temperature": 23,
+        "current_temperature": 20,
+        "fan_mode": "high",
+        "preset_mode": null,
+        "saved_speed": null,
+        "min_temp": 16,
+        "max_temp": 32,
+        "target_temp_step": 1,
+        "hvac_modes": [
+          "off",
+          "auto",
+          "cool",
+          "dry",
+          "heat",
+          "fan_only"
+        ],
+        "fan_modes": [
+          "auto",
+          "low",
+          "medium",
+          "high"
+        ],
+        "preset_modes": []
+      }
+    },
+    "sensor.office_climate_breather": {
+      "state": "fan_only",
+      "attributes": {
+        "health": "healthy",
+        "quality_reasons": [],
+        "source_qualified": true,
+        "temperature": 23,
+        "current_temperature": 20,
+        "fan_mode": "5",
+        "preset_mode": "manual",
+        "saved_speed": null,
+        "min_temp": 5,
+        "max_temp": 25,
+        "target_temp_step": 1,
+        "hvac_modes": [
+          "off",
+          "fan_only"
+        ],
+        "fan_modes": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7"
+        ],
+        "preset_modes": [
+          "manual",
+          "auto",
+          "night",
+          "turbo",
+          "ventilation"
+        ]
+      }
+    },
+    "sensor.office_climate_heater": {
+      "state": "unavailable",
+      "attributes": {
+        "temperature": 23,
+        "current_temperature": 20
+      }
+    },
+    "sensor.office_climate_journal": {
+      "state": "active",
+      "attributes": {
+        "entries": [],
+        "planning": {
+          "source_quality": "valid",
+          "room_measurement": {
+            "value": 20,
+            "source": "sensor.fixture_3",
+            "origin": "zigbee_report"
+          }
+        }
+      }
+    },
+    "sensor.office_climate_purifier": {
+      "state": "on",
+      "attributes": {
+        "health": "healthy",
+        "quality_reasons": [],
+        "source_qualified": true,
+        "temperature": 23,
+        "current_temperature": 20,
+        "fan_mode": "3",
+        "preset_mode": "Ручной",
+        "saved_speed": null,
+        "min_temp": null,
+        "max_temp": null,
+        "target_temp_step": null,
+        "hvac_modes": [
+          "off",
+          "on"
+        ],
+        "fan_modes": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11"
+        ],
+        "preset_modes": [
+          "Авто",
+          "Сон",
+          "Ручной",
+          "Уровень"
+        ]
+      }
+    },
+    "sensor.office_outdoor_temperature": {
+      "state": "1.5",
+      "attributes": {
+        "unit_of_measurement": "°C"
+      }
+    },
+    "sensor.office_purifier_health": {
+      "state": "healthy",
+      "attributes": {}
+    },
+    "sensor.office_room_temperature": {
+      "state": "20",
+      "attributes": {
+        "unit_of_measurement": "°C"
+      }
+    },
+    "sensor.office_room_temperature_source": {
+      "state": "Нет достоверных данных",
+      "attributes": {}
+    },
+    "sensor.fixture_7": {
+      "state": "34",
+      "attributes": {
+        "unit_of_measurement": "%"
+      }
+    },
+    "sensor.fixture_8": {
+      "state": "1",
+      "attributes": {
+        "unit_of_measurement": "μg/m³"
+      }
+    },
+    "sensor.fixture_9": {
+      "state": "7",
+      "attributes": {
+        "unit_of_measurement": "μg/m³"
+      }
+    },
+    "sensor.fixture_10": {
+      "state": "7",
+      "attributes": {
+        "unit_of_measurement": "μg/m³"
+      }
+    },
+    "sensor.fixture_11": {
+      "state": "32",
+      "attributes": {
+        "unit_of_measurement": "%"
+      }
+    },
+    "sensor.fixture_12": {
+      "state": "24.9",
+      "attributes": {
+        "unit_of_measurement": "°C"
+      }
+    },
+    "switch.fixture_1": {
+      "state": "on",
+      "attributes": {}
+    },
+    "switch.fixture_2": {
+      "state": "on",
+      "attributes": {}
+    },
+    "switch.fixture_3": {
+      "state": "on",
+      "attributes": {}
+    },
+    "switch.fixture_4": {
+      "state": "on",
+      "attributes": {}
+    },
+    "switch.fixture_5": {
+      "state": "off",
+      "attributes": {}
+    },
+    "switch.fixture_6": {
+      "state": "on",
+      "attributes": {}
+    },
+    "switch.fixture_7": {
+      "state": "on",
+      "attributes": {}
+    },
+    "switch.fixture_8": {
+      "state": "off",
+      "attributes": {}
+    },
+    "switch.fixture_9": {
+      "state": "on",
+      "attributes": {}
+    },
+    "switch.fixture_10": {
+      "state": "unavailable",
+      "attributes": {}
+    },
+    "switch.fixture_11": {
+      "state": "unavailable",
+      "attributes": {}
+    },
+    "timer.office_air_maximum": {
+      "state": "idle",
+      "attributes": {
+        "duration": "0:15:00"
+      }
+    }
+  }
+}

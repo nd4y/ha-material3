@@ -47,6 +47,14 @@ jobs:
           path: owner-controls-mobile.png
       - run: node scripts/test-hold-browser.mjs "$GITHUB_WORKSPACE" /tmp/m3-browser-tools
       - run: node scripts/test-unified-browser.mjs "$GITHUB_WORKSPACE" /tmp/m3-browser-tools
+      - run: node scripts/test-control-audit-browser.mjs "$GITHUB_WORKSPACE" /tmp/m3-browser-tools
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: control-audit-browser-report
+          path: |
+            control-audit-browser-report.json
+            control-audit-*.png
       - run: node scripts/test-state-motion-browser.mjs "$GITHUB_WORKSPACE" /tmp/m3-browser-tools
       - uses: actions/upload-artifact@v7.0.2
         if: always()

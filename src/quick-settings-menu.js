@@ -11,6 +11,8 @@ export class M3QuickSettingsMenu extends LitElement{
     :host{display:block}.group{margin:0 0 18px}.group h3{font-size:14px;line-height:20px;font-weight:500;color:var(--md-sys-color-primary);margin:0 0 4px}.row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;border-bottom:1px solid var(--md-sys-color-outline-variant)}.row label,.row .name{flex:1;min-width:0}.row select{max-width:60%;min-height:44px;background:var(--md-sys-color-surface-container);color:var(--md-sys-color-on-surface);border:1px solid var(--md-sys-color-outline);border-radius:12px;padding:4px 10px}.link{background:transparent;border:0;text-align:left;min-height:48px;width:100%;color:var(--md-sys-color-primary)}.error{font-size:12px;line-height:16px;margin:4px 0}.status{font-size:12px;color:var(--md-sys-color-on-surface-variant)}
   `];
   constructor(){super();this.heading='';this.controlId='';this.config={groups:[]};this._pending={};this._errors={};this._messages={};this._confirmItem=null;this._timers=new Map();}
+  connectedCallback(){super.connectedCallback();for(const[id,request]of Object.entries(this._pending))if(!request.maintenance)this.scheduleTimeout(id,request);}
+  scheduleTimeout(id,request){clearTimeout(this._timers.get(id));this._timers.set(id,setTimeout(()=>this.finish(id,request,true),Math.max(0,request.deadline-Date.now())));}
   async show(){validateQuickSettings(this.config);await this.updateComplete;return this.renderRoot.querySelector('ha-m3-dialog.main').show();}
   close(){this.renderRoot.querySelector('ha-m3-dialog.confirm')?.close();this.renderRoot.querySelector('ha-m3-dialog.main')?.close();}
   disconnectedCallback(){for(const timer of this._timers.values())clearTimeout(timer);this._timers.clear();super.disconnectedCallback();}
@@ -28,8 +30,8 @@ export class M3QuickSettingsMenu extends LitElement{
     if(item.type==='link'){try{await perform(this,this.hass,action);}catch{this._errors={...this._errors,[item.id]:true};}return;}
     const expected=item.type==='switch'?(value?'on':'off'):value;
     if(settingsState(this.hass,item).value===expected)return;
-    const request={expected};this._errors={...this._errors,[item.id]:false};this._pending={...this._pending,[item.id]:request};
-    this._timers.set(item.id,setTimeout(()=>this.finish(item.id,request,true),10000));
+    const request={expected,deadline:Date.now()+10000};this._errors={...this._errors,[item.id]:false};this._pending={...this._pending,[item.id]:request};
+    this.scheduleTimeout(item.id,request);
     try{await perform(this,this.hass,action);}catch{this.finish(item.id,request,true);}
   }
   async askReset(item){
