@@ -1,3 +1,10 @@
+## 0.19.2 - 2026-10-29
+
+- Wait for Home Assistant state confirmation for room automation, device permissions and room temperature; report timeouts and retain pending deadlines across reconnects.
+- Restore auxiliary setting timeouts after reconnecting the menu.
+- Match the unified mockup with a filled Auto button, room ownership colors and compact temperature controls.
+- Exercise every installed climate switch, scale option and submenu action on an isolated browser fixture.
+
 ## 0.18.4 - 2026-10-28
 
 - Add compact history buttons that open full graphs without loading every chart on the main climate page.

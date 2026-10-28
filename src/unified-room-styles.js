@@ -15,6 +15,9 @@ export const unifiedRoomStyles=css`
   .climate-page[data-unified] .room-metric-status{order:3;font-size:12px;line-height:16px}
   .climate-page[data-unified] .room-metric[data-quality=fresh] .room-metric-status{display:none}
   .climate-page[data-unified] .unified-goals{display:block;background:var(--ha-m3-owner-auto-surface,var(--md-sys-color-secondary-container));border-radius:28px;padding:10px}
+  .climate-page[data-unified] .unified-goals[data-ownership=manual]{background:var(--ha-m3-owner-manual-surface,var(--md-sys-color-surface-container-highest))}
+  .climate-page[data-unified] .unified-goals[data-ownership=unknown]{background:var(--md-sys-color-surface-container-high)}
+  .climate-page[data-unified] .unified-goals{transition:background-color 240ms}
   .climate-page[data-unified] .unified-goals-heading{display:flex;align-items:center;gap:12px;padding:0 6px 6px;min-height:44px}
   .climate-page[data-unified] .unified-goals-heading>.symbol{color:var(--ha-m3-operation-fan,var(--md-sys-color-primary));font-size:22px}
   .climate-page[data-unified] .unified-goals-heading h3{font-size:18px;line-height:24px;font-weight:500;margin:0;flex:1}
@@ -26,7 +29,7 @@ export const unifiedRoomStyles=css`
   .climate-page[data-unified][data-compact] .calm-body>[data-air-goal=noise]{grid-column:2;grid-row:1;border-top-right-radius:20px;--goal-tone:var(--md-sys-color-secondary)}
   .climate-page[data-unified][data-compact] .room-target-heading,.climate-page[data-unified][data-compact] .air-goal-heading{padding:0;min-height:32px;font-size:14px}
   .climate-page[data-unified] .air-goal-heading output,.climate-page[data-unified] .room-target-heading output{color:var(--goal-tone);font-size:16px;line-height:22px}
-  .climate-page[data-unified] .air-scale,.climate-page[data-unified] .room-target .endpoints{display:none}
+  .climate-page[data-unified] .air-scale,.climate-page[data-unified][data-compact] .room-target .endpoints{display:none}
   .climate-page[data-unified] .air-boost{margin:0;min-height:44px}
   .climate-page[data-unified] .air-boost ha-m3-button{--md-sys-color-primary:var(--goal-tone)}
   .climate-page[data-unified] .calm-head .room-trust{margin:0}

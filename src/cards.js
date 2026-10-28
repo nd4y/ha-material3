@@ -1,4 +1,5 @@
 import {LitElement,html,css,nothing} from 'lit';
+import {syncRoomRequests,resumeRoomRequests,pauseRoomRequests} from './room-requests.js';
 import {StateMotion} from './state-motion.js';
 import {common,icon} from './components.js';
 import {selectField,sliderField} from './fields.js';
@@ -45,7 +46,7 @@ export class M3BaseCard extends LitElement{
 }
 
 export class M3ClimateCard extends M3BaseCard{
-  static properties={...M3BaseCard.properties,_now:{state:true},_roomTargetDraft:{state:true},_returnDraft:{state:true},_airDrafts:{state:true},_airGoalErrors:{state:true}};
+  static properties={...M3BaseCard.properties,_now:{state:true},_roomTargetDraft:{state:true},_returnDraft:{state:true},_airDrafts:{state:true},_airGoalErrors:{state:true},_roomRequests:{state:true},_roomErrors:{state:true}};
   static styles=[common,cardStyles,roomControlStyles,calmRoomStyles,airGoalStyles,css`
     .actuators{padding:12px 0;margin-bottom:12px}.actuators>.body-label{color:var(--md-sys-color-on-surface-variant)}.actuators .toggle-row{min-height:56px;margin:0}.actuators .toggle-label strong{font-size:14px;line-height:20px}
     .temperature{padding:var(--ha-m3-ui-card-padding);background:var(--ha-m3-ui-temperature-background);color:var(--md-sys-color-on-surface);border-radius:var(--ha-m3-ui-temperature-radius);display:flex;flex-direction:column;gap:12px;margin-bottom:12px}.body-label{font-size:14px;line-height:20px;letter-spacing:.25px}.reading{display:flex;align-items:baseline;gap:4px;font-variant-numeric:tabular-nums}.reading strong{color:var(--md-sys-color-primary);font-size:40px;line-height:48px;letter-spacing:0;font-weight:500}.reading .unit{font-size:24px;line-height:32px}.reading.unknown strong{font-size:24px;line-height:32px}
@@ -57,13 +58,13 @@ export class M3ClimateCard extends M3BaseCard{
   `];
   constructor(){super();this.kind='climate';this._now=Date.now();this._roomTargetDraft=null;}
   setConfig(config){validateRoomMetrics(config);if(config.navigation_action&&(config.navigation_action.action!=='navigate'||!/^\/(?!\/)/.test(config.navigation_action.navigation_path||'')))throw Error('Room summary navigation must use a local HA path');super.setConfig(config);}
-  willUpdate(changed){super.willUpdate(changed);if(changed.has('hass')){this._now=Date.now();syncAirGoalDrafts(this);}if(this._roomTargetDraft!==null&&Number(this.s(this._config.entities?.target_temperature)?.state)===this._roomTargetDraft){this._roomTargetDraft=null;clearTimeout(this._roomTargetTimer);}}
+  willUpdate(changed){super.willUpdate(changed);if(changed.has('hass')){this._now=Date.now();syncAirGoalDrafts(this);syncRoomRequests(this);}if(this._roomTargetDraft!==null&&Number(this.s(this._config.entities?.target_temperature)?.state)===this._roomTargetDraft){this._roomTargetDraft=null;clearTimeout(this._roomTargetTimer);}}
   renderActuators(){
     const c=this._config;if(!c.actuators?.length)return nothing;
     return html`<div class="actuators" role="group" aria-label=${c.actuators_name||this.t('actuators')}><span class="body-label">${c.actuators_name||this.t('actuators')}</span>${c.actuators.map(item=>{const state=actuatorState(this.hass,item);return html`<div class="toggle-row"><div class="toggle-label">${icon(item.icon||'thermostat')}<span><strong>${item.name}</strong><small>${item.description||(!state.available?this.t('unavailable'):state.selected?this.t('allowed'):this.t('excluded'))}</small></span></div><ha-m3-switch .selected=${state.selected} .disabled=${!state.available||this._busy} .loading=${this._pending==='actuator:'+item.id} .label=${item.name} motion=${this.motion} @m3-change=${event=>this.run(actuatorAction(this.hass,item,event.detail.selected),'actuator:'+item.id)}></ha-m3-switch></div>`;})}</div>`;
   }
-  connectedCallback(){super.connectedCallback();clearInterval(this.clock);this.clock=setInterval(()=>{if(this.s(this._config.maximum?.timer)?.state==='active'||this._config.air_goals?.some(item=>this.s(item.boost?.active_entity)?.state==='on')||this._config.room_metrics?.length&&Date.now()-this._now>=30000)this._now=Date.now();},1000);}
-  disconnectedCallback(){super.disconnectedCallback();clearInterval(this.clock);clearTimeout(this._roomTargetTimer);clearAirGoalTimers(this);}
+  connectedCallback(){super.connectedCallback();resumeRoomRequests(this);clearInterval(this.clock);this.clock=setInterval(()=>{if(this.s(this._config.maximum?.timer)?.state==='active'||this._config.air_goals?.some(item=>this.s(item.boost?.active_entity)?.state==='on')||this._config.room_metrics?.length&&Date.now()-this._now>=30000)this._now=Date.now();},1000);}
+  disconnectedCallback(){super.disconnectedCallback();pauseRoomRequests(this);clearInterval(this.clock);clearTimeout(this._roomTargetTimer);clearAirGoalTimers(this);}
   getCardSize(){return 10;}
   async showModes(){await this.updateComplete;this.renderRoot.querySelector('ha-m3-dialog').show();}
   async choose(id){this.renderRoot.querySelector('ha-m3-dialog')?.close();const p=this._config.presets?.find(p=>p.id===id);if(p)await this.run(p.action,id);}
@@ -141,8 +142,8 @@ export class M3CameraCard extends M3BaseCard{
   static properties={...M3BaseCard.properties,_native:{state:true},_refresh:{state:true},_imageFailed:{state:true}};
   static styles=[common,cardStyles,css`.surface{padding:0;overflow:hidden;background:var(--md-sys-color-surface-container-highest)}header{padding:4px var(--ha-m3-ui-compact-card-padding);margin:0}header h2{font-size:16px;line-height:24px;letter-spacing:.15px;font-weight:500}.mount{min-height:0}.mount>*{display:block;--ha-card-border-width:0;--ha-card-border-radius:0;--ha-card-box-shadow:none}.preview{display:grid;place-items:center;aspect-ratio:16/9;background:var(--md-sys-color-surface-container-low);position:relative;width:100%;padding:0;border:0;color:var(--md-sys-color-on-surface-variant)}.preview img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}.placeholder{display:grid;place-items:center;gap:8px}.placeholder .symbol{font-size:40px}footer{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 12px;min-height:56px}footer .support{font-size:12px;line-height:16px;letter-spacing:.4px}.preview:focus-visible{outline:3px solid var(--md-sys-color-secondary);outline-offset:-3px}`];
   constructor(){super();this.kind='camera';this._native=false;this._refresh=0;this._imageFailed=false;this._camera=null;}
-  connectedCallback(){super.connectedCallback();clearInterval(this.clock);this.clock=setInterval(()=>{if(!this._native&&!document.hidden){this._refresh++;this._imageFailed=false;}},30000);}
-  disconnectedCallback(){super.disconnectedCallback();clearInterval(this.clock);}
+  connectedCallback(){super.connectedCallback();resumeRoomRequests(this);clearInterval(this.clock);this.clock=setInterval(()=>{if(!this._native&&!document.hidden){this._refresh++;this._imageFailed=false;}},30000);}
+  disconnectedCallback(){super.disconnectedCallback();pauseRoomRequests(this);clearInterval(this.clock);}
   updated(){const imageKey=JSON.stringify([this._config.entity,this.s(this._config.entity)?.attributes?.entity_picture??null]);if(this._imageKey!==imageKey){this._imageKey=imageKey;this._imageFailed=false;}if(this._camera)this._camera.hass=this.hass;if(this._loadedEntity!==this._config.entity&&this.hass)this.loadCamera();}
   async loadCamera(){
     const entity=this._config.entity;this._loadedEntity=entity;
