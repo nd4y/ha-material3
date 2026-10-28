@@ -134,6 +134,13 @@ the manual-mode checks specified by `confirmation`. Turbo is opt-in and requires
 the dedicated temperature lock/value readbacks; the gateway must verify its full
 sequence. A native Auto program's saved favourite speed is not an observed speed.
 
+For controllers exposing `planning.source_quality` and a `room_measurement`
+with source, value, received_at and origin, set
+`room_freshness.qualifier_entity` to that controller sensor. The slider then
+uses the measurement timestamp rather than the entity's last value change;
+it rejects an unqualified, stale or mismatched reading. Without this optional
+field the existing source/TTL/epoch validation remains unchanged.
+
 `device_ownership` optionally binds the card's Auto/lock button to a separate
 script gateway with `value_field: owner` and the same pair of request and completion
 helpers as its controls. Manual capture is available only when all needed current

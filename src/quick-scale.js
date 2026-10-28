@@ -14,6 +14,7 @@ export function validateQuickScale(item){
   actionValid(s.gateway);
   const f=s.room_freshness;
   if(s.kind==='ac-temperature'&&(!/^sensor\.[a-z0-9_]+$/.test(s.room_entity||'')||!/^input_text\.[a-z0-9_]+$/.test(f?.source_entity||'')||!/^input_number\.[a-z0-9_]+$/.test(f?.ttl_entity||'')||!/^input_datetime\.[a-z0-9_]+$/.test(f?.epoch_entity||'')||!/^sensor\.[a-z0-9_]+$/.test(f?.expected_source||'')))throw new Error('AC scale needs qualified room, pinned primary source, TTL and epoch');
+  if(f?.qualifier_entity!==undefined&&!/^sensor\.[a-z0-9_]+$/.test(f.qualifier_entity))throw new Error('Invalid room qualifier');
   if(s.kind==='ac-temperature'&&(!/^input_select\.[a-z0-9_]+$/.test(s.confirmation?.mode_entity||'')||!/^input_boolean\.[a-z0-9_]+$/.test(s.confirmation?.writing_entity||'')||!/^input_boolean\.[a-z0-9_]+$/.test(s.confirmation?.pending_entity||'')))throw new Error('AC scale needs saved intent and pending readback');
   if(s.kind==='ac-speed'&&!/^input_text\.[a-z0-9_]+$/.test(s.saved_entity||''))throw new Error('AC speed needs saved request readback');
   if(['breather-speed','purifier-speed','heater-temperature'].includes(s.kind)&&(!Array.isArray(s.confirmation?.manual_checks)||!s.confirmation.manual_checks.length))throw new Error('Scale needs explicit manual mode readback');
@@ -76,7 +77,12 @@ export function roomSnapshot(hass,item,now=Date.now()){
   const source=sourceHelper?.state,primary=stateOf(hass,source),changed=state?.last_changed,sourceChanged=primary?.last_changed;
   const decimal=raw=>{if(typeof raw==='number')return Number.isFinite(raw)?raw:NaN;if(typeof raw!=='string'||!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(raw.trim()))return NaN;return Number(raw);};
   const value=decimal(state?.state),sourceValue=decimal(primary?.state),ttl=decimal(ttlHelper?.state),epoch=decimal(epochHelper?.attributes?.timestamp),changedMs=Date.parse(changed),sourceMs=Date.parse(sourceChanged),age=(now-sourceMs)/1000;
-  if(![state,sourceHelper,ttlHelper,epochHelper,primary].every(available)||source!==f.expected_source||!Number.isFinite(value)||value<5||value>40||!Number.isFinite(sourceValue)||sourceValue<5||sourceValue>40||value!==sourceValue||!Number.isFinite(ttl)||ttl<=0||ttl>86400||!Number.isFinite(epoch)||!Number.isFinite(changedMs)||changedMs>now||!Number.isFinite(sourceMs)||sourceMs<=epoch*1000||!Number.isFinite(now)||age<0||age>ttl)return null;
+  if(![state,sourceHelper,ttlHelper,epochHelper,primary].every(available)||source!==f.expected_source||!Number.isFinite(value)||value<5||value>40||!Number.isFinite(sourceValue)||sourceValue<5||sourceValue>40||value!==sourceValue||!Number.isFinite(ttl)||ttl<=0||ttl>86400||!Number.isFinite(epoch)||!Number.isFinite(changedMs)||changedMs>now||!Number.isFinite(sourceMs)||!Number.isFinite(now))return null;
+  if(f.qualifier_entity){
+    const qualifier=stateOf(hass,f.qualifier_entity),planning=qualifier?.attributes?.planning,measurement=planning?.room_measurement;
+    const measured=decimal(measurement?.value),measuredMs=Date.parse(measurement?.received_at),measuredAge=(now-measuredMs)/1000;
+    if(!available(qualifier)||planning?.source_quality!=='valid'||measurement?.source!==source||!['zigbee_report','zigbee_cached_attribute'].includes(measurement?.origin)||!Number.isFinite(measured)||measured!==value||!Number.isFinite(measuredMs)||measuredAge<0||measuredAge>ttl)return null;
+  }else if(sourceMs<=epoch*1000||age<0||age>ttl)return null;
   return {value,last_changed:changed,source,source_last_changed:sourceChanged,ttl};
 }
 export function quickScaleModel(hass,card,item){

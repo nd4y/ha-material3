@@ -1,6 +1,6 @@
 {
   "name": "ha-material3",
-  "version": "0.18.2",
+  "version": "0.18.3",
   "files": [
     {
       "path": "ha-material3-theme.yaml",
@@ -9,8 +9,8 @@
     },
     {
       "path": "ha-material3.js",
-      "bytes": 527144,
-      "sha256": "b0594917bfdb7390e3227f218a7407ae2b926004074529c546e194b238e10723"
+      "bytes": 527636,
+      "sha256": "cb6aa96cf28ad35dd6755074e1107717f5a9b50b21cdc5a607584a14031c9f27"
     },
     {
       "path": "LICENSE",
@@ -102,8 +102,8 @@
     "controller/intent-transition.jinja": "7e099608ae77316d25c16542d3f8d7a6934b3417aeb1c722cddf382ee903a688",
     "controller/legacy-policy.jinja": "9ed7b5a0a403eb02762054f587dcea4cb01ee88c0c8e7e0f9aad8066e46912a1",
     "controller/thermal-environment.jinja": "6d6c7c5cc077e6595033d164ec346bf2f653a5fa61da27a70edc52453b8c2493",
-    "package-lock.json": "f36e33f041580b43615e9b8f47aae9d3e14f0857dbbc88d4f2f517e134fb2847",
-    "package.json": "a0b7c5e4a981e7e98e2a1675bd7000c5253df1ac9de4860ea82ff9bb00aed81c",
+    "package-lock.json": "48dbc5eb773669afeb651d7a420975b7630b705a9606ced120ed7d923dd2ff79",
+    "package.json": "6bbab957d70d3ce7fbea131f577a336bfa8be6d984e399397a1b245dd01a94cb",
     "scripts/audit-release.mjs": "ca5fbff89ef1c15a3844746208aaad340f13219dda338bf8b537b52ffb649118",
     "scripts/build.mjs": "ba715c54ed44408e583a14ffcc8d77b046d943b894691137019f9f3722ffd29f",
     "scripts/dev-server.mjs": "9a708517056f40cf7fdd778b0c8a8627137c48ebe59ad47a81b518a459900bb2",
@@ -158,7 +158,7 @@
     "src/preset-controls.js": "952059eb7809157b8911c29998c99d2418c7aca7df7e413ea319e6e2cbe8729e",
     "src/quick-card.js": "82fd0623acca301261aa02c210ddc2d0fe3778c3b08f6f0fa5b5c2773d7cdf37",
     "src/quick-controls.js": "345f20b52cc587d514f84810e024101b0cea7e68f9c7e8da268d53fd6e5fd471",
-    "src/quick-scale.js": "f78f0e596cc2507b45e9ce2aba4c76c4cc79ca121247b49212b38e7eab8adacc",
+    "src/quick-scale.js": "ff0b917a7f224bc903e2abf0fb82e79bb00f0c6ec8a6d3d6c74b5dc88ae79f3f",
     "src/quick-settings-menu.js": "25a8e96373efa45b8ce927610ee05a13b3039234899bd5e81b35dfb4a984229e",
     "src/quick-settings-model.js": "73a400389af4e5718611b600734c8c712d474eb10f0824ad97ff839de2de3628",
     "src/reading-colors.js": "e8f2d89bdfaaaeee904845d4166262a12c3500a8fbca1777ab407123e011b724",

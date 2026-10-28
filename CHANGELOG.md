@@ -1,3 +1,8 @@
+## 0.18.3 - 2026-10-28
+
+- Allow an optional controller-qualified room reading to establish AC slider freshness, including equal repeated reports and timestamped cached measurements.
+- Reject stale, mismatched or unqualified readings without treating an unchanged entity state as a new measurement.
+
 ## 0.18.2 - 2026-10-28
 
 - Align room preference controls with the segmented device scales and compact panels.
