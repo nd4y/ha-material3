@@ -16,6 +16,40 @@ try{
  page.setDefaultTimeout(5000);
  const summary=page.locator('ha-m3-climate-card'),device=i=>page.locator('ha-m3-quick-device-card').nth(i),writes=()=>page.evaluate(()=>window.controlAudit.writes),set=(id,value,attributes)=>page.evaluate(({id,value,attributes})=>window.controlAudit.set(id,value,attributes),{id,value,attributes});
  const config=await page.evaluate(()=>window.controlAudit.config);
+ await scenario('unavailable capture is disabled but explicit release of ownership remains possible',async()=>{
+  const c=config.cards[0],speed=c.quick_controls[1];await set(c.entity,'off',{fan_mode:null,preset_mode:null});
+  await summary.locator('.unified-goals-heading ha-m3-button button').click();
+  const groupIndex=config.main.automation_groups.findIndex(g=>g.controls.some(x=>x.lock_entity===speed.lock_entity)),controlIndex=config.main.automation_groups[groupIndex].controls.findIndex(x=>x.lock_entity===speed.lock_entity);
+  const permission=summary.locator('#automation-menu .automation-group').nth(groupIndex).locator('ha-m3-switch').nth(controlIndex);
+  check(await permission.evaluate(e=>e.disabled),'Cannot capture an unknown current speed');
+  await set(speed.lock_entity,'on');check(await permission.evaluate(e=>!e.disabled),'Releasing ownership must remain possible even without speed readback');
+  await page.keyboard.press('Escape');await set(config.cards[3].entity,'unavailable');
+  check(await device(3).locator('.device-owner').isDisabled(),'Unplugged heater cannot capture absent settings');
+  check(await device(3).evaluate(e=>!e._deviceError),'Unavailability must not be a false partial-change error');
+  check((await writes()).length===0,'Readiness checks must not send commands');
+ });
+ await scenario('known Off breather remains controllable and ownership freezes without a fabricated speed',async()=>{
+  const c=config.cards[0],temp=c.quick_controls[0],speed=c.quick_controls[1];
+  await set(c.entity,'off',{temperature:10,fan_mode:null,preset_mode:null,ownership_contract:'off-freeze-v1'});
+  const card=device(0),field=id=>card.locator(`[data-control-id="${id}"]`);
+  check(await field(temp.id).locator('output').textContent()==='10 °C','Independent heat target must remain visible while airflow is Off');
+  check(await field(speed.id).locator('ha-m3-slider').evaluate(e=>e.disabled===false&&e.value===0),'Known Off speed must be adjustable at Off');
+  check(await field(speed.id).locator('select').count()===0,'No duplicate fallback for a known Off position');
+  check(!(await field(speed.id).textContent()).includes('Нет данных'),'Known Off is not missing data');
+  await card.locator('.device-owner').click();
+  const r=await card.evaluate(e=>e._deviceRequest);
+  check(r?.snapshot?.power===false&&r.snapshot.values[speed.id]===null,'Freeze must keep power Off and unknown speed');
+  check((await writes()).length===1,'One ownership request per actual click');
+  for(const item of [c.power,...c.quick_controls])await set(item.lock_entity,'on');
+  await set(c.power.value_entity,'off');await set(temp.value_entity,'10');await set(speed.value_entity,'');
+  await set(c.device_ownership.revision_entity,r.request_id);await set(c.device_ownership.completed_entity,r.request_id);
+  check(await card.evaluate(e=>!e._deviceRequest&&!e._deviceError),'Exact Off freeze confirmation must clear pending without an error');
+  check(await field(speed.id).locator('ha-m3-slider').evaluate(e=>!e.disabled&&e.value===0),'Frozen Off scale must still be usable');
+  await set(c.entity,'off',{temperature:5});await set(temp.value_entity,'5');
+  check(await field(temp.id).locator('output').textContent()==='Без нагрева','5 degrees means heating off, not device Off');
+  await set(c.entity,'on',{temperature:10,fan_mode:null});
+  check(await field(speed.id).locator('ha-m3-slider').count()===0||await field(speed.id).locator('ha-m3-slider').evaluate(e=>e.disabled),'Unknown powered-on speed must remain unqualified');
+ });
  const openDevice=async i=>{await device(i).locator('.quick-header>.scale-details').click();await device(i).locator('ha-m3-quick-settings-menu ha-m3-dialog.main dialog').waitFor({state:'visible'});};
  for(let i=0;i<config.cards.length;i++)for(const group of config.cards[i].settings_menu.groups)for(const item of group.items){
   report.inventory.push({device:config.cards[i].name,id:item.id,type:item.type});

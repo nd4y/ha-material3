@@ -16,7 +16,7 @@ f.reset=async()=>{
  for(const s of Object.values(f.states)){s.last_changed=stamp;s.last_updated=stamp;if('timestamp'in s.attributes)s.attributes.timestamp=now/1000-100;if(s.attributes.planning?.room_measurement)s.attributes.planning.room_measurement.received_at=stamp;}
  for(const c of f.config.cards){
   f.states[c.runtime_ready_entity].state='on';
-  f.states[c.entity]={...f.states[c.entity],state:c.name==='Очиститель воздуха'?'on':'heat',attributes:{...f.states[c.entity].attributes,temperature:23,current_temperature:20,min_temp:c.name==='Бризер'?5:16,max_temp:32,target_temp_step:1,health:'healthy',preset_mode:'manual'}};
+  f.states[c.entity]={...f.states[c.entity],state:c.name==='Очиститель воздуха'?'on':'heat',attributes:{...f.states[c.entity].attributes,temperature:23,current_temperature:20,min_temp:c.name==='Бризер'?5:16,max_temp:32,target_temp_step:1,health:'healthy',source_qualified:true,preset_mode:'manual'}};
   for(const item of [c.power,...c.quick_controls]){f.states[item.lock_entity].state='off';}
   for(const item of c.quick_controls){const q=item.mode_scale.room_freshness?.qualifier_entity;if(q)f.states[q].attributes.planning.room_measurement.value=20;}
   for(const g of c.settings_menu.groups)for(const item of g.items){if(item.type==='switch')f.states[item.entity].state='off';if(item.type==='select'){const s=f.states[item.entity];s.state=s.attributes.options?.[0]||'off';}if(item.type==='filter-reset')f.states[item.entity].state='unknown';}

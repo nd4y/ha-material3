@@ -38,6 +38,8 @@ System reduced-motion removes owned spatial movement and vendor CSS transitions;
 
 ## Command state
 
+A known Off state is a usable primary speed position, even if the device omits its running speed while stopped. This never supplies a numeric speed readback. The breather heat regulator is independent of airflow power: retain its reported target, map 5 °C to heating off, and never label the whole device Off as the heat target. A complete device freeze may retain an unknown stopped speed only when the backend explicitly advertises `ownership_contract: off-freeze-v1`; confirmation requires the matching request receipt, every manual lock, power Off and an explicitly empty saved speed. Unknown powered-on speed, unqualified state and inflight operations remain unsafe to freeze.
+
 Loading disables duplicate commands and announces progress through a visually hidden status region; it does not add a layout row. A failed command retains confirmed HA values, shows a localized error and offers retry. Focus is restored with preventScroll after pending controls re-enable. Target width reserves localized min/max helper values at the helper's step precision, so whole/fractional changes do not move its buttons. Numeric target changes use HA bounds/step; ventilation only invokes its configured action. Countdown is a view of the backend timer and never performs a physical return-to-everyday action from a browser.
 
 The component matrix is the implementation contract and audit basis. It is not Google certification, does not cover HA's native administrative interface, and does not assert pixel identity under recoloring extensions or untested browsers.

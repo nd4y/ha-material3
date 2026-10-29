@@ -41,3 +41,6 @@ Object.assign(ru,{readingNotFresh:'Нет свежих данных',climateNavi
 Object.assign(en,{readingNotFresh:'No fresh readings',climateNavigation:'Climate controls'});
 Object.assign(ru,{ownerHomeAutomatic:'Автоматика дома',ownerManualControl:'Ручное управление',ownerDeviceAutomatic:'Автоматика прибора'});
 Object.assign(en,{ownerHomeAutomatic:'Home automation',ownerManualControl:'Manual control',ownerDeviceAutomatic:'Device automation'});
+
+Object.assign(ru,{manualReadbackRequired:'Текущее значение не подтверждено. Для ручной настройки выберите его на регуляторе.'});
+Object.assign(en,{manualReadbackRequired:'Current value is not confirmed. Select a regulator value to set it manually.'});

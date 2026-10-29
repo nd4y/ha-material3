@@ -27,6 +27,41 @@ const speedItem=()=>({...item,id:'speed',attribute:'fan_mode',options_attribute:
 const turboItem=()=>{const speed=speedItem();return {...speed,mode_scale:{...speed.mode_scale,turbo:true,confirmation:{...speed.mode_scale.confirmation,turbo_temperature_lock_entity:'input_boolean.heat',turbo_temperature_value_entity:'input_number.saved'}}};};
 const turboFixture=(off=false,heatLock='off')=>{const h=make(),s=turboItem();Object.assign(h.states['climate.breather'].attributes,{fan_modes:['1','2','3','4','5','6','7'],preset_modes:['manual','turbo'],preset_mode:'manual'});h.states['climate.breather'].state=off?'off':'fan_only';h.states['input_text.speed']=state('3');h.states['input_text.completed']=state('prior');h.states['input_boolean.heat']=state(heatLock);h.states['input_number.saved']=state(heatLock==='on'?5:22);return {h,s};};
 const ownerCard=()=>({...card,quick_controls:[item],device_ownership:{revision_entity:revision,completed_entity:completed,gateway:{...gateway,value_field:'owner'}}});
+
+test('known Off speed stays adjustable without inventing a running speed',()=>{
+  for(const kind of ['breather-speed','ac-speed','purifier-speed']){
+    const h=make(),s=speedItem();s.mode_scale.kind=kind;
+    if(kind==='ac-speed')s.mode_scale.saved_entity='input_text.saved_id';
+    Object.assign(h.states['climate.breather'],{state:'off'});
+    Object.assign(h.states['climate.breather'].attributes,{fan_mode:null,fan_modes:['1','2','3']});
+    h.states['input_text.speed']=state('3');
+    const m=quickScaleModel(h,card,s);
+    assert.equal(m.position,0);assert.equal(m.effective,null);assert.equal(m.available,true);
+    h.states['climate.breather'].state='fan_only';assert.equal(quickScaleModel(h,card,s).available,false);
+    h.states['climate.breather'].state='unavailable';assert.equal(quickScaleModel(h,card,s).available,false);
+    h.states['climate.breather'].state='off';h.states[revision].state='unavailable';assert.equal(quickScaleModel(h,card,s).available,false);
+  }
+});
+test('stopped breather heat displays its independent target and five means heat off',()=>{
+  const h=make();h.states['climate.breather'].state='off';h.states['climate.breather'].attributes.temperature=10;
+  let m=quickScaleModel(h,card,item);assert.equal(m.choices[m.position],10);assert.equal(m.available,true);
+  h.states['climate.breather'].attributes.temperature=5;m=quickScaleModel(h,card,item);assert.equal(m.choices[m.position],'off');
+  h.states['climate.breather'].attributes.temperature=null;assert.equal(quickScaleModel(h,card,item).position,null);
+  h.states['climate.breather'].attributes.temperature=10;h.states['input_boolean.temp'].state='on';h.states['input_number.saved'].state='12';
+  m=quickScaleModel(h,card,item);assert.equal(m.choices[m.position],12);assert.equal(m.effective,10);assert.equal(m.displaySaved,true);
+});
+test('Off freeze stores unknown speed only with explicit backend contract and exact readback',()=>{
+  const h=make(),s=speedItem(),cfg={...ownerCard(),quick_controls:[item,s]};
+  h.states['climate.breather'].state='off';Object.assign(h.states['climate.breather'].attributes,{fan_mode:null,fan_modes:['1','2','3']});
+  h.states['input_text.speed']=state('3');assert.equal(deviceOwnerSnapshot(h,cfg),null);
+  h.states['climate.breather'].attributes.ownership_contract='off-freeze-v1';
+  const r=deviceOwnerRequest(h,cfg,'manual');assert.deepEqual(r.snapshot,{power:false,values:{temp:22,speed:null}});
+  h.states[revision].state=r.request_id;h.states[completed].state=r.request_id;
+  h.states['input_boolean.power'].state='on';h.states['input_boolean.saved_power'].state='off';h.states['input_boolean.temp'].state='on';h.states['input_number.saved'].state='22';
+  assert.equal(deviceOwnerConfirmed(h,cfg,r),false);
+  h.states['input_text.speed'].state='';assert.equal(deviceOwnerConfirmed(h,cfg,r),true);
+  h.states['climate.breather'].state='fan_only';assert.equal(deviceOwnerConfirmed(h,cfg,r),false);assert.equal(deviceOwnerSnapshot(h,cfg),null);
+});
 test('opt-in needs an explicit script gateway and request ID helper',()=>{assert.doesNotThrow(()=>validateQuickScale(item));assert.throws(()=>validateQuickScale({...item,mode_scale:{kind:'x',gateway,revision_entity:revision,completed_entity:completed}}));assert.throws(()=>validateQuickScale({...item,mode_scale:{kind:'breather-temperature',gateway}}));assert.throws(()=>validateQuickScale({...item,mode_scale:{kind:'breather-temperature',revision_entity:revision,completed_entity:completed,gateway:{...gateway,perform_action:'climate.set_temperature'}}}));});
 test('UUID uses secure randomUUID or getRandomValues and fails closed without cryptography',()=>{let value=0;const source={getRandomValues:b=>{b.fill(++value);return b;}},id=requestId(source);assert.match(id,/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);assert.notEqual(id,requestId(source));assert.throws(()=>requestId({}));assert.throws(()=>requestId({randomUUID:()=> 'not-uuid'}));});
 test('5 degree Off sends one gateway request, preserves airflow, needs matching admission and lock',()=>{const h=make(),m=quickScaleModel(h,card,item),r=quickScaleRequest(h,card,item,0);assert(m.available);assert.equal(r.choice,'off');assert.equal(r.action.data.choice,'off');assert.match(r.action.data.request_id,/^[0-9a-f-]{36}$/);h.states['input_boolean.temp'].state='on';h.states['climate.breather'].attributes.temperature=5;assert.equal(quickScaleConfirmed(h,card,item,r),false);h.states[revision].state=r.request_id;assert.equal(quickScaleConfirmed(h,card,item,r),false);h.states['input_number.saved'].state='5';assert.equal(quickScaleConfirmed(h,card,item,r),false);h.states[completed].state=r.request_id;assert.equal(quickScaleConfirmed(h,card,item,r),true);assert.equal(h.states['climate.breather'].attributes.fan_mode,'3');h.states['climate.breather'].state='off';assert.equal(quickScaleConfirmed(h,card,item,r),false);});

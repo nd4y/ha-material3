@@ -25,6 +25,14 @@ export function automationPermission(hass,item){
   const state=stateOf(hass,item.lock_entity),known=available(state)&&['on','off'].includes(state.state);
   return {available:known,automatic:known&&state.state==='off'};
 }
+export function manualReadbackAvailable(hass,item){
+  const config=item.manual_readback;if(config===undefined)return true;
+  const source=stateOf(hass,config.entity);
+  if(!available(source)||source.attributes?.source_qualified!==true||source.attributes?.health==='fault')return false;
+  if(!config.attribute)return ['on','off','heat','cool','dry','fan_only','auto'].includes(source.state);
+  const value=source.attributes?.[config.attribute];
+  return typeof value==='number'?Number.isFinite(value):typeof value==='boolean'||typeof value==='string'&&!!value.trim()&&!['unknown','unavailable','auto','авто'].includes(value.toLowerCase());
+}
 export function automationAction(item,automatic){
   if(typeof automatic!=='boolean')throw new Error('Automatic permission must be boolean');
   return item.lock_action?valueAction(item.lock_action,!automatic):{action:'perform-action',perform_action:`input_boolean.turn_${automatic?'off':'on'}`,target:{entity_id:item.lock_entity}};

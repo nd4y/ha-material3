@@ -10,7 +10,7 @@ import {M3DeviceCard} from './cards.js';
 import {common,icon} from './components.js';
 import {available,matches,perform,validateRuntimeSafety,runtimeSafetyReady} from './ha.js';
 import {controlModel,controlValue,valueAction,validateControls,automationPermission,automationAction} from './quick-controls.js';
-import {validateQuickScale,quickScaleModel,quickScaleRequest,quickScaleOffRequest,quickScaleConfirmed,quickScaleSaved,roomSnapshot,validateDeviceOwner,deviceOwnerRequest,deviceOwnerConfirmed,requestId} from './quick-scale.js';
+import {validateQuickScale,quickScaleModel,quickScaleRequest,quickScaleOffRequest,quickScaleConfirmed,quickScaleSaved,roomSnapshot,validateDeviceOwner,deviceOwnerSnapshot,deviceOwnerRequest,deviceOwnerConfirmed,requestId} from './quick-scale.js';
 import {validateQuickSettings} from './quick-settings-model.js';
 import './quick-settings-menu.js';
 
@@ -118,7 +118,7 @@ export class M3QuickDeviceCard extends M3DeviceCard{
   clearOwnerRequests(){for(const timer of this._ownerTimers.values())clearTimeout(timer);this._ownerTimers.clear();this._ownerRequests={};this._ownerErrors={};}
   clearScaleRequests(){for(const timer of this._scaleTimers.values())clearTimeout(timer);this._scaleTimers.clear();clearTimeout(this._deviceTimer);clearTimeout(this._stopTimer);clearTimeout(this._recoveryTimer);this.clearScaleHold();this._scaleRequests={};this._scaleLate={};this._scaleDrafts={};this._scaleSnapshots={};this._scaleErrors={};this._deviceRequest=null;this._deviceLate=null;this._deviceError=false;this._stopRequest=null;this._stopStatus='';this._recoveryRequest=null;this._recoveryStatus='';}
   scaleErrorText(){return locale(this.hass,this._config).startsWith('ru')?'Не удалось подтвердить настройку. Проверьте состояние устройства.':'The setting was not confirmed. Check the device state.';}
-  deviceErrorText(){return locale(this.hass,this._config).startsWith('ru')?'Управление переключено не полностью или не подтверждено. Проверьте настройки устройства.':'The change may be partial or unconfirmed. Check device settings.';}
+  deviceErrorText(){const ru=locale(this.hass,this._config).startsWith('ru');return this._deviceError==='preflight'?(ru?'Текущие настройки не подтверждены. Выберите значение на регуляторе, чтобы задать его вручную.':'Current settings are not confirmed. Select a regulator value to set it manually.'):ru?'Управление переключено не полностью или не подтверждено. Проверьте настройки устройства.':'The change may be partial or unconfirmed. Check device settings.';}
   syncScaleRequest(item){
     const request=this._scaleRequests[item.id];
     if(!request){const late=this._scaleLate[item.id];if(late&&late.gatewaySettled!==false&&(quickScaleConfirmed(this.hass,this._config,item,late)||(item.mode_scale.kind==='ac-speed'&&quickScaleSaved(this.hass,this._config,item,late)))){delete this._scaleLate[item.id];this._scaleErrors={...this._scaleErrors,[item.id]:false};}return;}
@@ -150,7 +150,7 @@ export class M3QuickDeviceCard extends M3DeviceCard{
     if(this._scaleRequests[item.id]?.request_id===request.request_id||this._scaleLate[item.id]?.request_id===request.request_id){if(request.choice==='turbo')request.gatewaySettled=true;this.syncScaleRequest(item);}
   }
   syncDeviceRequest(){
-    const request=this._deviceRequest;if(!request){if(this._deviceLate&&deviceOwnerConfirmed(this.hass,this._config,this._deviceLate)){this._deviceLate=null;this._deviceError=false;}return;}
+    const request=this._deviceRequest;if(!request){if(this._deviceLate&&deviceOwnerConfirmed(this.hass,this._config,this._deviceLate)){this._deviceLate=null;this._deviceError=false;}else if(this._deviceError==='preflight'&&deviceOwnerSnapshot(this.hass,this._config))this._deviceError=false;return;}
     const confirmed=deviceOwnerConfirmed(this.hass,this._config,request),expired=Date.now()>=request.deadline;
     if(!confirmed&&!expired)return;
     clearTimeout(this._deviceTimer);this._deviceRequest=null;if(!confirmed)this._deviceLate=request;this._deviceError=!confirmed;
@@ -160,7 +160,7 @@ export class M3QuickDeviceCard extends M3DeviceCard{
     if(this._busy||this._deviceRequest||Object.keys(this._scaleRequests).length)return;
     const ownership=deviceOwnershipModel(this.hass,this._config);if(!ownership.known)return;
     const owner=ownership.state==='automatic'?'manual':'auto';let request;
-    try{request=deviceOwnerRequest(this.hass,this._config,owner);}catch{this._deviceError=true;return;}
+    try{request=deviceOwnerRequest(this.hass,this._config,owner);}catch{this._deviceError='preflight';return;}
     for(const id of Object.keys(this._scaleLate)){delete this._scaleLate[id];const errors={...this._scaleErrors};delete errors[id];this._scaleErrors=errors;}this._deviceLate=null;request.deadline=Date.now()+90000;
     this._deviceError=false;this._deviceRequest=request;this._deviceTimer=setTimeout(()=>this.syncDeviceRequest(),90000);
     try{await perform(this,this.hass,request.action);}catch{if(this._deviceRequest?.request_id!==request.request_id)return;clearTimeout(this._deviceTimer);this._deviceRequest=null;this._deviceError=true;return;}
@@ -168,8 +168,8 @@ export class M3QuickDeviceCard extends M3DeviceCard{
   }
   deviceOwnerButton(ownership){
     if(!this._config.device_ownership)return nothing;
-    const ready=this.runtimeReady(),auto=ownership.state==='automatic',ru=locale(this.hass,this._config).startsWith('ru'),label=!ready?this.runtimeWarning():!ownership.known?this.t('unavailable'):auto?(ru?'Зафиксировать текущие настройки вручную':'Keep current settings manually'):(ru?'Передать управление автоматике':'Allow automatic control');
-    return html`<button type="button" class="owner device-owner" data-owner=${!ready||!ownership.known?'unknown':auto?'ha':'manual'} aria-label=${label} aria-busy=${this._deviceRequest?'true':nothing} ?disabled=${!ready||!ownership.known||this._busy||!!this._deviceRequest||Object.keys(this._scaleRequests).length>0} @click=${this.toggleDeviceOwner}><span class="owner-icon">${this._deviceRequest?html`<span class="spinner" aria-hidden="true"></span>`:stateIcon(!ready||!ownership.known?'info':auto?'auto_awesome':'lock',this.motion)}</span></button>`;
+    const ready=this.runtimeReady(),auto=ownership.state==='automatic',canFreeze=!auto||!!deviceOwnerSnapshot(this.hass,this._config),ru=locale(this.hass,this._config).startsWith('ru'),label=!ready?this.runtimeWarning():!ownership.known?this.t('unavailable'):!canFreeze?(ru?'Текущие настройки не подтверждены: фиксация недоступна':'Current settings are not confirmed: manual capture unavailable'):auto?(ru?'Зафиксировать текущие настройки вручную':'Keep current settings manually'):(ru?'Передать управление автоматике':'Allow automatic control');
+    return html`<button type="button" class="owner device-owner" data-owner=${!ready||!ownership.known?'unknown':auto?'ha':'manual'} aria-label=${label} title=${label} aria-busy=${this._deviceRequest?'true':nothing} ?disabled=${!ready||!ownership.known||!canFreeze||this._busy||!!this._deviceRequest||Object.keys(this._scaleRequests).length>0} @click=${this.toggleDeviceOwner}><span class="owner-icon">${this._deviceRequest?html`<span class="spinner" aria-hidden="true"></span>`:stateIcon(!ready||!ownership.known?'info':auto?'auto_awesome':'lock',this.motion)}</span></button>`;
   }
   clearScaleHold(){if(this._scaleHold)clearTimeout(this._scaleHold.timer);this._scaleHold=null;}
   async openSettings(controlId=''){
@@ -186,7 +186,7 @@ export class M3QuickDeviceCard extends M3DeviceCard{
   parameterSettings(item){
     const m=quickScaleModel(this.hass,this._config,item),permission=automationPermission(this.hass,item),ru=locale(this.hass,this._config).startsWith('ru');
     const ready=this.runtimeReady()&&!!(m.available||m.selectable)&&!this._busy&&!this._deviceRequest&&!this._scaleRequests[item.id];
-    const value=m.deviceOff?this.t('off'):this.scaleValueText(m.position===null?null:m.choices[m.position],item);
+    const value=this.scaleValueText(m.position===null?null:m.choices[m.position],item);
     const off=item.mode_scale.kind==='breather-temperature'?(ru?'«Без нагрева» задаёт 5 °C и не выключает приток воздуха.':'Heating off sets 5 °C without switching off airflow.'):(ru?'«Выключен» останавливает устройство.':'Off stops the device.');
     return html`<section class="parameter-settings" aria-label=${item.name}>
       <p>${ru?'Текущее значение':'Current value'}: <strong>${value}</strong></p>
@@ -213,7 +213,7 @@ export class M3QuickDeviceCard extends M3DeviceCard{
     const m=quickScaleModel(this.hass,this._config,item),draft=this.runtimeReady()?this._scaleDrafts[item.id]:undefined,position=draft??m.position,choice=position===null?null:m.choices[position],disabled=!m.available||!this.runtimeReady(),process=scalePresentation(item,m,parameterOperation(operation,item),draft,this._scaleSnapshots[item.id]);
     const waiting=this._scaleRequests[item.id],ru=locale(this.hass,this._config).startsWith('ru');
     const message=this._scaleErrors[item.id]?this.scaleErrorText():waiting?.saved?(ru?`Цель ${this.n(waiting.intent.value)} °C: ожидается применение`:`Target ${this.n(waiting.intent.value)} °C: awaiting application`):waiting?this.t('pending'):!m.available?this.t('noData'):'';
-    const valueText=m.deviceOff&&draft===undefined?this.t('off'):this.scaleValueText(choice,item);
+    const valueText=this.scaleValueText(choice,item);
     const saved=this.s(item.value_entity),savedValue=typeof saved?.state==='string'&&/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(saved.state)?Number(saved.state):NaN;
     const savedPermission=automationPermission(this.hass,item),savedOff=item.mode_scale.kind==='breather-temperature'&&m.deviceOff===true&&savedPermission.available&&!savedPermission.automatic&&available(saved)&&Number.isFinite(savedValue),savedSpeedOff=item.mode_scale.kind==='ac-speed'&&m.deviceOff===true&&savedPermission.available&&!savedPermission.automatic&&available(saved)&&m.choices.includes(saved.state);
     return html`<div class="quick-field" data-control-id=${item.id} data-tone=${process.tone} data-preview=${String(process.preview)} @pointerdown=${event=>this.startScaleHold(event,item)} @pointermove=${this.moveScaleHold} @pointerup=${this.clearScaleHold} @pointercancel=${this.clearScaleHold}>
