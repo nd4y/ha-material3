@@ -1,3 +1,11 @@
+## 0.19.5 - 2026-10-29
+
+- Allow a new released regulator value or the device Auto button to replace a waiting setting, without bypassing controller interlocks.
+- Cancel obsolete UI confirmation after a newer admitted intent, and ignore late results from superseded requests.
+- Keep saved AC targets visible after navigation while native application is pending.
+- Cancel delayed regulator help after a gesture, source availability or window focus is lost.
+- Reapply an explicitly released mode-scale position, including an already selected Off; canceled gestures and ordinary preference sliders still send nothing.
+
 ## 0.19.4 - 2026-10-29
 
 - Keep a stopped device's primary speed regulator usable at Off even when no running speed is reported.

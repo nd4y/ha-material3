@@ -125,7 +125,7 @@ export function quickScaleOffRequest(hass,card,item){
   validateQuickScale(item);if(![item.mode_scale.revision_entity,item.mode_scale.completed_entity].every(id=>available(stateOf(hass,id))))throw new Error('Admission unavailable');
   const id=requestId(),action=valueAction(item.mode_scale.gateway,'off');action.data.request_id=id;
   const device=stateOf(hass,card.entity),powerKnown=available(device)&&['on','off','heat','cool','dry','fan_only','auto'].includes(device.state);
-  return {choice:'off',intent:item.mode_scale.kind==='breather-temperature'?{type:'manual',parameter:'temperature',value:5,heatOff:true}:{type:'power-off'},action,request_id:id,originalPowerOff:powerKnown?device.state==='off':null};
+  return {choice:'off',intent:item.mode_scale.kind==='breather-temperature'?{type:'manual',parameter:'temperature',value:5,heatOff:true}:{type:'power-off'},action,request_id:id,previous_request_id:stateOf(hass,item.mode_scale.revision_entity)?.state,originalPowerOff:powerKnown?device.state==='off':null};
 }
 export function quickScaleRequest(hass,card,item,position,snapshot){
   const m=quickScaleModel(hass,card,item);
@@ -147,7 +147,15 @@ export function quickScaleRequest(hass,card,item,position,snapshot){
   const intent=choice==='auto'?{type:'automatic'}:choice==='off'&&kind!=='breather-temperature'?{type:'power-off'}:{type:'manual',parameter:kind.endsWith('temperature')?'temperature':'speed',value:choice==='off'?5:choice,...(kind==='ac-temperature'?{mode:choice<room.value-1?'cool':choice>room.value+1?'heat':'fan_only'}:{})};
   const id=requestId(),action=valueAction(item.mode_scale.gateway,choice);action.data.request_id=id;
   if(room){action.data.room_snapshot=room.value;action.data.room_last_changed=room.last_changed;action.data.room_source=room.source;action.data.room_source_last_changed=room.source_last_changed;}
-  return {choice,intent,action,request_id:id,originalPowerOff:m.deviceOff,turboSnapshot};
+  return {choice,intent,action,request_id:id,previous_request_id:stateOf(hass,item.mode_scale.revision_entity)?.state,originalPowerOff:m.deviceOff,turboSnapshot};
+}
+export function quickScaleSuperseded(hass,card,item,request){
+  if(request.gatewaySettled!==true&&request.admitted!==true)return false;
+  const marker=stateOf(hass,item.mode_scale.revision_entity);if(!available(marker))return false;const id=marker.state;
+  if(request.previous_request_id!==undefined&&/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)&&id!==request.request_id&&id!==request.previous_request_id)return true;
+  if(id!==request.request_id)return false;
+  const p=automationPermission(hass,request.intent.type==='power-off'?card.power:item);
+  return request.choice!=='auto'&&p.available&&p.automatic;
 }
 // Service acknowledgement is deliberately absent. Confirmation requires HA readback.
 export function quickScaleSaved(hass,card,item,request){

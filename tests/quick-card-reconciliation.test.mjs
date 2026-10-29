@@ -6,13 +6,28 @@ function create(){
  const matches=(h,r)=>h.revision===r.request_id&&h.completed===r.request_id&&h.value===r.expected;
  const context={M3DeviceCard:Base,css:()=>'',html:()=>'',nothing:null,common:{},icon:()=>'',customElements:{define:(name,klass)=>registry[name]=klass},document:{hidden:false},window:{},Date,
   setTimeout:(fn)=>{timers.set(++timerId,fn);return timerId;},clearTimeout:id=>timers.delete(id),locale:()=> 'ru',
-  quickScaleConfirmed:(h,c,i,r)=>matches(h,r),quickScaleSaved:()=>false,deviceOwnerConfirmed:(h,c,r)=>matches(h,r),
+  quickScaleConfirmed:(h,c,i,r)=>matches(h,r),quickScaleSaved:()=>false,quickScaleSuperseded:(h,c,i,r)=>h.superseded===r.request_id,deviceOwnerConfirmed:(h,c,r)=>matches(h,r),
   quickScaleRequest:()=>({choice:3,request_id:`new-${++next}`,expected:'new',action:{}}),quickScaleOffRequest:()=>({choice:'off',request_id:`new-${++next}`,expected:'new',action:{}}),
   deviceOwnerRequest:()=>({owner:'manual',request_id:`owner-${++next}`,expected:'owner',action:{}}),deviceOwnershipModel:()=>({known:true,state:'automatic'}),perform:async(host,hass,action)=>{calls.push(action);if(hass.reject)throw new Error('service rejected');},requestId:()=>`stop-${++next}`,structuredClone,validateControls:()=>{},validateQuickScale:()=>{},validateDeviceOwner:()=>{},validateQuickSettings:()=>{},
   roomSnapshot:()=>null,automationPermission:()=>({available:true,automatic:true}),available:state=>!!state&&!['unknown','unavailable'].includes(state.state),runtimeSafetyReady,validateRuntimeSafety};
  let source=fs.readFileSync(new URL('../src/quick-card.js',import.meta.url),'utf8');source=source.replace(/^import .*;\s*$/gm,'').replace('export class M3QuickDeviceCard','class M3QuickDeviceCard');vm.runInNewContext(source,context);
- const card=new registry['ha-m3-quick-device-card'](),item={id:'temp',mode_scale:{kind:'breather-temperature'}};card._config.quick_controls=[item];return {card,item,calls};
+ const card=new registry['ha-m3-quick-device-card'](),item={id:'temp',mode_scale:{kind:'breather-temperature'}};card._config.quick_controls=[item];return {card,item,calls,context,timers};
 }
+
+test('a new released scale value replaces a pending saved request and ignores its late service result',async()=>{
+ const {card,item,calls,context}=create();let finish;context.perform=async(host,hass,action)=>{calls.push(action);if(calls.length===1)await new Promise(r=>finish=r);};
+ const oldPromise=card.commitScale(item,1),old=card._scaleRequests.temp;
+ await card.commitScale(item,2);const current=card._scaleRequests.temp;assert.notEqual(current.request_id,old.request_id);assert.equal(calls.length,2);
+ finish();await oldPromise;assert.equal(card._scaleRequests.temp,current);
+ card.hass={revision:old.request_id,completed:old.request_id,value:'new'};card.syncScaleRequest(item);assert.equal(card._scaleRequests.temp,current);
+ card.hass={revision:current.request_id,completed:current.request_id,value:'new'};card.syncScaleRequest(item);assert.equal(card._scaleRequests.temp,undefined);assert.equal(card._scaleErrors.temp,false);
+});
+test('device ownership remains actionable during a pending scale and cancels only obsolete UI tracking',async()=>{
+ const {card,item,calls}=create();await card.commitScale(item,1);assert(card._scaleRequests.temp);await card.toggleDeviceOwner();assert.equal(calls.length,2);assert.equal(card._scaleRequests.temp,undefined);assert(card._deviceRequest);
+});
+test('an external superseding intent clears pending UI without reporting a timeout or claiming the old request completed',()=>{
+ const {card,item}=create();card._scaleRequests.temp={request_id:'old',deadline:Date.now()+1000};card.hass.superseded='old';card.syncScaleRequest(item);assert.deepEqual(Object.keys(card._scaleRequests),[]);assert.deepEqual(Object.keys(card._scaleErrors),[]);
+});
 test('late matching scale readback clears timeout without replay',()=>{const {card,item,calls}=create(),r={request_id:'old',expected:'done',deadline:Date.now()-1};card._scaleRequests.temp=r;card.syncScaleRequest(item);assert.equal(card._scaleErrors.temp,true);assert.equal(card._scaleLate.temp,r);card.hass={revision:'old',completed:'old',value:'done'};card.syncScaleRequest(item);assert.equal(card._scaleErrors.temp,false);assert.equal(card._scaleLate.temp,undefined);assert.equal(calls.length,0);});
 test('new scale request supersedes late completion from old request',async()=>{const {card,item,calls}=create(),r={request_id:'old',expected:'done',deadline:Date.now()-1};card._scaleRequests.temp=r;card.syncScaleRequest(item);await card.commitScale(item,1);const current=card._scaleRequests.temp;assert(current);assert.equal(card._scaleLate.temp,undefined);card.hass={revision:'old',completed:'old',value:'done'};card.syncScaleRequest(item);assert.equal(card._scaleRequests.temp,current);card.hass={revision:current.request_id,completed:current.request_id,value:'new'};card.syncScaleRequest(item);assert.equal(card._scaleRequests.temp,undefined);assert.equal(card._scaleErrors.temp,false);assert.equal(calls.length,1);});
 test('late matching ownership readback clears timeout without replay',()=>{const {card,calls}=create(),r={request_id:'owner-old',expected:'owner',deadline:Date.now()-1};card._deviceRequest=r;card.syncDeviceRequest();assert.equal(card._deviceError,true);card.hass={revision:'owner-old',completed:'owner-old',value:'owner'};card.syncDeviceRequest();assert.equal(card._deviceError,false);assert.equal(card._deviceLate,null);assert.equal(calls.length,0);});
