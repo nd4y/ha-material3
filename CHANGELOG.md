@@ -1,3 +1,11 @@
+## 0.19.3 - 2026-10-29
+
+- Keep climate regulators in place when controller readiness changes; show device status in the header and keep stop/recovery actions in the device settings menu.
+- Disable recovery requests while the controller itself is unavailable; emergency stop remains accessible.
+- Close detached dialogs and cancel stale pending opens so menus reopen as proper modal dialogs after navigation.
+- Keep device Auto/lock buttons circular with a consistent 48px target.
+- Add desktop regressions for live layout stability, dialog reconnects and keyboard focus.
+
 ## 0.19.2 - 2026-10-29
 
 - Wait for Home Assistant state confirmation for room automation, device permissions and room temperature; report timeouts and retain pending deadlines across reconnects.

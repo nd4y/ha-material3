@@ -144,6 +144,8 @@ Changes go through a branch and pull request. Run `npm version patch --no-git-ta
 
 ## Quick sliders and persistent locks
 
+When climate control is temporarily unavailable, the device header shows its status without moving the regulators. Open the device settings menu for emergency stop and recovery checks. Recovery is disabled until the controller is ready to accept it; opening the menu itself never sends a command.
+
 See [quick control configuration](docs/QUICK_CONTROLS.md) for device metadata, native Auto modes and server-enforced manual locks. Available since v0.6.0.
 # Direct controls and quick access
 
