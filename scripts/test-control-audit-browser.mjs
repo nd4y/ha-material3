@@ -105,6 +105,7 @@ try{
  await scenario('desktop-keyboard-menu-focus',async()=>{
   await page.setViewportSize({width:1440,height:1000});const trigger=summary.locator('.unified-goals-heading ha-m3-button button');await trigger.focus();await trigger.press('Enter');
   await summary.locator('#automation-menu').waitFor({state:'visible'});await page.keyboard.press('Escape');await summary.locator('#automation-menu').waitFor({state:'hidden'});
+  await page.waitForFunction(e=>e.getRootNode().activeElement===e,await trigger.elementHandle(),{timeout:2000});
   check(await trigger.evaluate(e=>e.getRootNode().activeElement===e),'Escape restores keyboard focus');check((await writes()).length===0,'Keyboard menus are read-only');
  });
 }catch(e){report.fatal=e.stack;}finally{report.passed=!report.fatal&&!report.errors.length&&!report.external.length&&report.cases.every(c=>c.passed);await fs.writeFile(path.join(root,'control-audit-browser-report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report));await browser?.close();await new Promise(r=>server.close(r));if(!report.passed)process.exitCode=1;}
