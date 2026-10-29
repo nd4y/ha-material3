@@ -12,10 +12,18 @@ const report={version:manifest.version,synthetic:true,selection,cases:[],errors:
 const check=(value,message)=>{current.assertions++;if(!value)throw Error(message);};
 async function scenario(name,fn){if(selection&&!new RegExp(selection).test(name))return;current={name,assertions:0,passed:false};report.cases.push(current);try{await page.evaluate(()=>window.controlAudit.reset());await fn();current.passed=true;}catch(e){current.error=e.message;await page.screenshot({path:path.join(root,'control-audit-failure.png'),fullPage:true});}}
 try{
- browser=await chromium.launch({headless:true,args:['--disable-dev-shm-usage']});const context=await browser.newContext({viewport:{width:390,height:900},locale:'ru-RU',hasTouch:true});await context.route('**/*',r=>new URL(r.request().url()).origin===base?r.continue():(report.external.push(r.request().url()),r.abort()));page=await context.newPage();await page.clock.install();page.on('pageerror',e=>report.errors.push(e.message));await page.goto(base+'/control-audit.html');await page.waitForFunction(()=>window.controlAudit);
+ browser=await chromium.launch({headless:true,args:['--disable-dev-shm-usage'],...(process.env.M3_BROWSER_EXECUTABLE?{executablePath:process.env.M3_BROWSER_EXECUTABLE}:{})});const context=await browser.newContext({viewport:{width:390,height:900},locale:'ru-RU',hasTouch:true});await context.route('**/*',r=>new URL(r.request().url()).origin===base?r.continue():(report.external.push(r.request().url()),r.abort()));page=await context.newPage();await page.clock.install();page.on('pageerror',e=>report.errors.push(e.message));await page.goto(base+'/control-audit.html');await page.waitForFunction(()=>window.controlAudit);
  page.setDefaultTimeout(5000);
  const summary=page.locator('ha-m3-climate-card'),device=i=>page.locator('ha-m3-quick-device-card').nth(i),writes=()=>page.evaluate(()=>window.controlAudit.writes),set=(id,value,attributes)=>page.evaluate(({id,value,attributes})=>window.controlAudit.set(id,value,attributes),{id,value,attributes});
  const config=await page.evaluate(()=>window.controlAudit.config);
+ await scenario('stationary Off is an explicit released command but a canceled hold is not',async()=>{
+  const c=config.cards[1],item=c.quick_controls[0];await set(c.entity,'off',{temperature:23,fan_mode:'low'});
+  const input=device(1).locator('[data-control-id="temperature"] input');
+  await input.press('Home');let calls=await writes();check(calls.length===1&&calls[0].data[item.mode_scale.gateway.value_field]==='off','Already selected Off must send a new explicit Stop');const first=calls[0].data.request_id;
+  await set(item.mode_scale.revision_entity,first);await set(item.mode_scale.completed_entity,first);await set(c.power.lock_entity,'on');await set(c.power.value_entity,'off');await set(item.lock_entity,'on');
+  await input.press('Home');calls=await writes();check(calls.length===2&&calls[1].data.request_id!==first,'A second released Stop has its own id');
+  const count=calls.length;await input.scrollIntoViewIfNeeded();const box=await input.boundingBox();await page.mouse.move(box.x+1,box.y+box.height/2);await page.mouse.down();await page.keyboard.press('Escape');await page.mouse.up();check((await writes()).length===count,'Canceled same-position gesture sends nothing');
+ });
  await scenario('new scale choice replaces a saved pending target and Auto cancels obsolete UI wait',async()=>{
   const c=config.cards[1],item=c.quick_controls[0],input=device(1).locator('[data-control-id="temperature"] input');
   await input.press('ArrowRight');let calls=await writes();check(calls.length===1,'First request sent');const old=calls[0].data.request_id;
