@@ -4,6 +4,7 @@
 - Show the breather's independent heating target while airflow is Off; 5 °C means heating off.
 - Support the controller's explicit Off-freeze contract without substituting an old saved speed for an unknown report.
 - Cover the stopped-device ownership round trip and rendered controls in browser regressions.
+- Disable capture of unavailable current settings before a request, while keeping release to automation available; identify qualified per-parameter readback in the automation menu.
 
 ## 0.19.3 - 2026-10-29
 

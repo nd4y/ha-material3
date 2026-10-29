@@ -16,6 +16,18 @@ try{
  page.setDefaultTimeout(5000);
  const summary=page.locator('ha-m3-climate-card'),device=i=>page.locator('ha-m3-quick-device-card').nth(i),writes=()=>page.evaluate(()=>window.controlAudit.writes),set=(id,value,attributes)=>page.evaluate(({id,value,attributes})=>window.controlAudit.set(id,value,attributes),{id,value,attributes});
  const config=await page.evaluate(()=>window.controlAudit.config);
+ await scenario('unavailable capture is disabled but explicit release of ownership remains possible',async()=>{
+  const c=config.cards[0],speed=c.quick_controls[1];await set(c.entity,'off',{fan_mode:null,preset_mode:null});
+  await summary.locator('.unified-goals-heading ha-m3-button button').click();
+  const groupIndex=config.main.automation_groups.findIndex(g=>g.controls.some(x=>x.lock_entity===speed.lock_entity)),controlIndex=config.main.automation_groups[groupIndex].controls.findIndex(x=>x.lock_entity===speed.lock_entity);
+  const permission=summary.locator('#automation-menu .automation-group').nth(groupIndex).locator('ha-m3-switch').nth(controlIndex);
+  check(await permission.evaluate(e=>e.disabled),'Cannot capture an unknown current speed');
+  await set(speed.lock_entity,'on');check(await permission.evaluate(e=>!e.disabled),'Releasing ownership must remain possible even without speed readback');
+  await page.keyboard.press('Escape');await set(config.cards[3].entity,'unavailable');
+  check(await device(3).locator('.device-owner').isDisabled(),'Unplugged heater cannot capture absent settings');
+  check(await device(3).evaluate(e=>!e._deviceError),'Unavailability must not be a false partial-change error');
+  check((await writes()).length===0,'Readiness checks must not send commands');
+ });
  await scenario('known Off breather remains controllable and ownership freezes without a fabricated speed',async()=>{
   const c=config.cards[0],temp=c.quick_controls[0],speed=c.quick_controls[1];
   await set(c.entity,'off',{temperature:10,fan_mode:null,preset_mode:null,ownership_contract:'off-freeze-v1'});

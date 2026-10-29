@@ -307,6 +307,10 @@
                   "operation": "lock"
                 },
                 "value_field": "value"
+              },
+              "manual_readback": {
+                "entity": "sensor.office_climate_ac",
+                "attribute": "temperature"
               }
             },
             {
@@ -321,6 +325,10 @@
                   "operation": "lock"
                 },
                 "value_field": "value"
+              },
+              "manual_readback": {
+                "entity": "sensor.office_climate_ac",
+                "attribute": "fan_mode"
               }
             },
             {
@@ -335,6 +343,9 @@
                   "operation": "lock"
                 },
                 "value_field": "value"
+              },
+              "manual_readback": {
+                "entity": "sensor.office_climate_ac"
               }
             }
           ]
@@ -355,6 +366,10 @@
                   "operation": "lock"
                 },
                 "value_field": "value"
+              },
+              "manual_readback": {
+                "entity": "sensor.office_climate_breather",
+                "attribute": "temperature"
               }
             },
             {
@@ -369,6 +384,10 @@
                   "operation": "lock"
                 },
                 "value_field": "value"
+              },
+              "manual_readback": {
+                "entity": "sensor.office_climate_breather",
+                "attribute": "fan_mode"
               }
             },
             {
@@ -383,6 +402,9 @@
                   "operation": "lock"
                 },
                 "value_field": "value"
+              },
+              "manual_readback": {
+                "entity": "sensor.office_climate_breather"
               }
             }
           ]
@@ -403,6 +425,10 @@
                   "operation": "lock"
                 },
                 "value_field": "value"
+              },
+              "manual_readback": {
+                "entity": "sensor.office_climate_purifier",
+                "attribute": "fan_mode"
               }
             },
             {
@@ -417,6 +443,9 @@
                   "operation": "lock"
                 },
                 "value_field": "value"
+              },
+              "manual_readback": {
+                "entity": "sensor.office_climate_purifier"
               }
             }
           ]
@@ -436,6 +465,10 @@
                   "operation": "lock"
                 },
                 "value_field": "value"
+              },
+              "manual_readback": {
+                "entity": "sensor.office_climate_heater",
+                "attribute": "temperature"
               }
             },
             {
@@ -449,6 +482,9 @@
                   "operation": "lock"
                 },
                 "value_field": "value"
+              },
+              "manual_readback": {
+                "entity": "sensor.office_climate_heater"
               }
             }
           ]

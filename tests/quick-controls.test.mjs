@@ -1,6 +1,16 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {controlModel,controlValue,valueAction,validateControls} from '../src/quick-controls.js';
+import {controlModel,controlValue,valueAction,validateControls,manualReadbackAvailable} from '../src/quick-controls.js';
 const s=(state,attributes={})=>({state:String(state),attributes});
+test('explicit ownership readback never freezes missing, unqualified, faulted or native Auto values',()=>{
+ const item={manual_readback:{entity:'sensor.source',attribute:'fan_mode'}},source=s('off',{source_qualified:true,health:'healthy',fan_mode:null}),h={states:{'sensor.source':source}};
+ for(const value of [null,undefined,'','auto','unknown','unavailable',NaN,{},[]]){source.attributes.fan_mode=value;assert.equal(manualReadbackAvailable(h,item),false);}
+ for(const value of ['0','3',0,false]){source.attributes.fan_mode=value;assert.equal(manualReadbackAvailable(h,item),true);}
+ source.attributes.health='fault';assert.equal(manualReadbackAvailable(h,item),false);source.attributes.health='unknown';assert.equal(manualReadbackAvailable(h,item),true);
+ source.attributes.source_qualified=false;assert.equal(manualReadbackAvailable(h,item),false);source.attributes.source_qualified=true;
+ source.state='unavailable';assert.equal(manualReadbackAvailable(h,item),false);source.state='off';
+ item.manual_readback={entity:'sensor.source'};assert.equal(manualReadbackAvailable(h,item),true);
+ assert.equal(manualReadbackAvailable(h,{}),true);
+});
 const numeric={id:'target',name:'Target',entity:'climate.demo',attribute:'temperature',bounds:{min:'min_temp',max:'max_temp',step:'target_temp_step'},lock_entity:'input_boolean.lock',value_entity:'input_number.saved',set_action:{action:'perform-action',perform_action:'script.manual',value_field:'value'}};
 test('numeric controls use device bounds and held intent, never fixed temperature limits',()=>{
   const hass={states:{'climate.demo':s('heat',{temperature:21,min_temp:10,max_temp:38,target_temp_step:.5}),'input_boolean.lock':s('off'),'input_number.saved':s(30)}};
