@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {validateQuickScale,quickScaleModel,quickScaleRequest,quickScaleOffRequest,quickScaleConfirmed,quickScaleSaved,roomSnapshot,validateDeviceOwner,deviceOwnerSnapshot,deviceOwnerRequest,deviceOwnerConfirmed,requestId} from '../src/quick-scale.js';
+import {validateQuickScale,quickScaleModel,quickScaleRequest,quickScaleOffRequest,quickScaleConfirmed,quickScaleSaved,quickScaleSuperseded,roomSnapshot,validateDeviceOwner,deviceOwnerSnapshot,deviceOwnerRequest,deviceOwnerConfirmed,requestId} from '../src/quick-scale.js';
 const state=(value,attributes={})=>({state:String(value),attributes,last_changed:new Date().toISOString(),last_updated:new Date().toISOString()});
 const revision='input_text.revision',completed='input_text.completed',gateway={action:'perform-action',perform_action:'script.scale_gateway',data:{device:'breather',parameter:'temperature'},value_field:'choice'};
 const freshness={source_entity:'input_text.primary',ttl_entity:'input_number.ttl',epoch_entity:'input_datetime.epoch',expected_source:'sensor.source'};
@@ -27,6 +27,16 @@ const speedItem=()=>({...item,id:'speed',attribute:'fan_mode',options_attribute:
 const turboItem=()=>{const speed=speedItem();return {...speed,mode_scale:{...speed.mode_scale,turbo:true,confirmation:{...speed.mode_scale.confirmation,turbo_temperature_lock_entity:'input_boolean.heat',turbo_temperature_value_entity:'input_number.saved'}}};};
 const turboFixture=(off=false,heatLock='off')=>{const h=make(),s=turboItem();Object.assign(h.states['climate.breather'].attributes,{fan_modes:['1','2','3','4','5','6','7'],preset_modes:['manual','turbo'],preset_mode:'manual'});h.states['climate.breather'].state=off?'off':'fan_only';h.states['input_text.speed']=state('3');h.states['input_text.completed']=state('prior');h.states['input_boolean.heat']=state(heatLock);h.states['input_number.saved']=state(heatLock==='on'?5:22);return {h,s};};
 const ownerCard=()=>({...card,quick_controls:[item],device_ownership:{revision_entity:revision,completed_entity:completed,gateway:{...gateway,value_field:'owner'}}});
+test('supersession distinguishes newer admitted intent from initial state, unavailable marker and pending service',()=>{
+ const h=make(),r=quickScaleRequest(h,card,item,3);r.gatewaySettled=false;
+ assert.equal(quickScaleSuperseded(h,card,item,r),false);
+ h.states[revision].state=requestId();assert.equal(quickScaleSuperseded(h,card,item,r),false);
+ r.admitted=true;assert.equal(quickScaleSuperseded(h,card,item,r),true);
+ h.states[revision].state=r.previous_request_id;r.gatewaySettled=true;assert.equal(quickScaleSuperseded(h,card,item,r),false);
+ h.states[revision].state=r.request_id;h.states['input_boolean.temp'].state='on';assert.equal(quickScaleSuperseded(h,card,item,r),false);
+ h.states['input_boolean.temp'].state='off';assert.equal(quickScaleSuperseded(h,card,item,r),true);
+ h.states[revision].state='unavailable';assert.equal(quickScaleSuperseded(h,card,item,r),false);
+});
 
 test('known Off speed stays adjustable without inventing a running speed',()=>{
   for(const kind of ['breather-speed','ac-speed','purifier-speed']){

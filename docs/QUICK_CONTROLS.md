@@ -2,6 +2,8 @@
 
 Automation-group controls may set `manual_readback: {entity: sensor.qualified_device, attribute: fan_mode}` (omit `attribute` for power). Manual capture is disabled when that qualified current value is absent, the source is unavailable or reports a fault; release to automation remains available. Use the controller's qualified source rather than an optimistic provider entity. Unknown stopped speed is adjustable through the primary scale; it is never inferred from an old saved speed.
 
+A pending application does not lock the user into an old target. A new released value replaces the obsolete browser wait and sends a fresh intent through the same gateway. The device Auto button can release a waiting manual intention. Late responses cannot satisfy the new request; controller interlocks and bounded Stop handling remain authoritative. Saved AC targets awaiting application remain visible after navigation, separately from actual device power and temperature.
+
 `custom:ha-m3-quick-device-card` uses the installed HA entities for numeric bounds,
 steps and discrete options. It has no thermostat algorithm, installation IDs,
 addresses or embedded device models. The regular device card remains compatible.

@@ -16,6 +16,21 @@ try{
  page.setDefaultTimeout(5000);
  const summary=page.locator('ha-m3-climate-card'),device=i=>page.locator('ha-m3-quick-device-card').nth(i),writes=()=>page.evaluate(()=>window.controlAudit.writes),set=(id,value,attributes)=>page.evaluate(({id,value,attributes})=>window.controlAudit.set(id,value,attributes),{id,value,attributes});
  const config=await page.evaluate(()=>window.controlAudit.config);
+ await scenario('new scale choice replaces a saved pending target and Auto cancels obsolete UI wait',async()=>{
+  const c=config.cards[1],item=c.quick_controls[0],input=device(1).locator('[data-control-id="temperature"] input');
+  await input.press('ArrowRight');let calls=await writes();check(calls.length===1,'First request sent');const old=calls[0].data.request_id;
+  await set(item.lock_entity,'on');await set(c.power.lock_entity,'on');await set(c.power.value_entity,'on');await set(item.value_entity,23.5);await set(item.mode_scale.confirmation.mode_entity,'heat');await set(item.mode_scale.confirmation.writing_entity,'off');await set(item.mode_scale.confirmation.pending_entity,'on');await set(item.mode_scale.revision_entity,old);
+  await input.press('ArrowRight');calls=await writes();check(calls.length===2,'Latest released value must not be ignored while waiting');const current=calls[1].data.request_id;check(current!==old,'New gesture has its own request ID');
+  await set(item.mode_scale.completed_entity,old);check(await device(1).evaluate(e=>e._scaleRequests.temperature?.request_id)===current,'Old completion cannot satisfy or clear the replacement');
+  check(await device(1).locator('.device-owner').isEnabled(),'Auto return must remain available while a value is pending');await device(1).locator('.device-owner').click();calls=await writes();check(calls.length===3&&calls[2].data.owner==='auto','Auto action supersedes the pending setting');check(await device(1).evaluate(e=>Object.keys(e._scaleRequests).length===0),'Old view waits canceled without retry');
+  const owner=calls[2].data.request_id;for(const i of [c.power,...c.quick_controls])await set(i.lock_entity,'off');await set(c.device_ownership.revision_entity,owner);await set(c.device_ownership.completed_entity,owner);
+  check(await device(1).evaluate(e=>!e._deviceError&&!e._deviceRequest&&!Object.values(e._scaleErrors).some(Boolean)),'Auto confirmation has no old timeout error');
+ });
+ for(const reason of ['source-loss','escape','blur'])await scenario('canceled stationary regulator hold never opens a delayed menu: '+reason,async()=>{
+  const c=config.cards[0],slider=device(0).locator('[data-control-id="temperature"] input');await slider.scrollIntoViewIfNeeded();const box=await slider.boundingBox();await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();
+  if(reason==='source-loss')await set(c.entity,'unavailable');else if(reason==='escape')await page.keyboard.press('Escape');else await page.evaluate(()=>window.dispatchEvent(new Event('blur')));
+  await page.clock.runFor(700);await page.mouse.up();check(await device(0).locator('ha-m3-quick-settings-menu ha-m3-dialog.main dialog').isVisible()===false,'Canceled hold must not leave a modal over subsequent controls');check((await writes()).length===0,'Canceled gesture sends no setting');
+ });
  await scenario('unavailable capture is disabled but explicit release of ownership remains possible',async()=>{
   const c=config.cards[0],speed=c.quick_controls[1];await set(c.entity,'off',{fan_mode:null,preset_mode:null});
   await summary.locator('.unified-goals-heading ha-m3-button button').click();
