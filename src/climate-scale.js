@@ -42,8 +42,10 @@ export function scaleSelection(config,choice,context){
 export function effectivePosition(config,{owner,deviceOff,effective}){
   const choices=scaleChoices(config);
   if(!['manual','ha','native'].includes(owner))return null;
-  if(deviceOff===true)return choices.indexOf(OFF);
-  if(deviceOff!==false||effective===null||effective===undefined)return null;
+  // Breather heat is independent of airflow/power. Its Off endpoint means
+  // 5 degrees, never whole-device Off. Other primary scales retain Off.
+  if(deviceOff===true&&config.kind!=='breather-temperature')return choices.indexOf(OFF);
+  if(deviceOff===null||effective===null||effective===undefined)return null;
   const value=config.kind==='breather-temperature'&&Number(effective)===5?OFF:effective;
   const position=choices.indexOf(value);
   // Auto is ownership, not the visible slider value after confirmation.

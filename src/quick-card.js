@@ -186,7 +186,7 @@ export class M3QuickDeviceCard extends M3DeviceCard{
   parameterSettings(item){
     const m=quickScaleModel(this.hass,this._config,item),permission=automationPermission(this.hass,item),ru=locale(this.hass,this._config).startsWith('ru');
     const ready=this.runtimeReady()&&!!(m.available||m.selectable)&&!this._busy&&!this._deviceRequest&&!this._scaleRequests[item.id];
-    const value=m.deviceOff?this.t('off'):this.scaleValueText(m.position===null?null:m.choices[m.position],item);
+    const value=this.scaleValueText(m.position===null?null:m.choices[m.position],item);
     const off=item.mode_scale.kind==='breather-temperature'?(ru?'«Без нагрева» задаёт 5 °C и не выключает приток воздуха.':'Heating off sets 5 °C without switching off airflow.'):(ru?'«Выключен» останавливает устройство.':'Off stops the device.');
     return html`<section class="parameter-settings" aria-label=${item.name}>
       <p>${ru?'Текущее значение':'Current value'}: <strong>${value}</strong></p>
@@ -213,7 +213,7 @@ export class M3QuickDeviceCard extends M3DeviceCard{
     const m=quickScaleModel(this.hass,this._config,item),draft=this.runtimeReady()?this._scaleDrafts[item.id]:undefined,position=draft??m.position,choice=position===null?null:m.choices[position],disabled=!m.available||!this.runtimeReady(),process=scalePresentation(item,m,parameterOperation(operation,item),draft,this._scaleSnapshots[item.id]);
     const waiting=this._scaleRequests[item.id],ru=locale(this.hass,this._config).startsWith('ru');
     const message=this._scaleErrors[item.id]?this.scaleErrorText():waiting?.saved?(ru?`Цель ${this.n(waiting.intent.value)} °C: ожидается применение`:`Target ${this.n(waiting.intent.value)} °C: awaiting application`):waiting?this.t('pending'):!m.available?this.t('noData'):'';
-    const valueText=m.deviceOff&&draft===undefined?this.t('off'):this.scaleValueText(choice,item);
+    const valueText=this.scaleValueText(choice,item);
     const saved=this.s(item.value_entity),savedValue=typeof saved?.state==='string'&&/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(saved.state)?Number(saved.state):NaN;
     const savedPermission=automationPermission(this.hass,item),savedOff=item.mode_scale.kind==='breather-temperature'&&m.deviceOff===true&&savedPermission.available&&!savedPermission.automatic&&available(saved)&&Number.isFinite(savedValue),savedSpeedOff=item.mode_scale.kind==='ac-speed'&&m.deviceOff===true&&savedPermission.available&&!savedPermission.automatic&&available(saved)&&m.choices.includes(saved.state);
     return html`<div class="quick-field" data-control-id=${item.id} data-tone=${process.tone} data-preview=${String(process.preview)} @pointerdown=${event=>this.startScaleHold(event,item)} @pointermove=${this.moveScaleHold} @pointerup=${this.clearScaleHold} @pointercancel=${this.clearScaleHold}>

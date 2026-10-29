@@ -53,6 +53,9 @@ export function deviceOwnerSnapshot(hass,card){
   const values={};
   for(const item of card.quick_controls){
     const m=quickScaleModel(hass,card,item);
+    if(device.state==='off'&&device.attributes?.ownership_contract==='off-freeze-v1'&&item.mode_scale.kind.endsWith('-speed')&&m.selectable&&(m.effective===null||m.effective===undefined)){
+      values[item.id]=null;continue;
+    }
     if(!m.available||m.effective===null||m.effective===undefined)return null;
     values[item.id]=m.effective;
   }
@@ -69,7 +72,9 @@ export function deviceOwnerConfirmed(hass,card,request){
   const savedPower=stateOf(hass,card.power.value_entity);
   if(!available(savedPower)||!['on','off'].includes(savedPower.state)||(savedPower.state==='on')!==request.snapshot.power)return false;
   const same=(a,b)=>{const x=decimal(a),y=decimal(b);return x!==null&&y!==null?x===y:typeof a==='string'&&typeof b==='string'&&a===b;};
-  return card.quick_controls.every(item=>{const saved=stateOf(hass,item.value_entity),current=quickScaleModel(hass,card,item),actual=request.snapshot.values[item.id];return available(saved)&&same(saved.state,actual)&&current.effective!==null&&current.effective!==undefined&&same(current.effective,actual);});
+  return card.quick_controls.every(item=>{const saved=stateOf(hass,item.value_entity),current=quickScaleModel(hass,card,item),actual=request.snapshot.values[item.id];
+    if(actual===null)return request.snapshot.power===false&&device.state==='off'&&device.attributes?.ownership_contract==='off-freeze-v1'&&item.mode_scale.kind.endsWith('-speed')&&available(saved)&&saved.state===''&&(current.effective===null||current.effective===undefined);
+    return available(saved)&&same(saved.state,actual)&&current.effective!==null&&current.effective!==undefined&&same(current.effective,actual);});
 }
 export function roomSnapshot(hass,item,now=Date.now()){
   if(item.mode_scale?.kind!=='ac-temperature')return null;
@@ -106,11 +111,15 @@ export function quickScaleModel(hass,card,item){
   if(['breather-temperature','ac-temperature','heater-temperature'].includes(scale.kind))effective=decimal(effective);
   else if(effective!==null&&effective!==undefined)effective=String(effective);
   if(scale.turbo&&String(device?.attributes?.preset_mode).toLowerCase()==='turbo')effective='turbo';
-  const position=effectivePosition(caps,{owner,deviceOff,effective});
+  // While stopped, an explicitly saved heat target is a startup intention,
+  // distinct from the last device report (which remains `effective`).
+  const displaySaved=scale.kind==='breather-temperature'&&deviceOff===true&&control.locked;
+  const position=effectivePosition(caps,{owner,deviceOff,effective:displaySaved?control.value:effective});
   const room=roomSnapshot(hass,item);
   const admission=[scale.revision_entity,scale.completed_entity].every(id=>available(stateOf(hass,id)));
   const selectable=!!(admission&&powerKnown&&permission.available&&choices.length);
-  return {available:!!(selectable&&control.available&&position!==null&&(scale.kind!=='ac-temperature'||room)),selectable,reason:!admission?'admission':position===null?'readback':!room&&scale.kind==='ac-temperature'?'room':null,choices,position,owner,deviceOff,effective,caps,room};
+  const knownOff=deviceOff===true&&scale.kind!=='breather-temperature';
+  return {available:!!(selectable&&(knownOff||control.available)&&position!==null&&(scale.kind!=='ac-temperature'||room)),selectable,reason:!admission?'admission':position===null?'readback':!room&&scale.kind==='ac-temperature'?'room':null,choices,position,owner,deviceOff,effective,displaySaved,caps,room};
 }
 export function quickScaleOffRequest(hass,card,item){
   validateQuickScale(item);if(![item.mode_scale.revision_entity,item.mode_scale.completed_entity].every(id=>available(stateOf(hass,id))))throw new Error('Admission unavailable');
