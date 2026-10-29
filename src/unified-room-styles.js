@@ -34,6 +34,7 @@ export const unifiedRoomStyles=css`
   .climate-page[data-unified] .air-boost ha-m3-button{--md-sys-color-primary:var(--goal-tone)}
   .climate-page[data-unified] .calm-head .room-trust{margin:0}
   .climate-page[data-unified] .calm-head .room-trust:not([data-not-ready]) .trust-scope{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+  .climate-page[data-unified] .calm-head .room-trust[data-not-ready] .trust-scope{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;max-height:48px;overflow:hidden}
   .climate-page[data-unified] .calm-body>div{transition:background-color 240ms,color 240ms}
   @container(max-width:650px){
     .climate-page[data-unified][data-compact] .calm-body{grid-template-columns:1fr}
