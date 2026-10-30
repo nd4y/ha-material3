@@ -51,6 +51,34 @@ try{
   await input.press('Home');calls=await writes();check(calls.length===2&&calls[1].data.request_id!==first,'A second released Stop has its own id');
   const count=calls.length;await input.scrollIntoViewIfNeeded();const box=await input.boundingBox();await page.mouse.move(box.x+1,box.y+box.height/2);await page.mouse.down();await page.keyboard.press('Escape');await page.mouse.up();check((await writes()).length===count,'Canceled same-position gesture sends nothing');
  });
+ await scenario('canonical Turbo readback clears wait without disabling the scale or adding a fallback',async()=>{
+  await page.setViewportSize({width:1440,height:1000});
+  const c=config.cards[0],item=c.quick_controls.find(x=>x.mode_scale.kind==='breather-speed'),card=device(0);
+  const field=card.locator(`[data-control-id="${item.id}"]`),input=field.locator('input');
+  await set(c.entity,'fan_only',{preset_mode:'manual',fan_mode:'4',temperature:5,max_temp:25,preset_modes:['manual','auto','night','turbo','ventilation'],fan_modes:['1','2','3','4','5','6','7']});
+  await input.scrollIntoViewIfNeeded();const b=await input.boundingBox();
+  await page.mouse.click(b.x+b.width*8/9,b.y+b.height/2);
+  let calls=await writes();check(calls.length===1&&calls[0].data.choice==='turbo','One Turbo request from the slider');
+  const rid=calls[0].data.request_id;
+  await set(item.lock_entity,'on');await set(item.value_entity,'turbo');
+  await set(c.power.lock_entity,'on');await set(c.power.value_entity,'on');
+  await set(item.mode_scale.revision_entity,rid);
+  check(await field.locator('.scale-choice').count()===0,'No duplicate select while native confirmation is pending');
+  check(await card.evaluate(e=>!!e._scaleRequests.speed),'Service acknowledgement does not complete Turbo');
+  await set(c.entity,'fan_only',{preset_mode:'turbo',fan_mode:null,temperature:5});
+  check(await card.evaluate(e=>!!e._scaleRequests.speed),'Preset alone cannot replace the completion receipt');
+  await set(item.mode_scale.completed_entity,rid);await page.clock.runFor(300);
+  check(await card.evaluate(e=>!e._scaleRequests.speed&&!e._scaleErrors.speed&&e._scaleDrafts.speed===undefined),'Matching native state and receipt complete the request');
+  check(await input.isEnabled(),'Turbo keeps the main slider interactive');
+  check((await field.locator('output').textContent()).trim()==='Турбо','Show received Turbo without inventing numeric speed');
+  check(await field.locator('.scale-choice').count()===0,'No fallback select in confirmed Turbo');
+  check(!(await field.textContent()).includes('Выполняется'),'No stale waiting label');
+  await input.press('ArrowLeft');calls=await writes();check(calls.length===2&&calls[1].data.choice==='7','User can leave Turbo through the same scale');
+  const next=calls[1].data.request_id;await set(item.mode_scale.revision_entity,next);await set(item.value_entity,'7');
+  await set(c.entity,'fan_only',{preset_mode:'manual',fan_mode:'7'});await set(item.mode_scale.completed_entity,next);
+  check(await card.evaluate(e=>!e._scaleRequests.speed&&!e._scaleErrors.speed),'Numeric speed also confirms');
+  check(await input.isEnabled()&&await field.locator('.scale-choice').count()===0,'Numeric scale remains usable');
+ });
  await scenario('manual AC pending shows interlock and clears on native startup',async()=>{
   const c=config.cards[1],item=c.quick_controls[0],qualifier='sensor.test_coordinator',card=device(1);
   await card.evaluate((e,id)=>e.setConfig({...e._config,quick_controls:e._config.quick_controls.map(i=>i.mode_scale?.kind==='ac-temperature'?{...i,mode_scale:{...i.mode_scale,room_freshness:{...i.mode_scale.room_freshness,qualifier_entity:id}}}:i)}),qualifier);

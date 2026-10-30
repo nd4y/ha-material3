@@ -122,7 +122,8 @@ export function quickScaleModel(hass,card,item){
   }
   if(['breather-temperature','ac-temperature','heater-temperature'].includes(scale.kind))effective=decimal(effective);
   else if(effective!==null&&effective!==undefined)effective=String(effective);
-  if(scale.turbo&&String(device?.attributes?.preset_mode).toLowerCase()==='turbo')effective='turbo';
+  const turboActive=scale.kind==='breather-speed'&&turboAvailable&&String(device?.attributes?.preset_mode).toLowerCase()==='turbo';
+  if(turboActive)effective='turbo';
   // While stopped, an explicitly saved heat target is a startup intention,
   // distinct from the last device report (which remains `effective`).
   const displaySaved=scale.kind==='breather-temperature'&&deviceOff===true&&control.locked;
@@ -131,7 +132,11 @@ export function quickScaleModel(hass,card,item){
   const admission=[scale.revision_entity,scale.completed_entity].every(id=>available(stateOf(hass,id)));
   const selectable=!!(admission&&powerKnown&&permission.available&&choices.length);
   const knownOff=deviceOff===true&&scale.kind!=='breather-temperature';
-  return {available:!!(selectable&&(knownOff||control.available)&&position!==null&&(scale.kind!=='ac-temperature'||room)),selectable,reason:!admission?'admission':position===null?'readback':!room&&scale.kind==='ac-temperature'?'room':null,choices,position,owner,deviceOff,effective,displaySaved,caps,room};
+  // Turbo is a received preset, not a numeric fan speed. The controller stores
+  // `turbo` as intent and the device may omit fan_mode while running it.
+  const saved=stateOf(hass,item.value_entity);
+  const turboReadable=turboActive&&(!control.locked||available(saved)&&['turbo','7'].includes(saved.state));
+  return {available:!!(selectable&&(knownOff||control.available||turboReadable)&&position!==null&&(scale.kind!=='ac-temperature'||room)),selectable,reason:!admission?'admission':position===null?'readback':!room&&scale.kind==='ac-temperature'?'room':null,choices,position,owner,deviceOff,effective,displaySaved,caps,room};
 }
 export function quickScaleOffRequest(hass,card,item){
   validateQuickScale(item);if(![item.mode_scale.revision_entity,item.mode_scale.completed_entity].every(id=>available(stateOf(hass,id))))throw new Error('Admission unavailable');
@@ -194,8 +199,11 @@ export function quickScaleConfirmed(hass,card,item,request){
   if(request.choice==='turbo'){
     const cfg=item.mode_scale.confirmation,snapshot=request.turboSnapshot,device=stateOf(hass,card.entity),saved=stateOf(hass,item.value_entity),tempLock=stateOf(hass,cfg.turbo_temperature_lock_entity),tempSaved=stateOf(hass,cfg.turbo_temperature_value_entity),powerLock=stateOf(hass,card.power?.lock_entity),powerSaved=stateOf(hass,card.power?.value_entity);
     if(!snapshot||![device,saved,tempLock,powerLock,powerSaved].every(available)||!p.available||p.automatic)return false;
-    const expectedPowerLock=request.originalPowerOff?'on':snapshot.powerLock,expectedPowerValue=request.originalPowerOff?'on':snapshot.powerValue;
-    return device.state==='fan_only'&&device.attributes?.preset_mode==='turbo'&&decimal(device.attributes?.temperature)===5&&saved.state==='7'&&tempLock.state===snapshot.temperatureLock&&(snapshot.temperatureLock==='off'||(available(tempSaved)&&decimal(tempSaved.state)===5))&&powerLock.state===expectedPowerLock&&powerSaved.state===expectedPowerValue;
+    // Canonical scale requests own power On even when the device was already
+    // running. Retain the old `7` projection for legacy script gateways only.
+    const canonical=saved.state==='turbo';
+    const expectedPowerLock=canonical||request.originalPowerOff?'on':snapshot.powerLock,expectedPowerValue=canonical||request.originalPowerOff?'on':snapshot.powerValue;
+    return device.state==='fan_only'&&device.attributes?.preset_mode==='turbo'&&decimal(device.attributes?.temperature)===5&&(canonical||saved.state==='7')&&tempLock.state===snapshot.temperatureLock&&(snapshot.temperatureLock==='off'||(available(tempSaved)&&decimal(tempSaved.state)===5))&&powerLock.state===expectedPowerLock&&powerSaved.state===expectedPowerValue;
   }
   if(item.mode_scale.kind==='ac-temperature'){
     if(!quickScaleSaved(hass,card,item,request)||stateOf(hass,item.mode_scale.confirmation.pending_entity)?.state!=='off')return false;
