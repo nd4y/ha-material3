@@ -1,3 +1,9 @@
+## 0.19.8 - 2026-10-30
+
+- Confirm canonical Turbo intent using the received preset and matching controller receipt, including already running devices.
+- Keep the Turbo scale interactive when native numeric speed is absent; avoid duplicate fallback controls while a request is pending.
+- Retain legacy Turbo projection compatibility and fail-closed checks for missing or mismatched reports.
+
 ## 0.19.7 - 2026-10-30
 
 - Explain pending manual AC startup using the actual controller interlock: compressor delay, opposing heat or stale room measurement.

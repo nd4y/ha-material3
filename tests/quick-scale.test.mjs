@@ -42,6 +42,24 @@ test('AC freshness follows qualified source measurement even when HA value did n
 const speedItem=()=>({...item,id:'speed',attribute:'fan_mode',options_attribute:'fan_modes',value_entity:'input_text.speed',mode_scale:{kind:'breather-speed',revision_entity:revision,completed_entity:completed,confirmation:{manual_checks:[{entity:'climate.breather',attribute:'preset_mode',value:'manual'}]},gateway:{...gateway,data:{device:'breather',parameter:'speed'}}}});
 const turboItem=()=>{const speed=speedItem();return {...speed,mode_scale:{...speed.mode_scale,turbo:true,confirmation:{...speed.mode_scale.confirmation,turbo_temperature_lock_entity:'input_boolean.heat',turbo_temperature_value_entity:'input_number.saved'}}};};
 const turboFixture=(off=false,heatLock='off')=>{const h=make(),s=turboItem();Object.assign(h.states['climate.breather'].attributes,{fan_modes:['1','2','3','4','5','6','7'],preset_modes:['manual','turbo'],preset_mode:'manual'});h.states['climate.breather'].state=off?'off':'fan_only';h.states['input_text.speed']=state('3');h.states['input_text.completed']=state('prior');h.states['input_boolean.heat']=state(heatLock);h.states['input_number.saved']=state(heatLock==='on'?5:22);return {h,s};};
+
+test('canonical Turbo intent confirms received preset and leaves the scale usable from Off and On',()=>{
+  for(const off of [false,true])for(const heatLock of ['off','on']){
+    const {h,s}=turboFixture(off,heatLock),r=quickScaleRequest(h,card,s,8);
+    h.states[revision].state=r.request_id;h.states[completed].state=r.request_id;
+    h.states['input_boolean.temp'].state='on';h.states['input_text.speed'].state='turbo';
+    h.states['input_boolean.power'].state='on';h.states['input_boolean.saved_power'].state='on';
+    Object.assign(h.states['climate.breather'].attributes,{preset_mode:'turbo',temperature:5,fan_mode:null});
+    h.states['climate.breather'].state='fan_only';
+    assert.equal(quickScaleConfirmed(h,card,s,r),true,`Off=${off}, heatLock=${heatLock}`);
+    const m=quickScaleModel(h,card,s);assert.equal(m.available,true);assert.equal(m.choices[m.position],'turbo');
+    assert.equal(quickScaleRequest(h,card,s,4).choice,'4');
+    assert.equal(quickScaleRequest(h,card,s,9).choice,'auto');
+    h.states[completed].state='other';assert.equal(quickScaleConfirmed(h,card,s,r),false);
+    h.states[completed].state=r.request_id;h.states['climate.breather'].attributes.preset_mode='manual';
+    assert.equal(quickScaleConfirmed(h,card,s,r),false);assert.equal(quickScaleModel(h,card,s).available,false);
+  }
+});
 const ownerCard=()=>({...card,quick_controls:[item],device_ownership:{revision_entity:revision,completed_entity:completed,gateway:{...gateway,value_field:'owner'}}});
 test('supersession distinguishes newer admitted intent from initial state, unavailable marker and pending service',()=>{
  const h=make(),r=quickScaleRequest(h,card,item,3);r.gatewaySettled=false;
