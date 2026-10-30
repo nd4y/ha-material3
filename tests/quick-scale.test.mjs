@@ -67,6 +67,21 @@ test('AC freshness follows qualified source measurement even when HA value did n
 const speedItem=()=>({...item,id:'speed',attribute:'fan_mode',options_attribute:'fan_modes',value_entity:'input_text.speed',mode_scale:{kind:'breather-speed',revision_entity:revision,completed_entity:completed,confirmation:{manual_checks:[{entity:'climate.breather',attribute:'preset_mode',value:'manual'}]},gateway:{...gateway,data:{device:'breather',parameter:'speed'}}}});
 const turboItem=()=>{const speed=speedItem();return {...speed,mode_scale:{...speed.mode_scale,turbo:true,confirmation:{...speed.mode_scale.confirmation,turbo_temperature_lock_entity:'input_boolean.heat',turbo_temperature_value_entity:'input_number.saved'}}};};
 const turboFixture=(off=false,heatLock='off')=>{const h=make(),s=turboItem();Object.assign(h.states['climate.breather'].attributes,{fan_modes:['1','2','3','4','5','6','7'],preset_modes:['manual','turbo'],preset_mode:'manual'});h.states['climate.breather'].state=off?'off':'fan_only';h.states['input_text.speed']=state('3');h.states['input_text.completed']=state('prior');h.states['input_boolean.heat']=state(heatLock);h.states['input_number.saved']=state(heatLock==='on'?5:22);return {h,s};};
+test('native Turbo cooldown survives UI reload without pretending the speed is Turbo',()=>{
+  const {h,s}=turboFixture();
+  Object.assign(h.states['climate.breather'].attributes,{source_qualified:true,turbo_cooldown_remaining:599});
+  assert.equal(quickScaleModel(h,card,s).turboCooldown,599);
+  assert.notEqual(quickScaleModel(h,card,s).effective,'turbo');
+  h.states['input_text.speed'].state='turbo';h.states['input_boolean.temp'].state='on';
+  assert.equal(quickScaleModel(h,card,s).available,true);
+  assert.equal(quickScaleModel(h,card,s).effective,'3');
+  for(const value of [-1,0,601,Infinity,'600',null]){
+    h.states['climate.breather'].attributes.turbo_cooldown_remaining=value;
+    assert.equal(quickScaleModel(h,card,s).turboCooldown,0);
+  }
+  Object.assign(h.states['climate.breather'].attributes,{source_qualified:false,turbo_cooldown_remaining:600});
+  assert.equal(quickScaleModel(h,card,s).turboCooldown,0);
+});
 
 test('canonical Turbo intent confirms received preset and leaves the scale usable from Off and On',()=>{
   for(const off of [false,true])for(const heatLock of ['off','on']){
