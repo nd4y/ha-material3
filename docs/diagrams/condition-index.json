@@ -1,8 +1,8 @@
 {
-  "module_version": "0.10.0",
-  "conditional_operators": 250,
-  "predicate_expressions": 623,
-  "source_tags": 240,
+  "scope": "public_jinja_templates_only",
+  "conditional_operators": 288,
+  "predicate_expressions": 756,
+  "source_tags": 280,
   "sources": {
     "air-goals.jinja": "a5831175dbe77160f76fa6ca3686c62d859c12cf683a8e569891ddf8bf27d8c0",
     "comfort-preferences.jinja": "18b6f9ee0eaf84d59224330c636de719550fd335d3f9cd843c9c6fefdab1116d",
@@ -10,7 +10,8 @@
     "control-dynamics.jinja": "3e481ca559925cee3a85cb741e8de32d4c70ab3ee1b93a5dab2d82b9871acf81",
     "device-health.jinja": "3775f6f201079c2d1c14bd909de1e18cd4e17d183708d1025661066afd4affce",
     "intent-transition.jinja": "7e099608ae77316d25c16542d3f8d7a6934b3417aeb1c722cddf382ee903a688",
-    "legacy-policy.jinja": "ed8532fa2855d58d18dd1ade70807acc3e2412adf3b5a418588b9cef7b10ef07"
+    "legacy-policy.jinja": "9ed7b5a0a403eb02762054f587dcea4cb01ee88c0c8e7e0f9aad8066e46912a1",
+    "thermal-environment.jinja": "6d6c7c5cc077e6595033d164ec346bf2f653a5fa61da27a70edc52453b8c2493"
   },
   "entries": [
     {
@@ -1923,7 +1924,16 @@
     },
     {
       "file": "legacy-policy.jinja",
-      "line": 81,
+      "line": 72,
+      "macro": "legacy_thermal",
+      "tag": "{% set thermal_authorized=p.get('thermal_authorized',false) is sameas true %}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 84,
       "macro": "legacy_thermal",
       "tag": "{% if ac_mode in ['unknown','unavailable'] %}",
       "if": 1,
@@ -1932,7 +1942,7 @@
     },
     {
       "file": "legacy-policy.jinja",
-      "line": 83,
+      "line": 86,
       "macro": "legacy_thermal",
       "tag": "{% elif not auto_enabled or not room_ok or device_fault %}",
       "if": 1,
@@ -1941,7 +1951,7 @@
     },
     {
       "file": "legacy-policy.jinja",
-      "line": 84,
+      "line": 87,
       "macro": "legacy_thermal",
       "tag": "{% set ns.action='stop' if owned and ac_mode in ['cool','heat'] else 'release' %}",
       "if": 0,
@@ -1950,7 +1960,7 @@
     },
     {
       "file": "legacy-policy.jinja",
-      "line": 85,
+      "line": 88,
       "macro": "legacy_thermal",
       "tag": "{% set ns.reason='Климат-контроль выключен' if not auto_enabled else ('Нет достоверной температуры комнаты' if not room_ok else 'Ошибка кондиционера') %}",
       "if": 0,
@@ -1959,7 +1969,7 @@
     },
     {
       "file": "legacy-policy.jinja",
-      "line": 86,
+      "line": 89,
       "macro": "legacy_thermal",
       "tag": "{% elif supply_conflict and measured > desired + 0.1 %}",
       "if": 1,
@@ -1968,7 +1978,7 @@
     },
     {
       "file": "legacy-policy.jinja",
-      "line": 87,
+      "line": 90,
       "macro": "legacy_thermal",
       "tag": "{% set ns.action='stop' if owned and ac_mode == 'cool' else 'release' %} {% set ns.reason='Охлаждение приостановлено: закреплён нагрев притока' %}",
       "if": 0,
@@ -1977,16 +1987,16 @@
     },
     {
       "file": "legacy-policy.jinja",
-      "line": 88,
+      "line": 91,
       "macro": "legacy_thermal",
-      "tag": "{% elif ac_mode not in ['off','cool','heat'] and not (ac_mode == 'fan_only' and maximum_fan_only) %}",
+      "tag": "{% elif ac_mode not in ['off','cool','heat'] and not (ac_mode == 'fan_only' and (maximum_fan_only or thermal_authorized)) %}",
       "if": 1,
       "inline_if": 0,
-      "predicates": 5
+      "predicates": 6
     },
     {
       "file": "legacy-policy.jinja",
-      "line": 90,
+      "line": 93,
       "macro": "legacy_thermal",
       "tag": "{% elif owned and ac_mode not in ['cool','heat'] %}",
       "if": 1,
@@ -1995,7 +2005,7 @@
     },
     {
       "file": "legacy-policy.jinja",
-      "line": 92,
+      "line": 95,
       "macro": "legacy_thermal",
       "tag": "{% elif ac_mode in ['cool','heat'] %}",
       "if": 1,
@@ -2004,7 +2014,7 @@
     },
     {
       "file": "legacy-policy.jinja",
-      "line": 94,
+      "line": 97,
       "macro": "legacy_thermal",
       "tag": "{% if (ac_mode == 'cool' and measured <= desired - 0.5) or (ac_mode == 'heat' and measured >= desired + 0.5) %}",
       "if": 1,
@@ -2013,7 +2023,7 @@
     },
     {
       "file": "legacy-policy.jinja",
-      "line": 95,
+      "line": 98,
       "macro": "legacy_thermal",
       "tag": "{% set ns.action='stop' if owned else 'adopt' %} {% set ns.reason='Температура вышла за защитный порог' %}",
       "if": 0,
@@ -2022,7 +2032,7 @@
     },
     {
       "file": "legacy-policy.jinja",
-      "line": 96,
+      "line": 99,
       "macro": "legacy_thermal",
       "tag": "{% elif owned and since_change >= 300 and ((ac_mode == 'cool' and measured <= desired + 0.1) or (ac_mode == 'heat' and measured >= desired - 0.1)) %}",
       "if": 1,
@@ -2031,7 +2041,7 @@
     },
     {
       "file": "legacy-policy.jinja",
-      "line": 99,
+      "line": 102,
       "macro": "legacy_thermal",
       "tag": "{% set ns.action='maintain' if owned else 'adopt' %}",
       "if": 0,
@@ -2040,7 +2050,7 @@
     },
     {
       "file": "legacy-policy.jinja",
-      "line": 100,
+      "line": 103,
       "macro": "legacy_thermal",
       "tag": "{% set ns.reason='Охлаждение' if ac_mode == 'cool' else 'Обогрев' %}",
       "if": 0,
@@ -2049,7 +2059,7 @@
     },
     {
       "file": "legacy-policy.jinja",
-      "line": 102,
+      "line": 105,
       "macro": "legacy_thermal",
       "tag": "{% elif measured >= desired + 0.7 %}",
       "if": 1,
@@ -2058,25 +2068,34 @@
     },
     {
       "file": "legacy-policy.jinja",
-      "line": 103,
+      "line": 106,
       "macro": "legacy_thermal",
-      "tag": "{% set ns.mode='cool' %} {% set ns.action='start' if since_change >= 300 else 'wait' %}",
+      "tag": "{% set ns.mode='cool' %} {% set passive=p.get('passive_cooling_wait',false) is sameas true %}",
       "if": 0,
-      "inline_if": 1,
+      "inline_if": 0,
       "predicates": 1
     },
     {
       "file": "legacy-policy.jinja",
-      "line": 104,
+      "line": 107,
       "macro": "legacy_thermal",
-      "tag": "{% set ns.reason='Охлаждение' if since_change >= 300 else 'Пауза перед пуском' %}",
+      "tag": "{% set ns.action='start' if since_change >= 300 and not passive else 'wait' %}",
       "if": 0,
       "inline_if": 1,
+      "predicates": 3
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 108,
+      "macro": "legacy_thermal",
+      "tag": "{% set ns.reason='Пауза перед пуском' if since_change < 300 else 'Проверка охлаждения наружным воздухом' if passive else 'Охлаждение' %}",
+      "if": 0,
+      "inline_if": 2,
       "predicates": 1
     },
     {
       "file": "legacy-policy.jinja",
-      "line": 105,
+      "line": 109,
       "macro": "legacy_thermal",
       "tag": "{% elif measured <= desired - 0.7 and breather_at_limit %}",
       "if": 1,
@@ -2085,7 +2104,7 @@
     },
     {
       "file": "legacy-policy.jinja",
-      "line": 107,
+      "line": 111,
       "macro": "legacy_thermal",
       "tag": "{% set ns.action='start' if since_change >= 300 and heating_ready else 'wait' %}",
       "if": 0,
@@ -2094,7 +2113,7 @@
     },
     {
       "file": "legacy-policy.jinja",
-      "line": 108,
+      "line": 112,
       "macro": "legacy_thermal",
       "tag": "{% set ns.reason='Помощь бризеру: обогрев' if ns.action == 'start' else 'Ожидание: бризер / защитная пауза' %}",
       "if": 0,
@@ -2103,7 +2122,16 @@
     },
     {
       "file": "legacy-policy.jinja",
-      "line": 110,
+      "line": 113,
+      "macro": "legacy_thermal",
+      "tag": "{% elif measured <= desired - 0.7 %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "legacy-policy.jinja",
+      "line": 116,
       "macro": "legacy_thermal",
       "tag": "{% set offset = [[native_room - measured,-3] | max,3] | min if native_room_ok else 0 %}",
       "if": 0,
@@ -2112,7 +2140,7 @@
     },
     {
       "file": "legacy-policy.jinja",
-      "line": 114,
+      "line": 120,
       "macro": "legacy_thermal",
       "tag": "{% if plan.action in ['start','adopt'] %}",
       "if": 1,
@@ -2121,7 +2149,7 @@
     },
     {
       "file": "legacy-policy.jinja",
-      "line": 115,
+      "line": 121,
       "macro": "legacy_thermal",
       "tag": "{% set ns.value=plan.target %} {% set ns.send=current_target != plan.target %} {% set ns.reason='Начало цикла' %}",
       "if": 0,
@@ -2130,7 +2158,7 @@
     },
     {
       "file": "legacy-policy.jinja",
-      "line": 116,
+      "line": 122,
       "macro": "legacy_thermal",
       "tag": "{% elif plan.action == 'maintain' and target_changed %}",
       "if": 1,
@@ -2139,7 +2167,7 @@
     },
     {
       "file": "legacy-policy.jinja",
-      "line": 117,
+      "line": 123,
       "macro": "legacy_thermal",
       "tag": "{% set ns.value=plan.target %} {% set ns.send=current_target != plan.target %} {% set ns.reason='Новая цель комнаты' %}",
       "if": 0,
@@ -2148,7 +2176,7 @@
     },
     {
       "file": "legacy-policy.jinja",
-      "line": 118,
+      "line": 124,
       "macro": "legacy_thermal",
       "tag": "{% elif plan.action == 'maintain' and since_target >= 600 %}",
       "if": 1,
@@ -2157,7 +2185,7 @@
     },
     {
       "file": "legacy-policy.jinja",
-      "line": 119,
+      "line": 125,
       "macro": "legacy_thermal",
       "tag": "{% if plan.mode == 'cool' and measured >= desired + 0.5 and plan.target < cycle_target %}",
       "if": 1,
@@ -2166,12 +2194,345 @@
     },
     {
       "file": "legacy-policy.jinja",
-      "line": 121,
+      "line": 127,
       "macro": "legacy_thermal",
       "tag": "{% elif plan.mode == 'heat' and measured <= desired - 0.5 and plan.target > cycle_target %}",
       "if": 1,
       "inline_if": 0,
       "predicates": 5
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 4,
+      "macro": "thermal_environment",
+      "tag": "{% set n=namespace(valid=p is mapping, sources={}, config={}) %}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 7,
+      "macro": "thermal_environment",
+      "tag": "{% set tuning=p.get('tuning',{}) if n.valid else {} %}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 0
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 8,
+      "macro": "thermal_environment",
+      "tag": "{% if tuning is not mapping %} {% set n.valid=false %} {% else %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 11,
+      "macro": "thermal_environment",
+      "tag": "{% if value is not number or value is boolean %} {% set n.valid=false %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 12,
+      "macro": "thermal_environment",
+      "tag": "{% elif not -1000000<=value<=1000000 %} {% set n.valid=false %} {% endif %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 15,
+      "macro": "thermal_environment",
+      "tag": "{% if n.valid %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 0
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 16,
+      "macro": "thermal_environment",
+      "tag": "{% if n.config.room_min>=n.config.room_max or n.config.outdoor_min>=n.config.outdoor_max or n.config.disagreement<=0 or n.config.deadband<0 or n.config.cooling_gap<=0 or n.config.target_gap<0 or n.config.heat_assist_gap<=n.config.deadband %} {% set n.valid=false %} {% endif %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 13
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 17,
+      "macro": "thermal_environment",
+      "tag": "{% for key in ['fallback_enabled','airflow_confirmed'] %} {% if p.get(key) is not boolean %} {% set n.valid=false %} {% endif %} {% endfor %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 18,
+      "macro": "thermal_environment",
+      "tag": "{% if p.get('desired') is not number or p.get('desired') is boolean %} {% set n.valid=false %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 19,
+      "macro": "thermal_environment",
+      "tag": "{% elif not 16<=p.desired<=30 %} {% set n.valid=false %} {% endif %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 21,
+      "macro": "thermal_environment",
+      "tag": "{% if n.valid %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 0
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 23,
+      "macro": "thermal_environment",
+      "tag": "{% set s=p.get(key) %} {% set q=namespace(ok=s is mapping) %}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 24,
+      "macro": "thermal_environment",
+      "tag": "{% if q.ok %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 0
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 25,
+      "macro": "thermal_environment",
+      "tag": "{% for flag in ['available','confirmed'] %} {% if s.get(flag) is not boolean %} {% set n.valid=false %} {% endif %} {% endfor %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 26,
+      "macro": "thermal_environment",
+      "tag": "{% if not s.get('available',false) or not s.get('confirmed',false) %} {% set q.ok=false %} {% endif %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 3
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 28,
+      "macro": "thermal_environment",
+      "tag": "{% if value is not number or value is boolean or age is not number or age is boolean or ttl is not number or ttl is boolean %} {% set q.ok=false %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 14
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 29,
+      "macro": "thermal_environment",
+      "tag": "{% elif not 0<=age<=ttl or not 0<ttl<=86400 %} {% set q.ok=false %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 5
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 30,
+      "macro": "thermal_environment",
+      "tag": "{% elif key=='outdoor' and not n.config.outdoor_min<=value<=n.config.outdoor_max %} {% set q.ok=false %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 31,
+      "macro": "thermal_environment",
+      "tag": "{% elif key!='outdoor' and not n.config.room_min<=value<=n.config.room_max %} {% set q.ok=false %} {% endif %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 33,
+      "macro": "thermal_environment",
+      "tag": "{% set n.sources=dict(n.sources,**{key:{'ok':q.ok,'value':s.get('value') if q.ok else none}}) %}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 0
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 36,
+      "macro": "thermal_environment",
+      "tag": "{% if not n.valid %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 40,
+      "macro": "thermal_environment",
+      "tag": "{% set source='primary' if a.ok else 'secondary' if p.fallback_enabled and b.ok else 'none' %}",
+      "if": 0,
+      "inline_if": 2,
+      "predicates": 1
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 41,
+      "macro": "thermal_environment",
+      "tag": "{% set room=a.value if source=='primary' else b.value if source=='secondary' else none %}",
+      "if": 0,
+      "inline_if": 2,
+      "predicates": 2
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 42,
+      "macro": "thermal_environment",
+      "tag": "{% set difference=(a.value-b.value)|abs if a.ok and b.ok else none %}",
+      "if": 0,
+      "inline_if": 1,
+      "predicates": 1
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 43,
+      "macro": "thermal_environment",
+      "tag": "{% set qualified=o.ok and p.airflow_confirmed %}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 44,
+      "macro": "thermal_environment",
+      "tag": "{% set intent='unknown' if room is none else 'heat' if room<p.desired-n.config.deadband else 'cool' if room>p.desired+n.config.deadband else 'hold' %}",
+      "if": 0,
+      "inline_if": 3,
+      "predicates": 3
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 45,
+      "macro": "thermal_environment",
+      "tag": "{{ {'valid':true,'room_ok':room is not none,'room':room,'source':source,\n 'primary_ok':a.ok,'secondary_ok':b.ok,'difference':difference,\n 'disagreement':difference is not none and difference>=n.config.disagreement,\n 'outdoor_ok':o.ok,'outdoor_qualified':qualified,'outdoor':o.value,\n 'passive_cooling':room is not none and qualified and intent=='cool' and o.value<=room-n.config.cooling_gap and o.value<=p.desired-n.config.target_gap,\n 'heater_unhelpful':room is not none and qualified and o.value>=p.desired,\n 'strong_heating_demand':room is not none and qualified and room<=p.desired-n.config.heat_assist_gap and o.value<room,\n 'intent':intent,'reason':'primary_measurement' if source=='primary' else 'explicit_secondary_fallback' if source=='secondary' else 'no_qualified_room_measurement'}|tojson }}",
+      "if": 0,
+      "inline_if": 2,
+      "predicates": 29
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 57,
+      "macro": "passive_window",
+      "tag": "{% set n=namespace(valid=p is mapping) %}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 58,
+      "macro": "passive_window",
+      "tag": "{% if n.valid %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 0
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 59,
+      "macro": "passive_window",
+      "tag": "{% for key in ['eligible','severe','reset'] %} {% if p.get(key) is not boolean %} {% set n.valid=false %} {% endif %} {% endfor %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 60,
+      "macro": "passive_window",
+      "tag": "{% if p.get('pending') not in ['on','off','unknown'] %} {% set n.valid=false %} {% endif %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 62,
+      "macro": "passive_window",
+      "tag": "{% if p.get(key) is not number or p.get(key) is boolean %} {% set n.valid=false %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 4
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 63,
+      "macro": "passive_window",
+      "tag": "{% elif not 0<=p[key]<=86400 %} {% set n.valid=false %} {% endif %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 65,
+      "macro": "passive_window",
+      "tag": "{% if n.valid and p.timeout<=0 %} {% set n.valid=false %} {% endif %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 67,
+      "macro": "passive_window",
+      "tag": "{% if not n.valid %}",
+      "if": 1,
+      "inline_if": 0,
+      "predicates": 1
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 70,
+      "macro": "passive_window",
+      "tag": "{% set eligible=p.eligible and not p.severe %}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 2
+    },
+    {
+      "file": "thermal-environment.jinja",
+      "line": 71,
+      "macro": "passive_window",
+      "tag": "{{ {'valid':true,'start_pending':eligible and (p.pending!='on' or p.reset),\n 'cancel_pending':not eligible and p.pending!='off',\n 'wait':eligible and (p.pending!='on' or p.reset or p.elapsed<p.timeout)}|tojson }}",
+      "if": 0,
+      "inline_if": 0,
+      "predicates": 11
     }
   ]
 }

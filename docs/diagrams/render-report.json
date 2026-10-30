@@ -1,0 +1,63 @@
+{
+  "backend_version": "0.4.40",
+  "mermaid_version": "11.12.0",
+  "diagrams": [
+    {
+      "file": "01-overview.mmd",
+      "source_sha256": "1637e5e2d4416227a7b8cbe09bd6602062f434625f91094d509fd4fb35043291",
+      "svg_sha256": "e64044807056aa313929f8a41cf443d02ec60dc04bb12379fca94da7135c9159",
+      "rendered": true
+    },
+    {
+      "file": "02-wishes-and-timers.mmd",
+      "source_sha256": "5859f6147cb73502afd56ceb4047cd40834ae0e18f0e0a05ff644c08d43d899e",
+      "svg_sha256": "9c9fdb301dcf51adf8dfb33c0a12047be5fec823ab26523737b2eec0ca45919f",
+      "rendered": true
+    },
+    {
+      "file": "03-context.mmd",
+      "source_sha256": "674eb56b8b855ff53e5bce04756811e824155ede687e284d0a1e771442cd5d20",
+      "svg_sha256": "95897c6b63fba667d4ed9ea8f60d079cd8df2a78a139e6bb5297cca09b3d9b5c",
+      "rendered": true
+    },
+    {
+      "file": "04-air-and-preferences.mmd",
+      "source_sha256": "e1e2f929289f7e1398eddae7c243e3d22060434a9cec6e2619d746aed8b0c065",
+      "svg_sha256": "9d4c2b2e3cd881b175b04351f4d38a2f9022c33e2e0160678d06a18d0ef30dd4",
+      "rendered": true
+    },
+    {
+      "file": "05-device-health.mmd",
+      "source_sha256": "8df2aaac09196ea7f5307b415ba50a6477a80d6a22c21cf51f3b7fb42c870f7e",
+      "svg_sha256": "40a0874d165d19a27550fa29cbebf04924a6c66cb2ea83884b2b04b602ee1124",
+      "rendered": true
+    },
+    {
+      "file": "06-temperature.mmd",
+      "source_sha256": "c1e4a8719412f0642b391ccbbdd5d0a69c89435c71c02c373faeb3bd6e8c522e",
+      "svg_sha256": "f200e35f1d35a9b6d394030f3314a21d8092bbaf91088bd747a12eae2dc1380f",
+      "rendered": true
+    },
+    {
+      "file": "07-command-guard.mmd",
+      "source_sha256": "a699dce497470dd6fc669d61327507ac1d41a32d7cf25d7642bf66aee78c6c79",
+      "svg_sha256": "3e97f915e329974343ee9bd11d94a0cce0eb527ebcd27d0a3ae7b5a7b71fcaa9",
+      "rendered": true
+    },
+    {
+      "file": "08-dynamics.mmd",
+      "source_sha256": "0c1a74077c689eef0e1141246c2e65347231ef69281339f2977ba95d28b97d48",
+      "svg_sha256": "e26b66c3e47018f7a0b672762b8002b06cb59cd6cfcac7208cfcd2f60e3c5a5c",
+      "rendered": true
+    },
+    {
+      "file": "09-stop-recovery.mmd",
+      "source_sha256": "a8ad7072b6ca37d9e8d5c828094bf4360d2a9f7ba16dfd0b00d98b16a3bbda83",
+      "svg_sha256": "2e315ba19a0e175398a0c0bccabc3a5bbb4a9f2ef523e41728204dc910ac48b8",
+      "rendered": true
+    }
+  ],
+  "external_requests": [],
+  "page_errors": [],
+  "passed": true
+}

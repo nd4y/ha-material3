@@ -1,5 +1,18 @@
 # Reproduce the public documentation media
 
+## Controller diagrams
+
+For controller documentation changes, render the diagrams independently of the older UI demo:
+
+```sh
+npm install --prefix /work/tools --no-save --no-package-lock playwright-core@1.64.0 mermaid@11.12.0
+node docs/tools/render-diagrams.mjs /work/src /work/tools
+```
+
+Use the isolated `mcr.microsoft.com/playwright:v1.64.0-noble` environment on the build host. This path renders every Mermaid source, saves SVG and the overview PNG, and records source/output hashes in `docs/diagrams/render-report.json`. It needs no frontend build, credentials, live HA or device access. Inspect the resulting diagrams before publishing. The condition index below describes Jinja formulas only, not the whole Python reconcile controller.
+
+## Synthetic UI media
+
 All preview data is hardcoded, synthetic and independent of HA. No camera, household configuration, session, host address or production log is loaded. Screenshots show only the page content, without browser chrome. The page has generic device labels and a visible demonstration notice.
 
 Use a project-scoped environment on the build host. Do not reuse a personal browser profile. The validated renderer uses Node24, `playwright-core@1.64.0`, `mermaid@11.12.0` and the existing `mcr.microsoft.com/playwright:v1.64.0-noble` browser image. Install the two renderer packages into a separate tool prefix, not the module's production dependencies. Jinja requirements are in `tests/controller/requirements.txt`.
