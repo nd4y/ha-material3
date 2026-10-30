@@ -90,6 +90,18 @@ export function roomSnapshot(hass,item,now=Date.now()){
   }else if(sourceMs<=epoch*1000||age<0||age>ttl)return null;
   return {value,last_changed:changed,source,source_last_changed:sourceChanged,ttl};
 }
+export function quickScaleWaitReason(hass,item){
+  if(item.mode_scale?.kind!=='ac-temperature')return null;
+  const source=stateOf(hass,item.mode_scale.room_freshness?.qualifier_entity);
+  if(!available(source))return null;
+  const planning=source.attributes?.planning,blocked=planning?.blocked;
+  if(!Array.isArray(blocked))return null;
+  const reasons=new Set(blocked.filter(x=>Array.isArray(x)&&x[0]==='ac').map(x=>x[1]));
+  if(reasons.has('thermal_start_not_ready'))return planning.source_quality==='valid'?'cooldown':'room';
+  if(reasons.has('opposite_or_unknown_thermal_state'))return 'thermal';
+  if(reasons.has('room_measurement_unqualified'))return 'room';
+  return null;
+}
 export function quickScaleModel(hass,card,item){
   validateQuickScale(item);
   const scale=item.mode_scale,device=stateOf(hass,card.entity),control=controlModel(hass,item),permission=automationPermission(hass,item);
