@@ -139,7 +139,10 @@ export function quickScaleModel(hass,card,item){
   // `turbo` as intent and the device may omit fan_mode while running it.
   const saved=stateOf(hass,item.value_entity);
   const turboReadable=turboActive&&(!control.locked||available(saved)&&['turbo','7'].includes(saved.state));
-  return {available:!!(selectable&&(knownOff||control.available||turboReadable)&&position!==null&&(scale.kind!=='ac-temperature'||room)),selectable,reason:!admission?'admission':position===null?'readback':!room&&scale.kind==='ac-temperature'?'room':null,choices,position,owner,deviceOff,effective,displaySaved,caps,room};
+  const cooldown=device?.attributes?.turbo_cooldown_remaining;
+  const turboCooldown=scale.kind==='breather-speed'&&available(device)&&device.attributes?.source_qualified===true&&typeof cooldown==='number'&&Number.isFinite(cooldown)&&cooldown>0&&cooldown<=600?cooldown:0;
+  const turboWaitingReadable=turboCooldown>0&&available(saved)&&saved.state==='turbo'&&opts.includes(effective);
+  return {available:!!(selectable&&(knownOff||control.available||turboReadable||turboWaitingReadable)&&position!==null&&(scale.kind!=='ac-temperature'||room)),selectable,reason:!admission?'admission':position===null?'readback':!room&&scale.kind==='ac-temperature'?'room':null,choices,position,owner,deviceOff,effective,displaySaved,caps,room,turboCooldown};
 }
 export function quickScaleOffRequest(hass,card,item){
   validateQuickScale(item);if(![item.mode_scale.revision_entity,item.mode_scale.completed_entity].every(id=>available(stateOf(hass,id))))throw new Error('Admission unavailable');

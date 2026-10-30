@@ -1,3 +1,9 @@
+## 0.19.10 - 2026-10-30
+
+- Show ASP-100 Turbo firmware cooldown from the controller, including after page reload. Keep the actual speed visible and the scale usable while waiting.
+- Treat an admitted, deferred Turbo request as queued rather than reporting a false 90-second timeout. Physical application still requires the received preset.
+- Document the backend 0.4.43 persisted Turbo cycle, restart recovery and bounded refusal handling.
+
 ## 0.19.9
 
 - Keep admitted heater commands pending through the guarded restart interval; explain controller restart, thermal and room-sensor waits. Native state and exact completion receipt remain mandatory.

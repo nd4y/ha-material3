@@ -51,6 +51,26 @@ try{
   await input.press('Home');calls=await writes();check(calls.length===2&&calls[1].data.request_id!==first,'A second released Stop has its own id');
   const count=calls.length;await input.scrollIntoViewIfNeeded();const box=await input.boundingBox();await page.mouse.move(box.x+1,box.y+box.height/2);await page.mouse.down();await page.keyboard.press('Escape');await page.mouse.up();check((await writes()).length===count,'Canceled same-position gesture sends nothing');
  });
+ await scenario('Turbo cooldown survives the old request timeout and component remount',async()=>{
+  await page.setViewportSize({width:1440,height:1000});
+  const c=config.cards[0],item=c.quick_controls.find(x=>x.mode_scale.kind==='breather-speed'),card=device(0);
+  const field=card.locator(`[data-control-id="${item.id}"]`),input=field.locator('input');
+  await set(c.entity,'fan_only',{source_qualified:true,preset_mode:'manual',fan_mode:'4',temperature:5,max_temp:25,preset_modes:['manual','turbo'],fan_modes:['1','2','3','4','5','6','7']});
+  await input.scrollIntoViewIfNeeded();const b=await input.boundingBox();await page.mouse.click(b.x+b.width*8/9,b.y+b.height/2);
+  const rid=(await writes())[0].data.request_id;
+  await set(item.lock_entity,'on');await set(item.value_entity,'turbo');
+  await set(c.power.lock_entity,'on');await set(c.power.value_entity,'on');
+  await set(c.entity,'fan_only',{turbo_cooldown_remaining:599});await set(item.mode_scale.revision_entity,rid);
+  await page.clock.runFor(100000);
+  check(await card.evaluate(e=>!e._scaleRequests.speed&&!e._scaleErrors.speed),'No false timeout for the admitted native cooldown');
+  check((await field.locator('output').textContent()).trim()==='4','Actual speed remains visible');
+  check((await field.textContent()).includes('Повторный запуск через 10 мин.'),'Explain the native cooldown');
+  check(await input.isEnabled()&&await field.locator('.scale-choice').count()===0,'Keep one usable slider');
+  await card.evaluate(e=>{const n=document.createElement(e.localName);n.setConfig(e._config);n.hass=e.hass;const f=window.controlAudit;f.cards=f.cards.map(x=>x===e?n:x);f.devices=f.devices.map(x=>x===e?n:x);e.replaceWith(n);});
+  check((await field.textContent()).includes('Повторный запуск через 10 мин.'),'Cooldown survives a fresh component');
+  await set(c.entity,'fan_only',{turbo_cooldown_remaining:0,preset_mode:'turbo',fan_mode:null});
+  check(!(await field.textContent()).includes('Пауза прибора'),'Confirmed Turbo removes cooldown');
+ });
  await scenario('canonical Turbo readback clears wait without disabling the scale or adding a fallback',async()=>{
   await page.setViewportSize({width:1440,height:1000});
   const c=config.cards[0],item=c.quick_controls.find(x=>x.mode_scale.kind==='breather-speed'),card=device(0);
