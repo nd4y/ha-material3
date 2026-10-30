@@ -11,7 +11,7 @@ User comfort preferences are independent inputs, not device-speed readings. Opti
 
 ## Automation flow and screenshots
 
-[Controller flowcharts and complete condition index](docs/automation-flow.md) explain the current policies. [Screenshots](docs/screenshots.md) use synthetic data only, without a real home, camera or personal labels.
+[Controller flowcharts](docs/automation-flow.md) describe the reconcile controller (office_climate 0.4.40), including per-parameter ownership, independent CO₂ ventilation, thermal guards and acknowledged command execution. [Architecture and source map](docs/controller-architecture.md) distinguish that separately installed Python backend from the HACS frontend. The [template condition index](docs/condition-index.md) covers Jinja formulas only. [Screenshots](docs/screenshots.md) use synthetic data only, without a real home, camera or personal labels.
 
 ![Public demonstration](docs/images/desktop.png)
 

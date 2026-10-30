@@ -1,5 +1,7 @@
 # Device health policy
 
+> Область документа: переносимые формулы / прежняя схема адаптера. Актуальный Python-контроллер и отличия описаны в [блок-схемах](automation-flow.md) и [архитектуре](controller-architecture.md). Не применяйте прежнее ограничение притока при охлаждении к reconcile-контроллеру.
+
 `controller/device-health.jinja` contains two portable, pure macros. They contain
 no entity IDs, vendor commands, clocks, network calls or Home Assistant services.
 The controller adapter owns persistence and actual effects. A journal is an

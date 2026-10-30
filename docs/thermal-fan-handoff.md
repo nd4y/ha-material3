@@ -1,5 +1,7 @@
 # Delegated thermal control after power-on
 
+> Область документа: переносимые формулы / прежняя схема адаптера. Актуальный Python-контроллер и отличия описаны в [блок-схемах](automation-flow.md) и [архитектуре](controller-architecture.md). Не применяйте прежнее ограничение притока при охлаждении к reconcile-контроллеру.
+
 The `legacy_thermal` policy accepts an optional boolean `thermal_authorized`.
 It defaults to false for compatibility. Pass true only after the adapter has
 confirmed that temperature/mode control is delegated and the existing power,

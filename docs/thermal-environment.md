@@ -1,5 +1,7 @@
 # Qualified room and outdoor measurements
 
+> Область документа: переносимые формулы / прежняя схема адаптера. Актуальный Python-контроллер и отличия описаны в [блок-схемах](automation-flow.md) и [архитектуре](controller-architecture.md). Не применяйте прежнее ограничение притока при охлаждении к reconcile-контроллеру.
+
 `thermal_environment(p)` selects the dedicated primary room measurement. A
 secondary sensor is used to flag a configurable discrepancy and is never
 silently averaged into the primary measurement. It becomes a fallback only

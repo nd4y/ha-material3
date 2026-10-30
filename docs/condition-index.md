@@ -1,6 +1,8 @@
-# Полный каталог условий контроллера
+# Каталог условий Jinja-шаблонов
 
-Сгенерировано из 7 публичных Jinja-файлов v0.10.0: **250 условных операторов** и **623 логических / сравнительных выражений** в **240 исходных тегах**.
+Область: только переносимые Jinja-формулы. Python-планировщик и исполнение описаны в [блок-схемах](automation-flow.md) и [архитектуре](controller-architecture.md). Этот каталог не является полным перечнем условий reconcile-контроллера.
+
+Сгенерировано из 8 публичных Jinja-файлов (точные SHA-256 в JSON рядом): **288 условных операторов** и **756 логических / сравнительных выражений** в **280 исходных тегах**.
 
 Каталог включает if/elif, value if test else other, and/or/not, сравнения, Jinja-тесты и is_number, в том числе внутри присваиваний и возвращаемых флагов. Вложенные узлы посчитаны отдельно; это не число независимых сценариев. Теги приводятся целиком; соседние теги на одной строке объединены, поскольку Jinja AST хранит номер строки без позиции столбца. Это инвентаризация кода, не заявление о полном покрытии физических событий.
 
@@ -1780,44 +1782,28 @@
 {% set result={'mode':selected,'breather':[bdemand,bcap] | min,'breather_requested':bdemand,'breather_sensor_requested':b if co2valid else 3,'breather_cap':bcap,'purifier':([demand,cap] | min) if selected!='Отключено' else 'off','purifier_requested':demand,'purifier_cap':cap,'purifier_limited':demand>cap,'ac_fan':fan if ranks[fan]<=ranks[fcap] else fcap,'co2_valid':co2valid,'pm_valid':pmvalid,'co2':co2 if co2valid else 'unknown','pm':pm if pmvalid else 'unknown','critical_pm':critical_pm,'critical_co2':critical_co2,'context':context.profile if full else 'fixed','noise_valid':noise.valid,'noise_configured':noise.configured} %}
 ```
 
-### legacy_thermal - L81
+### legacy_thermal - L72
 
-[Исходник](../controller/legacy-policy.jinja#L81) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/legacy-policy.jinja#L72) | if/elif: 0, inline-if: 0, предикаты: 1
+
+```jinja
+{% set thermal_authorized=p.get('thermal_authorized',false) is sameas true %}
+```
+
+### legacy_thermal - L84
+
+[Исходник](../controller/legacy-policy.jinja#L84) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
 {% if ac_mode in ['unknown','unavailable'] %}
 ```
 
-### legacy_thermal - L83
+### legacy_thermal - L86
 
-[Исходник](../controller/legacy-policy.jinja#L83) | if/elif: 1, inline-if: 0, предикаты: 4
+[Исходник](../controller/legacy-policy.jinja#L86) | if/elif: 1, inline-if: 0, предикаты: 4
 
 ```jinja
 {% elif not auto_enabled or not room_ok or device_fault %}
-```
-
-### legacy_thermal - L84
-
-[Исходник](../controller/legacy-policy.jinja#L84) | if/elif: 0, inline-if: 1, предикаты: 2
-
-```jinja
-{% set ns.action='stop' if owned and ac_mode in ['cool','heat'] else 'release' %}
-```
-
-### legacy_thermal - L85
-
-[Исходник](../controller/legacy-policy.jinja#L85) | if/elif: 0, inline-if: 2, предикаты: 2
-
-```jinja
-{% set ns.reason='Климат-контроль выключен' if not auto_enabled else ('Нет достоверной температуры комнаты' if not room_ok else 'Ошибка кондиционера') %}
-```
-
-### legacy_thermal - L86
-
-[Исходник](../controller/legacy-policy.jinja#L86) | if/elif: 1, inline-if: 0, предикаты: 2
-
-```jinja
-{% elif supply_conflict and measured > desired + 0.1 %}
 ```
 
 ### legacy_thermal - L87
@@ -1825,79 +1811,87 @@
 [Исходник](../controller/legacy-policy.jinja#L87) | if/elif: 0, inline-if: 1, предикаты: 2
 
 ```jinja
-{% set ns.action='stop' if owned and ac_mode == 'cool' else 'release' %} {% set ns.reason='Охлаждение приостановлено: закреплён нагрев притока' %}
+{% set ns.action='stop' if owned and ac_mode in ['cool','heat'] else 'release' %}
 ```
 
 ### legacy_thermal - L88
 
-[Исходник](../controller/legacy-policy.jinja#L88) | if/elif: 1, inline-if: 0, предикаты: 5
+[Исходник](../controller/legacy-policy.jinja#L88) | if/elif: 0, inline-if: 2, предикаты: 2
 
 ```jinja
-{% elif ac_mode not in ['off','cool','heat'] and not (ac_mode == 'fan_only' and maximum_fan_only) %}
+{% set ns.reason='Климат-контроль выключен' if not auto_enabled else ('Нет достоверной температуры комнаты' if not room_ok else 'Ошибка кондиционера') %}
+```
+
+### legacy_thermal - L89
+
+[Исходник](../controller/legacy-policy.jinja#L89) | if/elif: 1, inline-if: 0, предикаты: 2
+
+```jinja
+{% elif supply_conflict and measured > desired + 0.1 %}
 ```
 
 ### legacy_thermal - L90
 
-[Исходник](../controller/legacy-policy.jinja#L90) | if/elif: 1, inline-if: 0, предикаты: 2
+[Исходник](../controller/legacy-policy.jinja#L90) | if/elif: 0, inline-if: 1, предикаты: 2
+
+```jinja
+{% set ns.action='stop' if owned and ac_mode == 'cool' else 'release' %} {% set ns.reason='Охлаждение приостановлено: закреплён нагрев притока' %}
+```
+
+### legacy_thermal - L91
+
+[Исходник](../controller/legacy-policy.jinja#L91) | if/elif: 1, inline-if: 0, предикаты: 6
+
+```jinja
+{% elif ac_mode not in ['off','cool','heat'] and not (ac_mode == 'fan_only' and (maximum_fan_only or thermal_authorized)) %}
+```
+
+### legacy_thermal - L93
+
+[Исходник](../controller/legacy-policy.jinja#L93) | if/elif: 1, inline-if: 0, предикаты: 2
 
 ```jinja
 {% elif owned and ac_mode not in ['cool','heat'] %}
 ```
 
-### legacy_thermal - L92
+### legacy_thermal - L95
 
-[Исходник](../controller/legacy-policy.jinja#L92) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/legacy-policy.jinja#L95) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
 {% elif ac_mode in ['cool','heat'] %}
 ```
 
-### legacy_thermal - L94
+### legacy_thermal - L97
 
-[Исходник](../controller/legacy-policy.jinja#L94) | if/elif: 1, inline-if: 0, предикаты: 7
+[Исходник](../controller/legacy-policy.jinja#L97) | if/elif: 1, inline-if: 0, предикаты: 7
 
 ```jinja
 {% if (ac_mode == 'cool' and measured <= desired - 0.5) or (ac_mode == 'heat' and measured >= desired + 0.5) %}
 ```
 
-### legacy_thermal - L95
+### legacy_thermal - L98
 
-[Исходник](../controller/legacy-policy.jinja#L95) | if/elif: 0, inline-if: 1, предикаты: 0
+[Исходник](../controller/legacy-policy.jinja#L98) | if/elif: 0, inline-if: 1, предикаты: 0
 
 ```jinja
 {% set ns.action='stop' if owned else 'adopt' %} {% set ns.reason='Температура вышла за защитный порог' %}
 ```
 
-### legacy_thermal - L96
+### legacy_thermal - L99
 
-[Исходник](../controller/legacy-policy.jinja#L96) | if/elif: 1, inline-if: 0, предикаты: 10
+[Исходник](../controller/legacy-policy.jinja#L99) | if/elif: 1, inline-if: 0, предикаты: 10
 
 ```jinja
 {% elif owned and since_change >= 300 and ((ac_mode == 'cool' and measured <= desired + 0.1) or (ac_mode == 'heat' and measured >= desired - 0.1)) %}
 ```
 
-### legacy_thermal - L99
+### legacy_thermal - L102
 
-[Исходник](../controller/legacy-policy.jinja#L99) | if/elif: 0, inline-if: 1, предикаты: 0
+[Исходник](../controller/legacy-policy.jinja#L102) | if/elif: 0, inline-if: 1, предикаты: 0
 
 ```jinja
 {% set ns.action='maintain' if owned else 'adopt' %}
-```
-
-### legacy_thermal - L100
-
-[Исходник](../controller/legacy-policy.jinja#L100) | if/elif: 0, inline-if: 1, предикаты: 1
-
-```jinja
-{% set ns.reason='Охлаждение' if ac_mode == 'cool' else 'Обогрев' %}
-```
-
-### legacy_thermal - L102
-
-[Исходник](../controller/legacy-policy.jinja#L102) | if/elif: 1, inline-if: 0, предикаты: 1
-
-```jinja
-{% elif measured >= desired + 0.7 %}
 ```
 
 ### legacy_thermal - L103
@@ -1905,101 +1899,440 @@
 [Исходник](../controller/legacy-policy.jinja#L103) | if/elif: 0, inline-if: 1, предикаты: 1
 
 ```jinja
-{% set ns.mode='cool' %} {% set ns.action='start' if since_change >= 300 else 'wait' %}
-```
-
-### legacy_thermal - L104
-
-[Исходник](../controller/legacy-policy.jinja#L104) | if/elif: 0, inline-if: 1, предикаты: 1
-
-```jinja
-{% set ns.reason='Охлаждение' if since_change >= 300 else 'Пауза перед пуском' %}
+{% set ns.reason='Охлаждение' if ac_mode == 'cool' else 'Обогрев' %}
 ```
 
 ### legacy_thermal - L105
 
-[Исходник](../controller/legacy-policy.jinja#L105) | if/elif: 1, inline-if: 0, предикаты: 2
+[Исходник](../controller/legacy-policy.jinja#L105) | if/elif: 1, inline-if: 0, предикаты: 1
+
+```jinja
+{% elif measured >= desired + 0.7 %}
+```
+
+### legacy_thermal - L106
+
+[Исходник](../controller/legacy-policy.jinja#L106) | if/elif: 0, inline-if: 0, предикаты: 1
+
+```jinja
+{% set ns.mode='cool' %} {% set passive=p.get('passive_cooling_wait',false) is sameas true %}
+```
+
+### legacy_thermal - L107
+
+[Исходник](../controller/legacy-policy.jinja#L107) | if/elif: 0, inline-if: 1, предикаты: 3
+
+```jinja
+{% set ns.action='start' if since_change >= 300 and not passive else 'wait' %}
+```
+
+### legacy_thermal - L108
+
+[Исходник](../controller/legacy-policy.jinja#L108) | if/elif: 0, inline-if: 2, предикаты: 1
+
+```jinja
+{% set ns.reason='Пауза перед пуском' if since_change < 300 else 'Проверка охлаждения наружным воздухом' if passive else 'Охлаждение' %}
+```
+
+### legacy_thermal - L109
+
+[Исходник](../controller/legacy-policy.jinja#L109) | if/elif: 1, inline-if: 0, предикаты: 2
 
 ```jinja
 {% elif measured <= desired - 0.7 and breather_at_limit %}
 ```
 
-### legacy_thermal - L107
+### legacy_thermal - L111
 
-[Исходник](../controller/legacy-policy.jinja#L107) | if/elif: 0, inline-if: 1, предикаты: 2
+[Исходник](../controller/legacy-policy.jinja#L111) | if/elif: 0, inline-if: 1, предикаты: 2
 
 ```jinja
 {% set ns.action='start' if since_change >= 300 and heating_ready else 'wait' %}
 ```
 
-### legacy_thermal - L108
+### legacy_thermal - L112
 
-[Исходник](../controller/legacy-policy.jinja#L108) | if/elif: 0, inline-if: 1, предикаты: 1
+[Исходник](../controller/legacy-policy.jinja#L112) | if/elif: 0, inline-if: 1, предикаты: 1
 
 ```jinja
 {% set ns.reason='Помощь бризеру: обогрев' if ns.action == 'start' else 'Ожидание: бризер / защитная пауза' %}
 ```
 
-### legacy_thermal - L110
+### legacy_thermal - L113
 
-[Исходник](../controller/legacy-policy.jinja#L110) | if/elif: 0, inline-if: 1, предикаты: 0
+[Исходник](../controller/legacy-policy.jinja#L113) | if/elif: 1, inline-if: 0, предикаты: 1
+
+```jinja
+{% elif measured <= desired - 0.7 %}
+```
+
+### legacy_thermal - L116
+
+[Исходник](../controller/legacy-policy.jinja#L116) | if/elif: 0, inline-if: 1, предикаты: 0
 
 ```jinja
 {% set offset = [[native_room - measured,-3] | max,3] | min if native_room_ok else 0 %}
 ```
 
-### legacy_thermal - L114
+### legacy_thermal - L120
 
-[Исходник](../controller/legacy-policy.jinja#L114) | if/elif: 1, inline-if: 0, предикаты: 1
+[Исходник](../controller/legacy-policy.jinja#L120) | if/elif: 1, inline-if: 0, предикаты: 1
 
 ```jinja
 {% if plan.action in ['start','adopt'] %}
 ```
 
-### legacy_thermal - L115
+### legacy_thermal - L121
 
-[Исходник](../controller/legacy-policy.jinja#L115) | if/elif: 0, inline-if: 0, предикаты: 1
+[Исходник](../controller/legacy-policy.jinja#L121) | if/elif: 0, inline-if: 0, предикаты: 1
 
 ```jinja
 {% set ns.value=plan.target %} {% set ns.send=current_target != plan.target %} {% set ns.reason='Начало цикла' %}
 ```
 
-### legacy_thermal - L116
+### legacy_thermal - L122
 
-[Исходник](../controller/legacy-policy.jinja#L116) | if/elif: 1, inline-if: 0, предикаты: 2
+[Исходник](../controller/legacy-policy.jinja#L122) | if/elif: 1, inline-if: 0, предикаты: 2
 
 ```jinja
 {% elif plan.action == 'maintain' and target_changed %}
 ```
 
-### legacy_thermal - L117
+### legacy_thermal - L123
 
-[Исходник](../controller/legacy-policy.jinja#L117) | if/elif: 0, inline-if: 0, предикаты: 1
+[Исходник](../controller/legacy-policy.jinja#L123) | if/elif: 0, inline-if: 0, предикаты: 1
 
 ```jinja
 {% set ns.value=plan.target %} {% set ns.send=current_target != plan.target %} {% set ns.reason='Новая цель комнаты' %}
 ```
 
-### legacy_thermal - L118
+### legacy_thermal - L124
 
-[Исходник](../controller/legacy-policy.jinja#L118) | if/elif: 1, inline-if: 0, предикаты: 3
+[Исходник](../controller/legacy-policy.jinja#L124) | if/elif: 1, inline-if: 0, предикаты: 3
 
 ```jinja
 {% elif plan.action == 'maintain' and since_target >= 600 %}
 ```
 
-### legacy_thermal - L119
+### legacy_thermal - L125
 
-[Исходник](../controller/legacy-policy.jinja#L119) | if/elif: 1, inline-if: 0, предикаты: 5
+[Исходник](../controller/legacy-policy.jinja#L125) | if/elif: 1, inline-if: 0, предикаты: 5
 
 ```jinja
 {% if plan.mode == 'cool' and measured >= desired + 0.5 and plan.target < cycle_target %}
 ```
 
-### legacy_thermal - L121
+### legacy_thermal - L127
 
-[Исходник](../controller/legacy-policy.jinja#L121) | if/elif: 1, inline-if: 0, предикаты: 5
+[Исходник](../controller/legacy-policy.jinja#L127) | if/elif: 1, inline-if: 0, предикаты: 5
 
 ```jinja
 {% elif plan.mode == 'heat' and measured <= desired - 0.5 and plan.target > cycle_target %}
+```
+
+## thermal-environment.jinja
+
+### thermal_environment - L4
+
+[Исходник](../controller/thermal-environment.jinja#L4) | if/elif: 0, inline-if: 0, предикаты: 1
+
+```jinja
+{% set n=namespace(valid=p is mapping, sources={}, config={}) %}
+```
+
+### thermal_environment - L7
+
+[Исходник](../controller/thermal-environment.jinja#L7) | if/elif: 0, inline-if: 1, предикаты: 0
+
+```jinja
+{% set tuning=p.get('tuning',{}) if n.valid else {} %}
+```
+
+### thermal_environment - L8
+
+[Исходник](../controller/thermal-environment.jinja#L8) | if/elif: 1, inline-if: 0, предикаты: 2
+
+```jinja
+{% if tuning is not mapping %} {% set n.valid=false %} {% else %}
+```
+
+### thermal_environment - L11
+
+[Исходник](../controller/thermal-environment.jinja#L11) | if/elif: 1, inline-if: 0, предикаты: 4
+
+```jinja
+{% if value is not number or value is boolean %} {% set n.valid=false %}
+```
+
+### thermal_environment - L12
+
+[Исходник](../controller/thermal-environment.jinja#L12) | if/elif: 1, inline-if: 0, предикаты: 2
+
+```jinja
+{% elif not -1000000<=value<=1000000 %} {% set n.valid=false %} {% endif %}
+```
+
+### thermal_environment - L15
+
+[Исходник](../controller/thermal-environment.jinja#L15) | if/elif: 1, inline-if: 0, предикаты: 0
+
+```jinja
+{% if n.valid %}
+```
+
+### thermal_environment - L16
+
+[Исходник](../controller/thermal-environment.jinja#L16) | if/elif: 1, inline-if: 0, предикаты: 13
+
+```jinja
+{% if n.config.room_min>=n.config.room_max or n.config.outdoor_min>=n.config.outdoor_max or n.config.disagreement<=0 or n.config.deadband<0 or n.config.cooling_gap<=0 or n.config.target_gap<0 or n.config.heat_assist_gap<=n.config.deadband %} {% set n.valid=false %} {% endif %}
+```
+
+### thermal_environment - L17
+
+[Исходник](../controller/thermal-environment.jinja#L17) | if/elif: 1, inline-if: 0, предикаты: 2
+
+```jinja
+{% for key in ['fallback_enabled','airflow_confirmed'] %} {% if p.get(key) is not boolean %} {% set n.valid=false %} {% endif %} {% endfor %}
+```
+
+### thermal_environment - L18
+
+[Исходник](../controller/thermal-environment.jinja#L18) | if/elif: 1, inline-if: 0, предикаты: 4
+
+```jinja
+{% if p.get('desired') is not number or p.get('desired') is boolean %} {% set n.valid=false %}
+```
+
+### thermal_environment - L19
+
+[Исходник](../controller/thermal-environment.jinja#L19) | if/elif: 1, inline-if: 0, предикаты: 2
+
+```jinja
+{% elif not 16<=p.desired<=30 %} {% set n.valid=false %} {% endif %}
+```
+
+### thermal_environment - L21
+
+[Исходник](../controller/thermal-environment.jinja#L21) | if/elif: 1, inline-if: 0, предикаты: 0
+
+```jinja
+{% if n.valid %}
+```
+
+### thermal_environment - L23
+
+[Исходник](../controller/thermal-environment.jinja#L23) | if/elif: 0, inline-if: 0, предикаты: 1
+
+```jinja
+{% set s=p.get(key) %} {% set q=namespace(ok=s is mapping) %}
+```
+
+### thermal_environment - L24
+
+[Исходник](../controller/thermal-environment.jinja#L24) | if/elif: 1, inline-if: 0, предикаты: 0
+
+```jinja
+{% if q.ok %}
+```
+
+### thermal_environment - L25
+
+[Исходник](../controller/thermal-environment.jinja#L25) | if/elif: 1, inline-if: 0, предикаты: 2
+
+```jinja
+{% for flag in ['available','confirmed'] %} {% if s.get(flag) is not boolean %} {% set n.valid=false %} {% endif %} {% endfor %}
+```
+
+### thermal_environment - L26
+
+[Исходник](../controller/thermal-environment.jinja#L26) | if/elif: 1, inline-if: 0, предикаты: 3
+
+```jinja
+{% if not s.get('available',false) or not s.get('confirmed',false) %} {% set q.ok=false %} {% endif %}
+```
+
+### thermal_environment - L28
+
+[Исходник](../controller/thermal-environment.jinja#L28) | if/elif: 1, inline-if: 0, предикаты: 14
+
+```jinja
+{% if value is not number or value is boolean or age is not number or age is boolean or ttl is not number or ttl is boolean %} {% set q.ok=false %}
+```
+
+### thermal_environment - L29
+
+[Исходник](../controller/thermal-environment.jinja#L29) | if/elif: 1, inline-if: 0, предикаты: 5
+
+```jinja
+{% elif not 0<=age<=ttl or not 0<ttl<=86400 %} {% set q.ok=false %}
+```
+
+### thermal_environment - L30
+
+[Исходник](../controller/thermal-environment.jinja#L30) | if/elif: 1, inline-if: 0, предикаты: 4
+
+```jinja
+{% elif key=='outdoor' and not n.config.outdoor_min<=value<=n.config.outdoor_max %} {% set q.ok=false %}
+```
+
+### thermal_environment - L31
+
+[Исходник](../controller/thermal-environment.jinja#L31) | if/elif: 1, inline-if: 0, предикаты: 4
+
+```jinja
+{% elif key!='outdoor' and not n.config.room_min<=value<=n.config.room_max %} {% set q.ok=false %} {% endif %}
+```
+
+### thermal_environment - L33
+
+[Исходник](../controller/thermal-environment.jinja#L33) | if/elif: 0, inline-if: 1, предикаты: 0
+
+```jinja
+{% set n.sources=dict(n.sources,**{key:{'ok':q.ok,'value':s.get('value') if q.ok else none}}) %}
+```
+
+### thermal_environment - L36
+
+[Исходник](../controller/thermal-environment.jinja#L36) | if/elif: 1, inline-if: 0, предикаты: 1
+
+```jinja
+{% if not n.valid %}
+```
+
+### thermal_environment - L40
+
+[Исходник](../controller/thermal-environment.jinja#L40) | if/elif: 0, inline-if: 2, предикаты: 1
+
+```jinja
+{% set source='primary' if a.ok else 'secondary' if p.fallback_enabled and b.ok else 'none' %}
+```
+
+### thermal_environment - L41
+
+[Исходник](../controller/thermal-environment.jinja#L41) | if/elif: 0, inline-if: 2, предикаты: 2
+
+```jinja
+{% set room=a.value if source=='primary' else b.value if source=='secondary' else none %}
+```
+
+### thermal_environment - L42
+
+[Исходник](../controller/thermal-environment.jinja#L42) | if/elif: 0, inline-if: 1, предикаты: 1
+
+```jinja
+{% set difference=(a.value-b.value)|abs if a.ok and b.ok else none %}
+```
+
+### thermal_environment - L43
+
+[Исходник](../controller/thermal-environment.jinja#L43) | if/elif: 0, inline-if: 0, предикаты: 1
+
+```jinja
+{% set qualified=o.ok and p.airflow_confirmed %}
+```
+
+### thermal_environment - L44
+
+[Исходник](../controller/thermal-environment.jinja#L44) | if/elif: 0, inline-if: 3, предикаты: 3
+
+```jinja
+{% set intent='unknown' if room is none else 'heat' if room<p.desired-n.config.deadband else 'cool' if room>p.desired+n.config.deadband else 'hold' %}
+```
+
+### thermal_environment - L45
+
+[Исходник](../controller/thermal-environment.jinja#L45) | if/elif: 0, inline-if: 2, предикаты: 29
+
+```jinja
+{{ {'valid':true,'room_ok':room is not none,'room':room,'source':source,
+ 'primary_ok':a.ok,'secondary_ok':b.ok,'difference':difference,
+ 'disagreement':difference is not none and difference>=n.config.disagreement,
+ 'outdoor_ok':o.ok,'outdoor_qualified':qualified,'outdoor':o.value,
+ 'passive_cooling':room is not none and qualified and intent=='cool' and o.value<=room-n.config.cooling_gap and o.value<=p.desired-n.config.target_gap,
+ 'heater_unhelpful':room is not none and qualified and o.value>=p.desired,
+ 'strong_heating_demand':room is not none and qualified and room<=p.desired-n.config.heat_assist_gap and o.value<room,
+ 'intent':intent,'reason':'primary_measurement' if source=='primary' else 'explicit_secondary_fallback' if source=='secondary' else 'no_qualified_room_measurement'}|tojson }}
+```
+
+### passive_window - L57
+
+[Исходник](../controller/thermal-environment.jinja#L57) | if/elif: 0, inline-if: 0, предикаты: 1
+
+```jinja
+{% set n=namespace(valid=p is mapping) %}
+```
+
+### passive_window - L58
+
+[Исходник](../controller/thermal-environment.jinja#L58) | if/elif: 1, inline-if: 0, предикаты: 0
+
+```jinja
+{% if n.valid %}
+```
+
+### passive_window - L59
+
+[Исходник](../controller/thermal-environment.jinja#L59) | if/elif: 1, inline-if: 0, предикаты: 2
+
+```jinja
+{% for key in ['eligible','severe','reset'] %} {% if p.get(key) is not boolean %} {% set n.valid=false %} {% endif %} {% endfor %}
+```
+
+### passive_window - L60
+
+[Исходник](../controller/thermal-environment.jinja#L60) | if/elif: 1, inline-if: 0, предикаты: 1
+
+```jinja
+{% if p.get('pending') not in ['on','off','unknown'] %} {% set n.valid=false %} {% endif %}
+```
+
+### passive_window - L62
+
+[Исходник](../controller/thermal-environment.jinja#L62) | if/elif: 1, inline-if: 0, предикаты: 4
+
+```jinja
+{% if p.get(key) is not number or p.get(key) is boolean %} {% set n.valid=false %}
+```
+
+### passive_window - L63
+
+[Исходник](../controller/thermal-environment.jinja#L63) | if/elif: 1, inline-if: 0, предикаты: 2
+
+```jinja
+{% elif not 0<=p[key]<=86400 %} {% set n.valid=false %} {% endif %}
+```
+
+### passive_window - L65
+
+[Исходник](../controller/thermal-environment.jinja#L65) | if/elif: 1, inline-if: 0, предикаты: 2
+
+```jinja
+{% if n.valid and p.timeout<=0 %} {% set n.valid=false %} {% endif %}
+```
+
+### passive_window - L67
+
+[Исходник](../controller/thermal-environment.jinja#L67) | if/elif: 1, inline-if: 0, предикаты: 1
+
+```jinja
+{% if not n.valid %}
+```
+
+### passive_window - L70
+
+[Исходник](../controller/thermal-environment.jinja#L70) | if/elif: 0, inline-if: 0, предикаты: 2
+
+```jinja
+{% set eligible=p.eligible and not p.severe %}
+```
+
+### passive_window - L71
+
+[Исходник](../controller/thermal-environment.jinja#L71) | if/elif: 0, inline-if: 0, предикаты: 11
+
+```jinja
+{{ {'valid':true,'start_pending':eligible and (p.pending!='on' or p.reset),
+ 'cancel_pending':not eligible and p.pending!='off',
+ 'wait':eligible and (p.pending!='on' or p.reset or p.elapsed<p.timeout)}|tojson }}
 ```
