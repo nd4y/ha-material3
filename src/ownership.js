@@ -9,7 +9,7 @@ export function ownerModel(hass,item){
 
 export function ownerPresentation(owner){
   return {
-    ha:{labelKey:'ownerAutomaticShort',accessibleKey:'ownerHomeAutomatic',icon:'lock_open',helpKey:'ownerHaHelp'},
+    ha:{labelKey:'ownerAutomaticShort',accessibleKey:'ownerHomeAutomatic',icon:'auto_awesome',helpKey:'ownerHaHelp'},
     manual:{labelKey:'manualShort',accessibleKey:'ownerManualControl',icon:'lock',helpKey:'ownerManualHelp'},
     device:{labelKey:'ownerDeviceShort',accessibleKey:'ownerDeviceAutomatic',icon:'devices',helpKey:'ownerDeviceHelp'}
   }[owner]||{labelKey:'unavailable',accessibleKey:'unavailable',icon:'info',helpKey:'unavailable'};

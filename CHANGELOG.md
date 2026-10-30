@@ -1,3 +1,11 @@
+## 0.19.6 - 2026-10-30
+
+- Show lock for the action that fixes automatic settings manually, and the automation icon for returning manual settings to automatic control.
+- Keep mode icons stationary across integer and half-degree temperature values, including dragged previews.
+- Support a desired CO2 concentration in ppm with one command on slider release.
+- Animate and color a breather's confirmed heating-enabled setting, explicitly distinguished from measured heater activity.
+- Add browser regressions for heating states, ownership actions, stable geometry and CO2 readback.
+
 ## 0.19.5 - 2026-10-29
 
 - Allow a new released regulator value or the device Auto button to replace a waiting setting, without bypassing controller interlocks.

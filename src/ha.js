@@ -68,9 +68,11 @@ export function validateAirGoals(config){
   const ids=new Set();for(const item of config.air_goals||[]){
     if(!item||!/^[-a-z0-9_]+$/.test(item.id||'')||ids.has(item.id)||typeof item.name!=='string'||!item.name.trim())throw new Error('Air goals require unique safe IDs and names');ids.add(item.id);
     if(item.invert!==undefined&&(typeof item.invert!=='boolean'||item.semantics!=='preference'))throw new Error('invert is only supported for preferences');
-    if(item.semantics!==undefined&&item.semantics!=='preference')throw new Error('Unsupported air goal semantics');
+    if(item.semantics!==undefined&&!['preference','co2-target'].includes(item.semantics))throw new Error('Unsupported air goal semantics');
     if(!entityId(item.entity,'input_number'))throw new Error('Air goal requires a numeric intention helper');
-    if(item.semantics==='preference'){
+    if(item.semantics==='co2-target'){
+      if(['automatic_entity','automatic_value_entity','automatic_action','invert'].some(key=>item[key]!==undefined))throw new Error('CO2 target is a room goal, not device ownership');
+    }else if(item.semantics==='preference'){
       if(['automatic_entity','automatic_value_entity','automatic_action'].some(key=>item[key]!==undefined))throw new Error('User preferences cannot have automatic values or ownership');
       if(!Array.isArray(item.value_labels)||item.value_labels.length<2||item.value_labels[0]?.value!==0||item.value_labels.at(-1)?.value!==100)throw new Error('Preference labels must cover 0 through 100');
       let previous=-1;for(const mark of item.value_labels){if(!mark||typeof mark.value!=='number'||!Number.isFinite(mark.value)||mark.value<=previous||mark.value>100||typeof mark.label!=='string'||!mark.label.trim())throw new Error('Preference labels need increasing finite values and names');previous=mark.value;}

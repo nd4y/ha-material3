@@ -29,6 +29,10 @@ export function validateOperation(config){
       if(!op.states||typeof op.states!=='object'||Array.isArray(op.states)||!Object.keys(op.states).length)throw new Error('Operation needs a finite state map');
       for(const [value,mode] of Object.entries(op.states))if(!value||['unknown','unavailable'].includes(value)||!Object.hasOwn(modes,mode))throw new Error('Invalid operation state mapping');
     }
+    if(op.heating_setpoint!==undefined){
+      const s=op.heating_setpoint;
+      if(op.kind!=='breather'||!s||!validEntity(s.entity)||typeof s.attribute!=='string'||!s.attribute||s.off_value!==5)throw new Error('Breather heating setpoint needs a qualified source and off value 5');
+    }
     if(op.indicator!==undefined){
       const i=op.indicator;
       if(op.kind!=='breather'||!i||!validEntity(i.entity)||!scalar(i.active_value)||!scalar(i.inactive_value)||String(i.active_value)===String(i.inactive_value)||['unknown','unavailable'].includes(String(i.active_value))||['unknown','unavailable'].includes(String(i.inactive_value)))throw new Error('Heater indicator needs distinct explicit states');
@@ -55,6 +59,12 @@ export function operationModel(hass,config){
     if(String(value)===String(i.inactive_value))return result('fresh',{activity:'fan'});
     return unknown();
   }
+  if(op.kind==='breather'&&op.heating_setpoint&&!op.indicator){
+    const s=op.heating_setpoint,source=stateOf(hass,s.entity),value=read(source,s.attribute);
+    const max=source?.attributes?.max_temp;
+    if(!available(source)||source.attributes?.source_qualified!==true||typeof value!=='number'||!Number.isFinite(value)||!Number.isFinite(max)||value<s.off_value||value>max)return unknown();
+    return value===s.off_value?result('fresh',{activity:'fan'}):result('heat',{labelKey:'operationHeatEnabled',activity:'heat_enabled'});
+  }
   // A configured state map is authoritative: missing/unrecognized values do
   // not fall back to a mode, setpoint or an inferred heater temperature.
   if(op.kind==='breather'&&!op.states)return unknown();
@@ -71,12 +81,12 @@ export function parameterOperation(operation,item){
   return item.operation==='airflow'&&operation.deviceOn&&operation.kind!=='purifier'?model('fan',{kind:operation.kind,deviceAvailable:operation.deviceAvailable,deviceOn:true}):operation;
 }
 
-// Motion depicts reported activity, not a selected setpoint or owner request.
-// Inconsistent/missing HVAC activity remains static instead of being guessed.
+// HVAC motion depicts reported activity. A breather may explicitly depict
+// enabled heating from its received setpoint, labelled as permission to heat.
 export function operationMotion(operation){
   if(!operation.deviceAvailable||!operation.deviceOn||!operation.available)return 'none';
   if(operation.kind==='purifier')return ['clean','boost'].includes(operation.mode)&&operation.activity==='cleaning'?'spin':'none';
-  if(operation.mode==='heat'&&operation.activity==='heating')return 'heat';
+  if(operation.mode==='heat'&&['heating','heat_enabled'].includes(operation.activity))return 'heat';
   if(operation.mode==='cool'&&operation.activity==='cooling')return 'cool';
   return ['fan','fresh'].includes(operation.mode)&&operation.activity==='fan'?'flow':'none';
 }

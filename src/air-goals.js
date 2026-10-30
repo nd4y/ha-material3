@@ -18,6 +18,10 @@ function intentionNumber(value){
 }
 export function airGoalModel(hass,item){
   const state=stateOf(hass,item.entity),automatic=stateOf(hass,item.automatic_entity),rawValue=intentionNumber(state?.state),value=rawValue!==null&&item.invert?100-rawValue:rawValue,attrs=state?.attributes||{},min=finite(attrs.min),max=finite(attrs.max),step=finite(attrs.step),availability=stateOf(hass,item.availability_entity);
+  if(item.semantics==='co2-target'){
+    const ready=available(state)&&rawValue!==null&&min===600&&max===1400&&step===50&&rawValue>=min&&rawValue<=max&&(rawValue-min)%step===0;
+    return {available:ready,value:rawValue,preference:true,target:true,automatic:false,automatic_value:null,display_value:rawValue,display_available:ready,min:600,max:1400,step:50};
+  }
   const numericReady=available(state)&&value!==null&&value>=0&&value<=100&&min===0&&max===100&&step!==null&&step>0&&step<=100;
   if(item.semantics==='preference')return {available:numericReady,value,preference:true,automatic:false,automatic_value:null,display_value:value,display_available:numericReady,min:0,max:100,step:step??1};
   const ready=numericReady&&booleanState(automatic)&&(!item.availability_entity||availability?.state==='on');
@@ -31,7 +35,7 @@ export function airPreferenceLabel(item,value){
   return (item.value_labels||[]).reduce((best,mark)=>!best||Math.abs(mark.value-value)<Math.abs(best.value-value)||Math.abs(mark.value-value)===Math.abs(best.value-value)&&Math.abs(mark.value-neutral)<Math.abs(best.value-neutral)?mark:best,null)?.label??null;
 }
 export function airGoalValue(model,position){
-  const value=intentionNumber(position);if(!model.available||value===null||value<0||value>100||Math.abs(value/model.step-Math.round(value/model.step))>1e-5)throw new Error('Unavailable or invalid air intention');return value;
+  const value=intentionNumber(position);if(!model.available||value===null||value<model.min||value>model.max||Math.abs((value-model.min)/model.step-Math.round((value-model.min)/model.step))>1e-5)throw new Error('Unavailable or invalid air intention');return value;
 }
 export function airBoostModel(hass,item,now=Date.now()){
   const boost=item.boost;if(!boost)return {available:false,active:false,remaining:null,expired:false};
@@ -60,7 +64,7 @@ export async function commitAirGoal(card,item,position){
 }
 export async function commitAirAutomatic(card,item,automatic){
   if(card._busy)return;
-  try{if(item.semantics==='preference'||!airGoalModel(card.hass,item).available||typeof automatic!=='boolean')throw new Error('Unavailable air intention');replaceDraft(card,item.id,{automatic});await submitAirGoal(card,item,valueAction(item.automatic_action,automatic));}catch{clearDraft(card,item.id);card._error=true;}
+  try{if(['preference','co2-target'].includes(item.semantics)||!airGoalModel(card.hass,item).available||typeof automatic!=='boolean')throw new Error('Unavailable air intention');replaceDraft(card,item.id,{automatic});await submitAirGoal(card,item,valueAction(item.automatic_action,automatic));}catch{clearDraft(card,item.id);card._error=true;}
 }
 async function submitAirGoal(card,item,action){
   card._airGoalErrors={...card._airGoalErrors,[item.id]:false};await card.run(action,'air-goal:'+item.id);
@@ -75,14 +79,14 @@ export function renderHealthAlerts(card){
 }
 export function renderAirGoals(card){return (card._config.air_goals||[]).map(item=>{
   const model=airGoalModel(card.hass,item),draft=card._airDrafts?.[item.id],shown=airGoalPresentation(model,draft),{value,automatic}=shown,boost=airBoostModel(card.hass,item,card._now),busy=card._busy,disabled=!model.available||busy,boostDisabled=busy||!(boost.active?boost.can_cancel:boost.available),menuId='air-boost-'+item.id,status=card.s(item.status_entity),failure=card._airGoalErrors?.[item.id];
-  const preference=model.preference,qualitative=preference?airPreferenceLabel(item,value):null,lowLabel=item.low_label||item.value_labels?.[0]?.label||card.t('less'),highLabel=item.high_label||item.value_labels?.at(-1)?.label||card.t('moreIntense');
+  const preference=model.preference,qualitative=model.target?`${card.n(value)} ppm`:preference?airPreferenceLabel(item,value):null,lowLabel=item.low_label||item.value_labels?.[0]?.label||card.t('less'),highLabel=item.high_label||item.value_labels?.at(-1)?.label||card.t('moreIntense');
   const open=event=>openPopover(card,menuId,event),start=async duration=>{try{await card.run(airBoostAction(card.hass,item,duration,Date.now()),'air-boost:'+item.id);if(!card._error)card.renderRoot.getElementById(menuId)?.hidePopover();}catch{card._error=true;}};
   return html`<div class="air-goal ${preference?'preference':''}" data-air-goal=${item.id} data-semantics=${preference?'preference':'legacy'} ?data-display-unknown=${!shown.available}>
     <div class="air-goal-heading"><span>${item.name}</span><output>${shown.available?preference?qualitative:card.n(value):card.t('noData')}</output>${preference?nothing:html`<label class="air-goal-auto"><span>${card.t('haAuto')}</span><ha-m3-switch .label=${`${item.name}: ${card.t('haAuto')}`} .selected=${automatic} .disabled=${disabled} motion=${card.motion} @m3-change=${event=>commitAirAutomatic(card,item,event.detail.selected)}></ha-m3-switch></label>`}</div>
     <div class="air-goal-value"><span>${preference?item.preference_note||card.t('yourWish'):automatic?card.t('goalAutomatic'):card.t('yourWish')}</span></div>
-    <ha-m3-slider .segmented=${card._config.presentation!=='unified'} .segmentCount=${11} .terminalAccent=${false} .haptics=${card.hass?.vibrate===true} .label=${`${item.name}: ${card.t('yourWish')}`} .valueText=${preference?qualitative:undefined} .value=${Number(shown.slider_value??0)} .min=${0} .max=${100} .step=${model.step} .disabled=${disabled} motion=${card.motion} @m3-input=${event=>{if(!disabled)replaceDraft(card,item.id,preference?{value:event.detail.value,editing:true}:{value:event.detail.value,automatic:false,editing:true});}} @m3-change=${event=>commitAirGoal(card,item,event.detail.value)} @m3-cancel=${()=>clearDraft(card,item.id)}></ha-m3-slider>
+    <ha-m3-slider .segmented=${card._config.presentation!=='unified'} .segmentCount=${11} .terminalAccent=${false} .haptics=${card.hass?.vibrate===true} .label=${`${item.name}: ${card.t('yourWish')}`} .valueText=${preference?qualitative:undefined} .value=${Number(shown.slider_value??0)} .min=${model.min} .max=${model.max} .step=${model.step} .disabled=${disabled} motion=${card.motion} @m3-input=${event=>{if(!disabled)replaceDraft(card,item.id,preference?{value:event.detail.value,editing:true}:{value:event.detail.value,automatic:false,editing:true});}} @m3-change=${event=>commitAirGoal(card,item,event.detail.value)} @m3-cancel=${()=>clearDraft(card,item.id)}></ha-m3-slider>
     <div class="air-scale"><span>${preference?lowLabel:card.t('less')}</span><span>${preference?highLabel:card.t('moreIntense')}</span></div>
-    ${card._config.presentation==='unified'?nothing:renderHistory(card,[{entity:item.entity,name:item.name,unit:"%",kind:"setting",invert:!!item.invert}])}
+    ${card._config.presentation==='unified'?nothing:renderHistory(card,[{entity:item.entity,name:item.name,unit:model.target?"ppm":"%",kind:"setting",invert:!!item.invert}])}
     ${item.boost?html`<div class="air-boost"><ha-m3-button kind=${boost.active?'tonal':'text'} .icon=${boost.active?'pause':'refresh'} .disabled=${boostDisabled} @click=${event=>boost.active?open(event):start(item.boost.default_duration)}>${boost.active?html`<span class="air-boost-clock">${card.t('airBoostActive')} · ${boost.expired?card.t('finishing'):airCountdown(boost.remaining)||card.t('noData')}</span>`:html`${item.boost.action_name||card.t('airBoost')} · ${item.boost.default_duration} ${card.t('minutes')}`}</ha-m3-button><ha-m3-button kind="text" icon="expand_more" .label=${`${item.name}: ${card.t('airBoostSettings')}`} .disabled=${boostDisabled} @click=${open}></ha-m3-button></div>`:nothing}
     <p class="air-goal-note" role=${failure?'alert':'status'}>${failure?card.t('goalNotConfirmed'):!model.available?card.t('unavailable'):!shown.available?card.t('noData'):available(status)?status.state:preference?nothing:card.t('wishScale')}</p>
     ${item.boost?html`<div id=${menuId} popover role="dialog" aria-label=${`${item.name}: ${card.t('airBoostSettings')}`}><h3>${item.name}</h3><p>${boost.active?card.t('airBoostRunning'):card.t('airBoostHint')}</p>${boost.active?html`<p class="air-boost-clock">${card.t('remaining')}: ${boost.expired?card.t('finishing'):airCountdown(boost.remaining)||card.t('noData')}</p><div class="popover-actions"><ha-m3-button kind="text" @click=${()=>card.renderRoot.getElementById(menuId).hidePopover()}>${card.t('close')}</ha-m3-button><ha-m3-button kind="filled" .disabled=${!boost.can_cancel||busy} @click=${async()=>{await card.run(item.boost.cancel_action,'air-boost-cancel:'+item.id);if(!card._error)card.renderRoot.getElementById(menuId).hidePopover();}}>${card.t('finish')}</ha-m3-button></div>`:html`<div class="air-boost-choices">${item.boost.durations.map(duration=>html`<ha-m3-button kind="tonal" .disabled=${!boost.available||busy} @click=${()=>start(duration)}>${duration} ${card.t('minutes')}</ha-m3-button>`)}</div>`}</div>`:nothing}
