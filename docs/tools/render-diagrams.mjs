@@ -17,7 +17,7 @@ const server=http.createServer(async(req,res)=>{try{
 }catch{res.statusCode=500;res.end('Render asset error');}});
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 const base='http://127.0.0.1:'+server.address().port;
-const report={backend_version:'0.4.40',mermaid_version:require('mermaid/package.json').version,diagrams:[],external_requests:[],page_errors:[]};
+const report={backend_version:'0.4.41',mermaid_version:require('mermaid/package.json').version,diagrams:[],external_requests:[],page_errors:[]};
 let browser;
 try{
   browser=await chromium.launch({headless:true,args:['--disable-dev-shm-usage']});

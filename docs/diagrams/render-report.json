@@ -1,11 +1,11 @@
 {
-  "backend_version": "0.4.40",
+  "backend_version": "0.4.41",
   "mermaid_version": "11.12.0",
   "diagrams": [
     {
       "file": "01-overview.mmd",
-      "source_sha256": "1637e5e2d4416227a7b8cbe09bd6602062f434625f91094d509fd4fb35043291",
-      "svg_sha256": "e64044807056aa313929f8a41cf443d02ec60dc04bb12379fca94da7135c9159",
+      "source_sha256": "6f9ccb723c7f2399acd7b49f15479ab7a1e7653386e54471c5c8341059d32b30",
+      "svg_sha256": "0b89969f3415c2def96e28f93a9852f9ab4ce5494d51978f9985c31bf30b7e46",
       "rendered": true
     },
     {
@@ -34,8 +34,8 @@
     },
     {
       "file": "06-temperature.mmd",
-      "source_sha256": "c1e4a8719412f0642b391ccbbdd5d0a69c89435c71c02c373faeb3bd6e8c522e",
-      "svg_sha256": "f200e35f1d35a9b6d394030f3314a21d8092bbaf91088bd747a12eae2dc1380f",
+      "source_sha256": "4683171805c6af4cbafab1bcef9d083f7096996c528cf25aa30f98b2b68cb52b",
+      "svg_sha256": "7039c45aef3a4193ef4b4c97595974293bd91ced8afce6381089ec5d10329687",
       "rendered": true
     },
     {
@@ -46,8 +46,8 @@
     },
     {
       "file": "08-dynamics.mmd",
-      "source_sha256": "0c1a74077c689eef0e1141246c2e65347231ef69281339f2977ba95d28b97d48",
-      "svg_sha256": "e26b66c3e47018f7a0b672762b8002b06cb59cd6cfcac7208cfcd2f60e3c5a5c",
+      "source_sha256": "e9379df484e673bb6a05c2548f9c814b375826ab52b0b8433dac2dd6691c09da",
+      "svg_sha256": "19591232a7b0c12e4cf897b15c3cfa65d6e02901550646d22128b09cddcc903b",
       "rendered": true
     },
     {
