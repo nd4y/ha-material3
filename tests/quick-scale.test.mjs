@@ -1,4 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
+import {quickScaleWaitReason} from '../src/quick-scale.js';
 import {validateQuickScale,quickScaleModel,quickScaleRequest,quickScaleOffRequest,quickScaleConfirmed,quickScaleSaved,quickScaleSuperseded,roomSnapshot,validateDeviceOwner,deviceOwnerSnapshot,deviceOwnerRequest,deviceOwnerConfirmed,requestId} from '../src/quick-scale.js';
 const state=(value,attributes={})=>({state:String(value),attributes,last_changed:new Date().toISOString(),last_updated:new Date().toISOString()});
 const revision='input_text.revision',completed='input_text.completed',gateway={action:'perform-action',perform_action:'script.scale_gateway',data:{device:'breather',parameter:'temperature'},value_field:'choice'};
@@ -8,6 +9,21 @@ const item={id:'temp',name:'Temp',entity:'climate.breather',attribute:'temperatu
 const make=()=>({states:{'climate.breather':state('fan_only',{temperature:22,min_temp:5,max_temp:25,target_temp_step:1,fan_mode:'3'}),'input_boolean.temp':state('off'),'input_boolean.power':state('off'),'input_boolean.saved_power':state('on'),'input_number.saved':state('23'),[revision]:state('prior'),[completed]:state('prior')}});
 const roomFixture=(h,now=Date.now())=>{h.states['sensor.room']=state(20);h.states['sensor.source']=state(20);h.states['input_text.primary']=state('sensor.source');h.states['input_number.ttl']=state(60);h.states['input_datetime.epoch']=state('2026-01-01',{timestamp:Math.floor(now/1000)-100});};
 const acItem=()=>({...item,mode_scale:{kind:'ac-temperature',gateway,revision_entity:revision,completed_entity:completed,room_entity:'sensor.room',room_freshness:freshness,confirmation:{mode_entity:'input_select.mode',writing_entity:'input_boolean.writing',pending_entity:'input_boolean.pending'}}});
+
+test('pending AC explains the actual controller interlock, never another device or missing data',()=>{
+  const h=make(),ac=acItem();ac.mode_scale.room_freshness={...freshness,qualifier_entity:'sensor.coordinator'};
+  const planning={blocked:[['ac','opposite_or_unknown_thermal_state']],source_quality:'valid'};
+  h.states['sensor.coordinator']=state('active',{planning});
+  assert.equal(quickScaleWaitReason(h,ac),'thermal');
+  planning.blocked=[['ac','thermal_start_not_ready']];assert.equal(quickScaleWaitReason(h,ac),'cooldown');
+  planning.source_quality='stale';assert.equal(quickScaleWaitReason(h,ac),'room');
+  for(const blocked of [[],[['breather','thermal_start_not_ready']],[['ac','pending_or_unapplied_manual_intent']],null]){
+    planning.blocked=blocked;assert.equal(quickScaleWaitReason(h,ac),null);
+  }
+  planning.blocked=[['ac','room_measurement_unqualified']];assert.equal(quickScaleWaitReason(h,ac),'room');
+  h.states['sensor.coordinator'].state='unavailable';assert.equal(quickScaleWaitReason(h,ac),null);
+  assert.equal(quickScaleWaitReason(h,item),null);
+});
 test('AC freshness follows qualified source measurement even when HA value did not change',()=>{
   const now=Date.now(),h=make(),ac=acItem();roomFixture(h,now);
   const old=new Date(now-7200_000).toISOString();h.states['sensor.room'].last_changed=old;h.states['sensor.source'].last_changed=old;

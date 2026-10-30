@@ -51,6 +51,20 @@ try{
   await input.press('Home');calls=await writes();check(calls.length===2&&calls[1].data.request_id!==first,'A second released Stop has its own id');
   const count=calls.length;await input.scrollIntoViewIfNeeded();const box=await input.boundingBox();await page.mouse.move(box.x+1,box.y+box.height/2);await page.mouse.down();await page.keyboard.press('Escape');await page.mouse.up();check((await writes()).length===count,'Canceled same-position gesture sends nothing');
  });
+ await scenario('manual AC pending shows interlock and clears on native startup',async()=>{
+  const c=config.cards[1],item=c.quick_controls[0],qualifier='sensor.test_coordinator',card=device(1);
+  await card.evaluate((e,id)=>e.setConfig({...e._config,quick_controls:e._config.quick_controls.map(i=>i.mode_scale?.kind==='ac-temperature'?{...i,mode_scale:{...i.mode_scale,room_freshness:{...i.mode_scale.room_freshness,qualifier_entity:id}}}:i)}),qualifier);
+  await set(c.entity,'off',{temperature:22,target_temp_step:1});
+  await set(item.lock_entity,'on');await set(c.power.lock_entity,'on');await set(c.power.value_entity,'on');await set(item.value_entity,22.5);
+  for(const [reason,quality,label] of [['opposite_or_unknown_thermal_state','valid','Запуск отложен: другой прибор может нагревать воздух'],['thermal_start_not_ready','valid','Защитная пауза компрессора - до 5 минут'],['thermal_start_not_ready','stale','Ожидание свежего показания комнатной температуры']]){
+    await set(qualifier,'active',{planning:{source_quality:quality,blocked:[['ac',reason]]}});
+    check(await card.getByText(label,{exact:true}).isVisible(),'Show actual interlock: '+reason);
+    check(await card.getByText('Цель 22,5 °C: ожидается применение',{exact:true}).count()===0,'Specific reason replaces generic waiting');
+  }
+  await set(c.entity,'cool',{temperature:22,fan_mode:'low'});await set(qualifier,'active',{planning:{source_quality:'valid',blocked:[]}});
+  check(await card.locator('.saved-hint').allTextContents().then(x=>x.every(v=>!v.includes('Ожидание')&&!v.includes('Запуск отложен'))),'Received startup clears pending explanation');
+  check((await writes()).length===0,'Status rendering never sends a device command');
+ });
  await scenario('new scale choice replaces a saved pending target and Auto cancels obsolete UI wait',async()=>{
   const c=config.cards[1],item=c.quick_controls[0],input=device(1).locator('[data-control-id="temperature"] input');
   await input.press('ArrowRight');let calls=await writes();check(calls.length===1,'First request sent');const old=calls[0].data.request_id;

@@ -1,3 +1,8 @@
+## 0.19.7 - 2026-10-30
+
+- Explain pending manual AC startup using the actual controller interlock: compressor delay, opposing heat or stale room measurement.
+- Keep native confirmation required before completing a setting; a saved intent is not a running appliance.
+
 ## 0.19.6 - 2026-10-30
 
 - Show lock for the action that fixes automatic settings manually, and the automation icon for returning manual settings to automatic control.
