@@ -10,6 +10,31 @@ const make=()=>({states:{'climate.breather':state('fan_only',{temperature:22,min
 const roomFixture=(h,now=Date.now())=>{h.states['sensor.room']=state(20);h.states['sensor.source']=state(20);h.states['input_text.primary']=state('sensor.source');h.states['input_number.ttl']=state(60);h.states['input_datetime.epoch']=state('2026-01-01',{timestamp:Math.floor(now/1000)-100});};
 const acItem=()=>({...item,mode_scale:{kind:'ac-temperature',gateway,revision_entity:revision,completed_entity:completed,room_entity:'sensor.room',room_freshness:freshness,confirmation:{mode_entity:'input_select.mode',writing_entity:'input_boolean.writing',pending_entity:'input_boolean.pending'}}});
 
+test('heater stored intent tolerates a guarded restart without claiming completion',()=>{
+  const h=make(),heater={...item,mode_scale:{kind:'heater-temperature',gateway,revision_entity:revision,completed_entity:completed,controller_entity:'sensor.coordinator',confirmation:{manual_checks:[{entity:card.entity,value:'heat'}]}}};
+  h.states[card.entity]=state('off',{temperature:18,min_temp:18,max_temp:28,target_temp_step:1});
+  const request=quickScaleRequest(h,card,heater,1);
+  assert.equal(quickScaleSaved(h,card,heater,request),false);
+  h.states[revision].state=request.request_id;
+  h.states['input_boolean.temp'].state='on';h.states['input_boolean.power'].state='on';h.states['input_boolean.saved_power'].state='on';h.states['input_number.saved'].state='18';
+  assert.equal(quickScaleSaved(h,card,heater,request),true);
+  assert.equal(quickScaleConfirmed(h,card,heater,request),false);
+  h.states[completed].state=request.request_id;
+  assert.equal(quickScaleConfirmed(h,card,heater,request),false);
+  h.states[card.entity].state='heat';assert.equal(quickScaleConfirmed(h,card,heater,request),true);
+  for(const [entity,value] of [[revision,'other'],['input_boolean.temp','off'],['input_boolean.power','off'],['input_boolean.saved_power','off'],['input_number.saved','19'],['input_number.saved','unavailable']]){
+    const old=h.states[entity].state;h.states[entity].state=value;assert.equal(quickScaleSaved(h,card,heater,request),false,entity+':'+value);h.states[entity].state=old;
+  }
+  for(const choice of [0,12])assert.equal(quickScaleSaved(h,card,heater,quickScaleRequest(h,card,heater,choice)),false);
+  const planning={source_quality:'valid',blocked:[['heater','thermal_start_not_ready']]};h.states['sensor.coordinator']=state('active',{planning});
+  assert.equal(quickScaleWaitReason(h,heater),'restart');
+  planning.blocked=[['ac','thermal_start_not_ready']];assert.equal(quickScaleWaitReason(h,heater),null);
+  planning.blocked=[['heater','thermal_start_not_ready']];planning.source_quality='stale';assert.equal(quickScaleWaitReason(h,heater),'room');
+  planning.blocked=[['heater','opposite_or_unknown_thermal_state']];assert.equal(quickScaleWaitReason(h,heater),'thermal');
+  h.states['sensor.coordinator'].state='unavailable';assert.equal(quickScaleWaitReason(h,heater),null);
+  assert.throws(()=>validateQuickScale({...heater,mode_scale:{...heater.mode_scale,controller_entity:'input_text.bad'}}));
+});
+
 test('pending AC explains the actual controller interlock, never another device or missing data',()=>{
   const h=make(),ac=acItem();ac.mode_scale.room_freshness={...freshness,qualifier_entity:'sensor.coordinator'};
   const planning={blocked:[['ac','opposite_or_unknown_thermal_state']],source_quality:'valid'};
