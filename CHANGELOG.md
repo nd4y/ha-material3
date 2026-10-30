@@ -1,3 +1,7 @@
+## 0.19.9
+
+- Keep admitted heater commands pending through the guarded restart interval; explain controller restart, thermal and room-sensor waits. Native state and exact completion receipt remain mandatory.
+- Add delayed heater confirmation, finite timeout and Auto cancellation regressions.
 ## 0.19.8 - 2026-10-30
 
 - Confirm canonical Turbo intent using the received preset and matching controller receipt, including already running devices.

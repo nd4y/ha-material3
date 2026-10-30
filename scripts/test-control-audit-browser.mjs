@@ -79,12 +79,37 @@ try{
   check(await card.evaluate(e=>!e._scaleRequests.speed&&!e._scaleErrors.speed),'Numeric speed also confirms');
   check(await input.isEnabled()&&await field.locator('.scale-choice').count()===0,'Numeric scale remains usable');
  });
+ await scenario('heater restart waits past 30 seconds and requires exact native completion',async()=>{
+  const c=config.cards[3],item=c.quick_controls[0],card=device(3),qualifier='sensor.test_heater_coordinator';
+  await card.evaluate((e,id)=>e.setConfig({...e._config,quick_controls:e._config.quick_controls.map(i=>({...i,mode_scale:{...i.mode_scale,controller_entity:id}}))}),qualifier);
+  await set(c.entity,'off',{temperature:18,min_temp:18,max_temp:28,target_temp_step:1});
+  await set(qualifier,'active',{planning:{source_quality:'valid',blocked:[['heater','thermal_start_not_ready']]}});
+  const input=card.locator('[data-control-id="temperature"] input');await input.press('ArrowRight');
+  const call=(await writes()).at(-1),rid=call.data.request_id;check(call.data.choice===18,'Minimum heater value requests 18 degrees, not Off');
+  await set(item.lock_entity,'on');await set(item.value_entity,18);await set(c.power.lock_entity,'on');await set(c.power.value_entity,'on');await set(item.mode_scale.revision_entity,rid);
+  await page.clock.runFor(31000);
+  check(await card.getByText('Ожидание безопасного повторного включения',{exact:true}).isVisible(),'Explain the heater restart guard');
+  check(await card.evaluate(e=>!!e._scaleRequests.temperature&&!e._scaleErrors.temperature),'Admitted heater command survives normal 30 second timeout');
+  check(await input.isEnabled(),'Pending intent can be changed');check((await writes()).length===1,'Waiting never retries a device command');
+  await set(item.mode_scale.completed_entity,rid);check(await card.evaluate(e=>!!e._scaleRequests.temperature),'Receipt without native heat must not complete');
+  await page.clock.runFor(30000);await set(c.entity,'heat',{temperature:18});await set(qualifier,'active',{planning:{source_quality:'valid',blocked:[]}});
+  check(await card.evaluate(e=>!e._scaleRequests.temperature&&!e._scaleErrors.temperature),'Actual delayed startup clears wait and error');
+  check(!(await card.textContent()).includes('Ожидание безопасного'),'No stale reason after native startup');
+  await input.press('Home');let next=(await writes()).at(-1).data.request_id;await set(c.power.value_entity,'off');await set(item.mode_scale.revision_entity,next);await set(c.entity,'off');await set(item.mode_scale.completed_entity,next);
+  check(await card.evaluate(e=>!e._scaleRequests.temperature&&!e._scaleErrors.temperature),'Off still completes normally');
+  await input.press('ArrowRight');next=(await writes()).at(-1).data.request_id;await set(c.power.value_entity,'on');await set(item.mode_scale.revision_entity,next);
+  await page.clock.runFor(361000);
+  check(await card.evaluate(e=>!e._scaleRequests.temperature&&e._scaleErrors.temperature),'Missing native result has a finite timeout');
+  await input.press('End');const auto=(await writes()).at(-1).data.request_id;await set(item.lock_entity,'off');await set(c.power.lock_entity,'off');await set(item.mode_scale.revision_entity,auto);await set(item.mode_scale.completed_entity,auto);
+  await set(c.entity,'heat',{temperature:18});await set(item.mode_scale.completed_entity,next);
+  check(await card.evaluate(e=>!e._scaleRequests.temperature&&!e._scaleErrors.temperature),'Auto cancels obsolete waits even if the old result arrives later');
+ });
  await scenario('manual AC pending shows interlock and clears on native startup',async()=>{
   const c=config.cards[1],item=c.quick_controls[0],qualifier='sensor.test_coordinator',card=device(1);
   await card.evaluate((e,id)=>e.setConfig({...e._config,quick_controls:e._config.quick_controls.map(i=>i.mode_scale?.kind==='ac-temperature'?{...i,mode_scale:{...i.mode_scale,room_freshness:{...i.mode_scale.room_freshness,qualifier_entity:id}}}:i)}),qualifier);
   await set(c.entity,'off',{temperature:22,target_temp_step:1});
   await set(item.lock_entity,'on');await set(c.power.lock_entity,'on');await set(c.power.value_entity,'on');await set(item.value_entity,22.5);
-  for(const [reason,quality,label] of [['opposite_or_unknown_thermal_state','valid','Запуск отложен: другой прибор может нагревать воздух'],['thermal_start_not_ready','valid','Защитная пауза компрессора - до 5 минут'],['thermal_start_not_ready','stale','Ожидание свежего показания комнатной температуры']]){
+  for(const [reason,quality,label] of [['opposite_or_unknown_thermal_state','valid','Ожидание безопасного переключения нагрева и охлаждения'],['thermal_start_not_ready','valid','Защитная пауза компрессора - до 5 минут'],['thermal_start_not_ready','stale','Ожидание свежего показания комнатной температуры']]){
     await set(qualifier,'active',{planning:{source_quality:quality,blocked:[['ac',reason]]}});
     check(await card.getByText(label,{exact:true}).isVisible(),'Show actual interlock: '+reason);
     check(await card.getByText('Цель 22,5 °C: ожидается применение',{exact:true}).count()===0,'Specific reason replaces generic waiting');

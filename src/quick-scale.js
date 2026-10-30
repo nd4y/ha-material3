@@ -12,6 +12,7 @@ export function validateQuickScale(item){
   const s=item.mode_scale;if(s===undefined)return;
   if(!s||!kinds.has(s.kind)||!item.lock_entity||!/^input_text\.[a-z0-9_]+$/.test(s.revision_entity||'')||!/^input_text\.[a-z0-9_]+$/.test(s.completed_entity||'')||s.completed_entity===s.revision_entity)throw new Error('Invalid scale configuration');
   actionValid(s.gateway);
+  if(s.controller_entity!==undefined&&!/^sensor\.[a-z0-9_]+$/.test(s.controller_entity))throw new Error('Invalid scale controller source');
   const f=s.room_freshness;
   if(s.kind==='ac-temperature'&&(!/^sensor\.[a-z0-9_]+$/.test(s.room_entity||'')||!/^input_text\.[a-z0-9_]+$/.test(f?.source_entity||'')||!/^input_number\.[a-z0-9_]+$/.test(f?.ttl_entity||'')||!/^input_datetime\.[a-z0-9_]+$/.test(f?.epoch_entity||'')||!/^sensor\.[a-z0-9_]+$/.test(f?.expected_source||'')))throw new Error('AC scale needs qualified room, pinned primary source, TTL and epoch');
   if(f?.qualifier_entity!==undefined&&!/^sensor\.[a-z0-9_]+$/.test(f.qualifier_entity))throw new Error('Invalid room qualifier');
@@ -91,13 +92,15 @@ export function roomSnapshot(hass,item,now=Date.now()){
   return {value,last_changed:changed,source,source_last_changed:sourceChanged,ttl};
 }
 export function quickScaleWaitReason(hass,item){
-  if(item.mode_scale?.kind!=='ac-temperature')return null;
-  const source=stateOf(hass,item.mode_scale.room_freshness?.qualifier_entity);
+  const kind=item.mode_scale?.kind;
+  if(!['ac-temperature','heater-temperature'].includes(kind))return null;
+  const source=stateOf(hass,item.mode_scale.controller_entity||item.mode_scale.room_freshness?.qualifier_entity);
   if(!available(source))return null;
   const planning=source.attributes?.planning,blocked=planning?.blocked;
   if(!Array.isArray(blocked))return null;
-  const reasons=new Set(blocked.filter(x=>Array.isArray(x)&&x[0]==='ac').map(x=>x[1]));
-  if(reasons.has('thermal_start_not_ready'))return planning.source_quality==='valid'?'cooldown':'room';
+  const name=kind==='heater-temperature'?'heater':'ac';
+  const reasons=new Set(blocked.filter(x=>Array.isArray(x)&&x[0]===name).map(x=>x[1]));
+  if(reasons.has('thermal_start_not_ready'))return planning.source_quality==='valid'?(name==='heater'?'restart':'cooldown'):'room';
   if(reasons.has('opposite_or_unknown_thermal_state'))return 'thermal';
   if(reasons.has('room_measurement_unqualified'))return 'room';
   return null;
@@ -176,6 +179,12 @@ export function quickScaleSuperseded(hass,card,item,request){
 }
 // Service acknowledgement is deliberately absent. Confirmation requires HA readback.
 export function quickScaleSaved(hass,card,item,request){
+  if(item.mode_scale.kind==='heater-temperature'&&request.intent.type==='manual'){
+    const saved=stateOf(hass,item.value_entity),savedPower=stateOf(hass,card.power?.value_entity),permission=automationPermission(hass,item),power=automationPermission(hass,card.power||{});
+    // Admission is stored intent, not a device acknowledgement. A heater can
+    // legitimately wait for its restart guard longer than a normal command.
+    return stateOf(hass,item.mode_scale.revision_entity)?.state===request.request_id&&permission.available&&!permission.automatic&&power.available&&!power.automatic&&available(saved)&&decimal(saved.state)===request.intent.value&&available(savedPower)&&savedPower.state==='on';
+  }
   if(item.mode_scale.kind==='ac-speed'&&request.originalPowerOff===true&&request.intent.type==='manual'){
     const permission=automationPermission(hass,item),device=stateOf(hass,card.entity),saved=stateOf(hass,item.value_entity);
     return stateOf(hass,item.mode_scale.revision_entity)?.state===request.request_id&&stateOf(hass,item.mode_scale.saved_entity)?.state===request.request_id&&permission.available&&!permission.automatic&&available(device)&&device.state==='off'&&available(saved)&&saved.state===String(request.intent.value);

@@ -122,6 +122,15 @@ The helpers and scripts are installation-specific and are not included by this
 card. These IDs are correlation markers, not atomic locks; all competing writers
 and hardware safety rules must be handled by the backend.
 
+For a heater's restart/interlock status, set `mode_scale.controller_entity` to
+the controller sensor exposing `planning.blocked` and `planning.source_quality`.
+Only reasons for that device are displayed. An admitted manual temperature with
+matching saved value and manual power On waits up to six minutes for native
+confirmation; admission alone never completes it. Off and Auto still use their
+normal timeout and can replace the pending request. The restart guard itself
+remains enforced by the backend. AC can use the same source or its existing
+`room_freshness.qualifier_entity`.
+
 For an AC speed stored while the device is off, configure `saved_entity` as a
 separate `input_text` marker. The server writes the request UUID there only after
 the intended value has been stored; the UI can then show it as a setting for the
