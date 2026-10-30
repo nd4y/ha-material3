@@ -41,7 +41,7 @@ try{
  expect(await page.evaluate(()=>document.querySelector('ha-m3-quick-device-card').hass.states['input_boolean.lock_ac_temperature'].state==='off'),'Speed changed thermal permission');
  await speedOwner.click();await page.waitForFunction(()=>document.querySelector('ha-m3-quick-device-card').hass.states['climate.ac'].attributes.fan_mode==='auto');await speedOwner.click();
  await page.waitForFunction(()=>document.querySelector('ha-m3-quick-device-card').hass.states['input_boolean.lock_ac_speed'].state==='off');
- expect(await speedOwner.locator('.symbol').innerText()==='lock_open','HA Auto lacks open lock icon');
+ expect(await speedOwner.locator('.symbol').innerText()==='auto_awesome','HA Auto lacks automation state icon');
  expect(await speed.locator('.owner').count()===1,'More than one ownership button');
  const currentOwnerLabel=await speedOwner.getAttribute('aria-label');
  expect(currentOwnerLabel.includes('Автоматика дома')&&currentOwnerLabel.includes('Следующий режим: Ручное управление'),'Current and next owner missing from accessible label');

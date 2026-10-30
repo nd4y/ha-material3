@@ -120,7 +120,7 @@
     "scripts/test-hold-browser.mjs": "c2f0c1c62ae7dff17a7a875ff62387dc2c0b08d08744d2b57abb19c25de081ea",
     "scripts/test-hold-help-browser.mjs": "b708ec33d8b94b466a2e4eb079e51308d10d20bc58bf48ee3d6c6fe6833d207c",
     "scripts/test-journal-browser.mjs": "c0d7e328926bbf3f2ad4cf08f688c67c60394f90edcb3a903543d71ffd821a82",
-    "scripts/test-mobile-browser.mjs": "b4cbeb371598572806f4f7d08c7b49f8aaf38c7f314d4646e0cf3d58526fa39c",
+    "scripts/test-mobile-browser.mjs": "c4142acd03a90b2284b1bdb2018665876f4ae2b7864f9685c53cb831477b58ab",
     "scripts/test-mobile-polish-browser.mjs": "aabd16d7a505a1915596799a2173453921974d5e553b8aea9c18d9fb6472f05f",
     "scripts/test-sensors-browser.mjs": "a03af641e71bd6696af314a64bce7b85dc8590fa58c742fa958942fdb9d77375",
     "scripts/test-state-motion-browser.mjs": "984944a619a6088b1f2db8d1c4ccb41015622a2ba3f6cc2e27d2fef09a5e64e8",
