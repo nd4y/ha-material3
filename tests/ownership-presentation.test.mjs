@@ -23,7 +23,7 @@ test('duplicate helpers count once and missing or unconfigured permissions never
 });
 
 test('compact ownership labels, glyphs and descriptions distinguish home auto, manual and native device auto',()=>{
-  assert.deepEqual(ownerPresentation('ha'),{labelKey:'ownerAutomaticShort',accessibleKey:'ownerHomeAutomatic',icon:'lock_open',helpKey:'ownerHaHelp'});
+  assert.deepEqual(ownerPresentation('ha'),{labelKey:'ownerAutomaticShort',accessibleKey:'ownerHomeAutomatic',icon:'auto_awesome',helpKey:'ownerHaHelp'});
   assert.deepEqual(ownerPresentation('manual'),{labelKey:'manualShort',accessibleKey:'ownerManualControl',icon:'lock',helpKey:'ownerManualHelp'});
   assert.deepEqual(ownerPresentation('device'),{labelKey:'ownerDeviceShort',accessibleKey:'ownerDeviceAutomatic',icon:'devices',helpKey:'ownerDeviceHelp'});
   for(const value of ['unknown','unavailable',undefined])assert.deepEqual(ownerPresentation(value),{labelKey:'unavailable',accessibleKey:'unavailable',icon:'info',helpKey:'unavailable'});

@@ -16,6 +16,33 @@ try{
  page.setDefaultTimeout(5000);
  const summary=page.locator('ha-m3-climate-card'),device=i=>page.locator('ha-m3-quick-device-card').nth(i),writes=()=>page.evaluate(()=>window.controlAudit.writes),set=(id,value,attributes)=>page.evaluate(({id,value,attributes})=>window.controlAudit.set(id,value,attributes),{id,value,attributes});
  const config=await page.evaluate(()=>window.controlAudit.config);
+ await scenario('feedback-heating-icons-co2-and-number-width',async()=>{
+  await page.setViewportSize({width:1440,height:1000});
+  await device(0).evaluate(e=>e.setConfig({...e._config,operation:{kind:'breather',heating_setpoint:{entity:e._config.entity,attribute:'temperature',off_value:5}}}));
+  await set(config.cards[0].entity,'fan_only',{temperature:19,max_temp:25,source_qualified:true});
+  check(await device(0).locator('.surface').getAttribute('data-tone')==='warm','Received enabled heating has warm surface');
+  check(await device(0).locator('.operation-symbol').getAttribute('data-motion')==='heat','Received enabled heating is animated');
+  check(await device(0).locator('.operation-symbol').getAttribute('aria-label')==='Нагрев разрешён','Heating permission is not presented as measured heater activity');
+  await set(config.cards[0].entity,'fan_only',{temperature:5});
+  check(await device(0).locator('.surface').getAttribute('data-tone')==='cool','5 degrees changes surface to cold');
+  check(await device(0).locator('.operation-symbol').getAttribute('data-motion')==='flow','Heating off keeps ventilation animation');
+  check(await device(0).locator('.device-owner ha-m3-state-icon').evaluate(e=>e.name)==='lock','Automatic state offers manual freeze action');
+  for(const item of [config.cards[0].power,...config.cards[0].quick_controls])await set(item.lock_entity,'on');
+  check(await device(0).locator('.device-owner ha-m3-state-icon').evaluate(e=>e.name)==='auto_awesome','Manual state offers Auto action');
+  const ac=device(1),field=ac.locator('[data-control-id="temperature"]'),positions=[];
+  for(const temperature of [21,21.5,22,22.5,23]){await set(config.cards[1].entity,'heat',{temperature,target_temp_step:.5});await page.clock.runFor(300);positions.push(await field.locator('.scale-mode').boundingBox());}
+  check(positions.every(p=>p.x===positions[0].x&&p.width===positions[0].width),'Half degree values never shift the operation icon');
+  const input=field.locator('input');await input.scrollIntoViewIfNeeded();const box=await input.boundingBox();await page.mouse.move(box.x+box.width*.3,box.y+box.height/2);await page.mouse.down();
+  const preview=[];for(const fraction of [.31,.33,.35,.37,.39]){await page.mouse.move(box.x+box.width*fraction,box.y+box.height/2);await page.clock.runFor(30);preview.push(await field.locator('.scale-mode').boundingBox());}
+  check(preview.every(p=>p.x===preview[0].x),'Dragged previews keep icon position');check((await writes()).length===0,'No writes during drag');await page.keyboard.press('Escape');await page.mouse.up();
+  const co2='input_number.office_co2_target';await set(co2,800,{min:600,max:1400,step:50});
+  await summary.evaluate((e,entity)=>e.setConfig({...e._config,air_goals:e._config.air_goals.map(g=>g.id==='fresh'?{id:'fresh',name:'Целевой CO₂',semantics:'co2-target',entity,low_label:'600 ppm',high_label:'1400 ppm',set_action:{action:'perform-action',perform_action:'input_number.set_value',target:{entity_id:entity},value_field:'value'}}:g)}),co2);
+  const goal=summary.locator('[data-air-goal="fresh"]'),slider=goal.locator('input');
+  check((await goal.locator('output').textContent()).includes('800 ppm'),'Target is shown in ppm');await slider.scrollIntoViewIfNeeded();const b=await slider.boundingBox();await page.mouse.move(b.x+b.width*.5,b.y+b.height/2);await page.mouse.down();await page.mouse.move(b.x+b.width*.75,b.y+b.height/2,{steps:6});check((await writes()).length===0,'CO2 drag sends nothing until release');await page.mouse.up();
+  const sent=(await writes()).at(-1);check((await writes()).length===1&&sent.domain==='input_number'&&sent.service==='set_value'&&sent.target.entity_id===co2&&sent.data.value>=600&&sent.data.value<=1400&&sent.data.value%50===0,'Exactly one valid CO2 target is committed');
+  await set(co2,sent.data.value);check(!(await goal.textContent()).includes('Не удалось'),'Target readback is accepted');
+  report.feedback={positions,preview,co2:sent.data.value};await page.screenshot({path:path.join(root,'feedback-desktop.png'),fullPage:true});
+ });
  await scenario('stationary Off is an explicit released command but a canceled hold is not',async()=>{
   const c=config.cards[1],item=c.quick_controls[0];await set(c.entity,'off',{temperature:23,fan_mode:'low'});
   const input=device(1).locator('[data-control-id="temperature"] input');
