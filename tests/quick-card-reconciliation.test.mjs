@@ -6,7 +6,7 @@ function create(){
  const matches=(h,r)=>h.revision===r.request_id&&h.completed===r.request_id&&h.value===r.expected;
  const context={M3DeviceCard:Base,css:()=>'',html:()=>'',nothing:null,common:{},icon:()=>'',customElements:{define:(name,klass)=>registry[name]=klass},document:{hidden:false},window:{},Date,
   setTimeout:(fn)=>{timers.set(++timerId,fn);return timerId;},clearTimeout:id=>timers.delete(id),locale:()=> 'ru',
-  quickScaleConfirmed:(h,c,i,r)=>matches(h,r),quickScaleSaved:()=>false,quickScaleSuperseded:(h,c,i,r)=>h.superseded===r.request_id,deviceOwnerConfirmed:(h,c,r)=>matches(h,r),
+  quickScaleConfirmed:(h,c,i,r)=>matches(h,r),quickScaleQueued:()=>false,quickScaleSaved:()=>false,quickScaleSuperseded:(h,c,i,r)=>h.superseded===r.request_id,deviceOwnerConfirmed:(h,c,r)=>matches(h,r),
   quickScaleRequest:()=>({choice:3,request_id:`new-${++next}`,expected:'new',action:{}}),quickScaleOffRequest:()=>({choice:'off',request_id:`new-${++next}`,expected:'new',action:{}}),
   deviceOwnerRequest:()=>({owner:'manual',request_id:`owner-${++next}`,expected:'owner',action:{}}),deviceOwnershipModel:()=>({known:true,state:'automatic'}),perform:async(host,hass,action)=>{calls.push(action);if(hass.reject)throw new Error('service rejected');},requestId:()=>`stop-${++next}`,structuredClone,validateControls:()=>{},validateQuickScale:()=>{},validateDeviceOwner:()=>{},validateQuickSettings:()=>{},
   roomSnapshot:()=>null,automationPermission:()=>({available:true,automatic:true}),available:state=>!!state&&!['unknown','unavailable'].includes(state.state),runtimeSafetyReady,validateRuntimeSafety};

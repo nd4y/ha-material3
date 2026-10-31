@@ -130,10 +130,20 @@ export function quickScaleModel(hass,card,item){
   // While stopped, an explicitly saved heat target is a startup intention,
   // distinct from the last device report (which remains `effective`).
   const displaySaved=scale.kind==='breather-temperature'&&deviceOff===true&&control.locked;
-  const position=effectivePosition(caps,{owner,deviceOff,effective:displaySaved?control.value:effective});
+  let position=effectivePosition(caps,{owner,deviceOff,effective:displaySaved?control.value:effective});
+  // Durable intent and validated capabilities outlive the device connection.
+  // Never promote a retained attribute or selection to a received measurement.
+  const durable=device?.attributes?.control_contract==='durable-intent-v1',desired=device?.attributes?.desired;
+  const field=scale.kind.endsWith('temperature')?'temperature':'speed',selection=desired?.[field];
+  const offline=!powerKnown,selectionOnly=offline&&durable&&['ha','manual'].includes(selection?.owner);
+  if(selectionOnly){
+    effective=null;
+    const value=selection.owner==='ha'?'auto':desired.power?.owner==='manual'&&desired.power.value===false&&scale.kind!=='breather-temperature'?'off':scale.kind==='breather-temperature'&&selection.value===5?'off':selection.value;
+    const index=choices.indexOf(value);position=index<0?null:index;
+  }
   const room=roomSnapshot(hass,item);
   const admission=[scale.revision_entity,scale.completed_entity].every(id=>available(stateOf(hass,id)));
-  const selectable=!!(admission&&powerKnown&&permission.available&&choices.length);
+  const selectable=!!(admission&&(powerKnown||selectionOnly)&&permission.available&&choices.length);
   const knownOff=deviceOff===true&&scale.kind!=='breather-temperature';
   // Turbo is a received preset, not a numeric fan speed. The controller stores
   // `turbo` as intent and the device may omit fan_mode while running it.
@@ -142,7 +152,15 @@ export function quickScaleModel(hass,card,item){
   const cooldown=device?.attributes?.turbo_cooldown_remaining;
   const turboCooldown=scale.kind==='breather-speed'&&available(device)&&device.attributes?.source_qualified===true&&typeof cooldown==='number'&&Number.isFinite(cooldown)&&cooldown>0&&cooldown<=600?cooldown:0;
   const turboWaitingReadable=turboCooldown>0&&available(saved)&&saved.state==='turbo'&&opts.includes(effective);
-  return {available:!!(selectable&&(knownOff||control.available||turboReadable||turboWaitingReadable)&&position!==null&&(scale.kind!=='ac-temperature'||room)),selectable,reason:!admission?'admission':position===null?'readback':!room&&scale.kind==='ac-temperature'?'room':null,choices,position,owner,deviceOff,effective,displaySaved,caps,room,turboCooldown};
+  return {available:!!(selectable&&(knownOff||control.available||turboReadable||turboWaitingReadable)&&!offline&&position!==null&&(scale.kind!=='ac-temperature'||room)),selectable,selectionOnly,offline,reason:!admission?'admission':position===null?'readback':!room&&scale.kind==='ac-temperature'?'room':null,choices,position,owner,deviceOff,effective,displaySaved,caps,room,turboCooldown};
+}
+export function quickScaleQueued(hass,card,item,request){
+  const device=stateOf(hass,card.entity),desired=device?.attributes?.desired;
+  if(device?.attributes?.control_contract!=='durable-intent-v1'||available(device)||stateOf(hass,item.mode_scale.revision_entity)?.state!==request.request_id)return false;
+  const field=item.mode_scale.kind.endsWith('temperature')?'temperature':'speed';
+  if(request.intent.type==='power-off')return desired?.power?.owner==='manual'&&desired.power.value===false;
+  if(request.intent.type==='automatic')return desired?.[field]?.owner==='ha';
+  return desired?.[field]?.owner==='manual'&&String(desired[field].value)===String(request.intent.value);
 }
 export function quickScaleOffRequest(hass,card,item){
   validateQuickScale(item);if(![item.mode_scale.revision_entity,item.mode_scale.completed_entity].every(id=>available(stateOf(hass,id))))throw new Error('Admission unavailable');
@@ -158,7 +176,7 @@ export function quickScaleRequest(hass,card,item,position,snapshot){
   let turboSnapshot=null;
   if(choice==='turbo'){
     const cfg=item.mode_scale.confirmation,tempLock=stateOf(hass,cfg.turbo_temperature_lock_entity),tempSaved=stateOf(hass,cfg.turbo_temperature_value_entity),powerLock=stateOf(hass,card.power?.lock_entity),powerSaved=stateOf(hass,card.power?.value_entity),completed=stateOf(hass,item.mode_scale.completed_entity);
-    if(![tempLock,powerLock,powerSaved,completed].every(available)||![tempLock.state,powerLock.state,powerSaved.state].every(x=>['on','off'].includes(x))||m.deviceOff===null||(tempLock.state==='on'&&(!available(tempSaved)||decimal(tempSaved.state)!==5)))throw new Error('Turbo preflight unavailable or incompatible temperature lock');
+    if(![tempLock,powerLock,powerSaved,completed].every(available)||![tempLock.state,powerLock.state,powerSaved.state].every(x=>['on','off'].includes(x))||(m.deviceOff===null&&!m.selectionOnly)||(tempLock.state==='on'&&(!available(tempSaved)||decimal(tempSaved.state)!==5)))throw new Error('Turbo preflight unavailable or incompatible temperature lock');
     turboSnapshot={temperatureLock:tempLock.state,powerLock:powerLock.state,powerValue:powerSaved.state};
   }
   const room= item.mode_scale.kind==='ac-temperature'?snapshot:null;

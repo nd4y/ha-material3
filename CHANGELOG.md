@@ -1,3 +1,10 @@
+## 0.19.11 - 2026-10-31
+
+- Keep supported device scales visible when native reports are temporarily unavailable. Backend 0.4.45 supplies durable selections separately from observed state.
+- Permit explicit settings to be saved through the existing controller while a device is disconnected. Show that application is waiting for the connection; never infer execution from a service response or stored selection.
+- Preserve offline selections across card remounts, retain unknown-state freeze protection, and keep backend safety checks authoritative. No browser command replay queue is introduced.
+- Document the backend fix for repeated reconnects caused by an expired Turbo cooldown after the user had left Turbo.
+
 ## 0.19.10 - 2026-10-30
 
 - Show ASP-100 Turbo firmware cooldown from the controller, including after page reload. Keep the actual speed visible and the scale usable while waiting.
