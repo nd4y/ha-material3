@@ -1,3 +1,8 @@
+## 0.19.12
+
+- Keep the last known regulator layout visible while the controller recreates its entities. A per-tab, per-user display cache survives page reload; it never enables commands or supplies confirmation.
+- Clearly label retained settings, disable writes until the live controller returns, and keep settings menus reachable.
+
 ## 0.19.11 - 2026-10-31
 
 - Keep supported device scales visible when native reports are temporarily unavailable. Backend 0.4.45 supplies durable selections separately from observed state.

@@ -11,6 +11,7 @@ f.hass={language:'ru',locale:{language:'ru',number_format:'comma_decimal'},theme
  callApi:async(_method,url)=>{if(url.startsWith('history/period/'))return [];throw Error('Unsupported synthetic API');},
  callWS:async message=>{if(message.type==='recorder/statistics_during_period')return {};throw Error('Unsupported synthetic WS');}};
 f.reset=async()=>{
+ for(const key of Object.keys(sessionStorage))if(key.startsWith('ha-m3.scale-display.v1.'))sessionStorage.removeItem(key);
  for(const resolve of f.pending.splice(0))resolve();for(const card of f.cards)card.remove();f.cards=[];f.writes=[];f.events=[];f.fail=false;f.defer=false;
  f.states=structuredClone(seed.states);const now=Date.now(),stamp=new Date(now-1000).toISOString();
  for(const s of Object.values(f.states)){s.last_changed=stamp;s.last_updated=stamp;if('timestamp'in s.attributes)s.attributes.timestamp=now/1000-100;if(s.attributes.planning?.room_measurement)s.attributes.planning.room_measurement.received_at=stamp;}
