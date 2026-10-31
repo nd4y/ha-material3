@@ -16,6 +16,27 @@ try{
  page.setDefaultTimeout(5000);
  const summary=page.locator('ha-m3-climate-card'),device=i=>page.locator('ha-m3-quick-device-card').nth(i),writes=()=>page.evaluate(()=>window.controlAudit.writes),set=(id,value,attributes)=>page.evaluate(({id,value,attributes})=>window.controlAudit.set(id,value,attributes),{id,value,attributes});
  const config=await page.evaluate(()=>window.controlAudit.config);
+ await scenario('controller reload preserves display and menus but never enables cached commands',async()=>{
+  const c=config.cards[0];
+  await set(c.entity,'fan_only',{control_contract:'durable-intent-v1',fan_mode:'4',temperature:21,preset_mode:'manual',desired:{power:{owner:'ha',value:true},temperature:{owner:'ha',value:21},speed:{owner:'ha',value:'4'}}});
+  const card=device(0);check(await card.locator('ha-m3-slider input').count()===2,'Warm display captured');
+  await set(c.runtime_ready_entity,'off');
+  await page.evaluate(id=>{delete window.controlAudit.states[id];window.controlAudit.update();},c.entity);
+  check(await card.locator('ha-m3-slider input').count()===2,'Controller entity removal keeps both regulators');
+  check(!(await card.locator('[data-control-id="speed"] input').isEnabled()),'Cached layout cannot enable writes');
+  check((await card.locator('.saved-hint').allTextContents()).join(' ').includes('Показана последняя настройка'),'Retained setting is explicit');
+  await card.getByRole('button',{name:'Подробности: Скорость',exact:true}).click();
+  check(await card.locator('ha-m3-quick-settings-menu dialog').first().isVisible(),'Settings menu remains reachable');
+  await page.keyboard.press('Escape');
+  await card.evaluate(e=>{const n=document.createElement(e.localName);n.setConfig(e._config);n.hass=e.hass;const f=window.controlAudit;f.cards=f.cards.map(x=>x===e?n:x);f.devices=f.devices.map(x=>x===e?n:x);e.replaceWith(n);});
+  check(await card.locator('ha-m3-slider input').count()===2,'Cold remount reads session display');
+  check(!(await card.locator('[data-control-id="speed"] input').isEnabled()),'Remount cannot promote cache to control');
+  check((await writes()).length===0,'No replay on remount');
+  await set(c.entity,'fan_only',{control_contract:'durable-intent-v1',source_qualified:true,fan_mode:'3',temperature:21,min_temp:5,max_temp:25,target_temp_step:1,fan_modes:['1','2','3','4','5','6','7'],preset_modes:['manual','turbo'],preset_mode:'manual'});await set(c.runtime_ready_entity,'on');
+  check(await card.locator('[data-control-id="speed"] input').isEnabled(),'Live data restores control');
+  check((await card.locator('[data-control-id="speed"] output').textContent()).trim()==='3','Fresh native value replaces retained setting');
+  check((await writes()).length===0,'Recovery never sends the retained setting');
+ });
  await scenario('offline durable controls survive disconnect and card remount without claiming applied',async()=>{
   const c=config.cards[0],heat=c.quick_controls.find(x=>x.id==='temperature'),speed=c.quick_controls.find(x=>x.id==='speed');
   const desired={power:{owner:'ha',value:true},temperature:{owner:'ha',value:21},speed:{owner:'ha',value:'3'}};
