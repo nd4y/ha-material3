@@ -16,6 +16,32 @@ try{
  page.setDefaultTimeout(5000);
  const summary=page.locator('ha-m3-climate-card'),device=i=>page.locator('ha-m3-quick-device-card').nth(i),writes=()=>page.evaluate(()=>window.controlAudit.writes),set=(id,value,attributes)=>page.evaluate(({id,value,attributes})=>window.controlAudit.set(id,value,attributes),{id,value,attributes});
  const config=await page.evaluate(()=>window.controlAudit.config);
+ await scenario('offline durable controls survive disconnect and card remount without claiming applied',async()=>{
+  const c=config.cards[0],heat=c.quick_controls.find(x=>x.id==='temperature'),speed=c.quick_controls.find(x=>x.id==='speed');
+  const desired={power:{owner:'ha',value:true},temperature:{owner:'ha',value:21},speed:{owner:'ha',value:'3'}};
+  await set(c.entity,'unavailable',{control_contract:'durable-intent-v1',desired});
+  for(const width of [390,1440]){
+   await page.setViewportSize({width,height:1000});
+   check(await device(0).locator('ha-m3-slider input').count()===2,'Both scales remain visible offline');
+   check(await device(0).locator('[data-control-id="speed"] ha-m3-slider input').isEnabled(),'Offline durable speed selection is enabled');
+   check((await device(0).locator('.saved-hint').allTextContents()).join(' ').includes('Ожидается связь с прибором'),'Offline is explicit');
+   check(await device(0).locator('.scale-choice').count()===0,'No replacement dropdown');
+  }
+  const field=device(0).locator('[data-control-id="speed"]'),input=field.locator('ha-m3-slider input');
+  await input.focus();await input.press('ArrowLeft');
+  const calls=await writes();check(calls.length===1,'One request on release');
+  const call=calls[0];
+  await set(speed.lock_entity,'on');await set(speed.value_entity,String(call.data.choice));
+  await set(speed.mode_scale.revision_entity,call.data.request_id);
+  desired.speed={owner:'manual',value:call.data.choice};await set(c.entity,'unavailable',{desired});
+  check(!(await device(0).evaluate(e=>!!e._scaleRequests.speed)),'Saved selection is not a perpetual spinner');
+  check((await field.textContent()).includes('Ожидается связь'),'Saved is not displayed as applied');
+  await device(0).evaluate(e=>{const next=document.createElement(e.localName);next.setConfig(e._config);next.hass=e.hass;const f=window.controlAudit;f.cards=f.cards.map(x=>x===e?next:x);f.devices=f.devices.map(x=>x===e?next:x);e.replaceWith(next);});
+  check(await device(0).locator('[data-control-id="speed"] ha-m3-slider input').isEnabled(),'Cold card remount works offline');
+  await set(c.entity,'fan_only',{fan_mode:'3',preset_mode:'manual',temperature:21});
+  check(!(await device(0).locator('.saved-hint').allTextContents()).join(' ').includes('Ожидается связь'),'Fresh report ends offline status');
+  check((await device(0).locator('[data-control-id="speed"] output').textContent()).trim()==='3','Show actual speed on reconnect');
+ });
  await scenario('feedback-heating-icons-co2-and-number-width',async()=>{
   await page.setViewportSize({width:1440,height:1000});
   await device(0).evaluate(e=>e.setConfig({...e._config,operation:{kind:'breather',heating_setpoint:{entity:e._config.entity,attribute:'temperature',off_value:5}}}));

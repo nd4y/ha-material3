@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {quickScaleWaitReason} from '../src/quick-scale.js';
+import {quickScaleWaitReason,quickScaleQueued} from '../src/quick-scale.js';
 import {validateQuickScale,quickScaleModel,quickScaleRequest,quickScaleOffRequest,quickScaleConfirmed,quickScaleSaved,quickScaleSuperseded,roomSnapshot,validateDeviceOwner,deviceOwnerSnapshot,deviceOwnerRequest,deviceOwnerConfirmed,requestId} from '../src/quick-scale.js';
 const state=(value,attributes={})=>({state:String(value),attributes,last_changed:new Date().toISOString(),last_updated:new Date().toISOString()});
 const revision='input_text.revision',completed='input_text.completed',gateway={action:'perform-action',perform_action:'script.scale_gateway',data:{device:'breather',parameter:'temperature'},value_field:'choice'};
@@ -9,6 +9,33 @@ const item={id:'temp',name:'Temp',entity:'climate.breather',attribute:'temperatu
 const make=()=>({states:{'climate.breather':state('fan_only',{temperature:22,min_temp:5,max_temp:25,target_temp_step:1,fan_mode:'3'}),'input_boolean.temp':state('off'),'input_boolean.power':state('off'),'input_boolean.saved_power':state('on'),'input_number.saved':state('23'),[revision]:state('prior'),[completed]:state('prior')}});
 const roomFixture=(h,now=Date.now())=>{h.states['sensor.room']=state(20);h.states['sensor.source']=state(20);h.states['input_text.primary']=state('sensor.source');h.states['input_number.ttl']=state(60);h.states['input_datetime.epoch']=state('2026-01-01',{timestamp:Math.floor(now/1000)-100});};
 const acItem=()=>({...item,mode_scale:{kind:'ac-temperature',gateway,revision_entity:revision,completed_entity:completed,room_entity:'sensor.room',room_freshness:freshness,confirmation:{mode_entity:'input_select.mode',writing_entity:'input_boolean.writing',pending_entity:'input_boolean.pending'}}});
+
+test('offline durable selection remains editable, never becomes measured or confirmed',()=>{
+  const h=make();h.states[card.entity].state='unavailable';
+  Object.assign(h.states[card.entity].attributes,{control_contract:'durable-intent-v1',desired:{power:{owner:'ha',value:true},temperature:{owner:'ha',value:21}}});
+  let m=quickScaleModel(h,card,item);
+  assert.equal(m.selectable,true);assert.equal(m.available,false);assert.equal(m.effective,null);assert.equal(m.choices[m.position],'auto');
+  const r=quickScaleRequest(h,card,item,m.choices.indexOf(24));
+  assert.equal(quickScaleQueued(h,card,item,r),false,'ACK alone is not a saved setting');
+  h.states[revision].state=r.request_id;h.states['input_boolean.temp'].state='on';
+  h.states[card.entity].attributes.desired.temperature={owner:'manual',value:24};
+  assert.equal(quickScaleQueued(h,card,item,r),true);
+  h.states[completed].state=r.request_id;
+  assert.equal(quickScaleConfirmed(h,card,item,r),false,'even a completion marker cannot turn offline into observed');
+  m=quickScaleModel(h,card,item);assert.equal(m.choices[m.position],24);assert.equal(m.effective,null);
+  h.states[card.entity].state='fan_only';h.states[card.entity].attributes.temperature=22;
+  m=quickScaleModel(h,card,item);assert.equal(m.choices[m.position],22,'reconnect shows actual report, not desired24');
+  assert.equal(quickScaleQueued(h,card,item,r),false);
+});
+
+test('offline editing requires explicit durable contract and real capability metadata',()=>{
+  const h=make();h.states[card.entity].state='unavailable';
+  assert.equal(quickScaleModel(h,card,item).selectable,false);
+  Object.assign(h.states[card.entity].attributes,{control_contract:'durable-intent-v1',desired:{temperature:{owner:'manual',value:5}}});
+  const m=quickScaleModel(h,card,item);assert.equal(m.choices[m.position],'off');assert.equal(m.deviceOff,null);
+  delete h.states[card.entity].attributes.min_temp;
+  assert.equal(quickScaleModel(h,card,item).reason,'capabilities');
+});
 
 test('heater stored intent tolerates a guarded restart without claiming completion',()=>{
   const h=make(),heater={...item,mode_scale:{kind:'heater-temperature',gateway,revision_entity:revision,completed_entity:completed,controller_entity:'sensor.coordinator',confirmation:{manual_checks:[{entity:card.entity,value:'heat'}]}}};
